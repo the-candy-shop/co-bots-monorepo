@@ -1,0 +1,9 @@
+stages:
+  parse_svg:
+    cmd: python image_processing/parse_svg.py
+    deps:
+    - data/traits
+    - image_processing/parse_svg.py
+    outs:
+    - data/traits_computed
+    - data/palettes.json

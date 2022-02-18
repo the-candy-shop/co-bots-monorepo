@@ -1,0 +1,5 @@
+outs:
+- md5: b66cf1a8f9c47e852eaabef4d1017041.dir
+  size: 83316
+  nfiles: 68
+  path: traits
