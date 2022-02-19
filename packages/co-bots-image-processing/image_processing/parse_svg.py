@@ -6,11 +6,16 @@ from xml.dom.minidom import parse
 
 import numpy as np
 import pandas as pd
-from image_processing.constants import PALETTES_FILE, TRAITS_COMPUTED_DIR, TRAITS_DIR
+from image_processing.constants import (
+    PALETTES_FILE,
+    TRAITS_COMPUTED_DIR,
+    TRAITS_DIR,
+    TRAITS_ORDER,
+)
 from image_processing.svg_to_path_ordered import dom2dict
 
 #%% Define constants
-RECT = Template("<rect x='$x' y='$y' width='$width' height='$height' fill='$fill' />")
+RECT = Template("<rect x='$x' y='$y' width='$width' height='$height' fill='#$fill' />")
 
 
 #%% Define functions
@@ -43,8 +48,8 @@ def generate_svg(_codes):
         + (
             "".join(
                 [
-                    RECT.substitute(**{**c, "fill": fill_palette[c["fill_code"]]})
-                    for c in _codes
+                    RECT.substitute(**{**c, "fill": _codes["fill"][c["fill"]]})
+                    for c in _codes["rect"]
                 ]
             )
         )
@@ -63,33 +68,49 @@ for file in TRAITS_DIR.glob("**/*.svg"):
     ]
 
 #%% Build dataframe and encode traits
-traits_df = (
-    pd.DataFrame(rects_list)
-    .replace({"fill": {"black": "#000000", "white": "#ffffff"}})
-    .astype({"x": int, "y": int, "width": int, "height": int})
-    .astype({"fill": "category"})
-    .assign(
-        fill_code=lambda df: df.fill.cat.codes,
-    )
-)
-
-fill_palette = traits_df.fill.cat.categories
-
 # Encoding scheme
 # 1. As is
 #     Cost is len(traits_df) * (6 bits * 4 + 6 bits * 1) => 621 * 32 bits = 621 * 4 bytes = 2484 bytes
 # 2. With a rects palette
 #     Cost is len(traits_df).drop_duplicates() * 32 bits + len(traits_df) * 9 bits = 508 * 32 + 621 * 9 ~ 2730 bytes
 
-traits_codes = (
-    traits_df.filter(items=["file", "x", "y", "width", "height", "fill_code"])
+traits_df = (
+    pd.DataFrame(rects_list)
+    .replace({"fill": {"black": "#000000", "white": "#ffffff"}})
+    .astype({"x": int, "y": int, "width": int, "height": int})
+    .assign(fill=lambda df: df["fill"].str.replace("#", ""))
+    .astype({"fill": "category"})
+    .assign(
+        fill_code=lambda df: df.fill.cat.codes,
+        rect=lambda df: df[["x", "y", "width", "height", "fill_code"]]
+        .rename(columns={"fill_code": "fill"})
+        .astype(int)
+        .to_dict("records"),
+    )
     .groupby("file")
-    .apply(lambda group: group.drop("file", axis=1).to_dict("records"))
+    .agg(
+        {
+            "rect": list,
+            "fill": lambda c: c.cat.categories.tolist(),
+        }
+    )
+    .reset_index()
+    .assign(
+        layer=lambda df: pd.Categorical(
+            df.file.str.split("/", expand=True)[2], categories=TRAITS_ORDER
+        ),
+        item=lambda df: df.file.str.split("/", expand=True)[3].str.replace(
+            ".svg", "", regex=False
+        ),
+    )
+    .sort_values(["layer", "item"])
+    .set_index("file")
 )
+
 
 #%% Dump reconstructed SVG files for visual check
 shutil.rmtree(TRAITS_COMPUTED_DIR, ignore_errors=True)
-for file_name, codes in traits_codes.items():
+for file_name, codes in traits_df.iterrows():
     file_name_computed = TRAITS_COMPUTED_DIR / Path(file_name).relative_to(TRAITS_DIR)
     file_name_computed.parent.mkdir(exist_ok=True, parents=True)
 
@@ -100,8 +121,13 @@ for file_name, codes in traits_codes.items():
 with open(PALETTES_FILE, "w") as f:
     json.dump(
         {
-            "fill": fill_palette.tolist(),
-            "trait": traits_codes.to_dict(),
+            "fill": traits_df.fill.iloc[0],
+            "trait": traits_df.rect.to_dict(),
+            "layer": TRAITS_ORDER,
+            "layerIndexes": traits_df.layer.reset_index(drop=True)
+            .drop_duplicates()
+            .index.to_list(),
+            "item": traits_df.item.to_list(),
         },
         f,
         indent=2,
