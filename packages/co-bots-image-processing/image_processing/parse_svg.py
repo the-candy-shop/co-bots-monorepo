@@ -7,10 +7,11 @@ from xml.dom.minidom import parse
 import numpy as np
 import pandas as pd
 from image_processing.constants import (
+    ITEMS_ORDERS,
+    LAYERS_ORDER,
     PALETTES_FILE,
     TRAITS_COMPUTED_DIR,
     TRAITS_DIR,
-    TRAITS_ORDER,
 )
 from image_processing.svg_to_path_ordered import dom2dict
 
@@ -76,7 +77,7 @@ for file in TRAITS_DIR.glob("**/*.svg"):
 
 traits_df = (
     pd.DataFrame(rects_list)
-    .replace({"fill": {"black": "#000000", "white": "#ffffff"}})
+    .replace({"fill": {"black": "#000000", "white": "#FFFFFF"}})
     .astype({"x": int, "y": int, "width": int, "height": int})
     .assign(fill=lambda df: df["fill"].str.replace("#", ""))
     .astype({"fill": "category"})
@@ -97,13 +98,26 @@ traits_df = (
     .reset_index()
     .assign(
         layer=lambda df: pd.Categorical(
-            df.file.str.split("/", expand=True)[2], categories=TRAITS_ORDER
+            df.file.str.split("/", expand=True)[2], categories=LAYERS_ORDER
         ),
         item=lambda df: df.file.str.split("/", expand=True)[3].str.replace(
             ".svg", "", regex=False
         ),
     )
-    .sort_values(["layer", "item"])
+    .sort_values("layer")
+    .groupby("layer", as_index=False)
+    .apply(
+        lambda group: (
+            group.assign(
+                item_cat=lambda df: pd.Categorical(
+                    df.item, categories=ITEMS_ORDERS[group.name]
+                ),
+                item=lambda df: df.item_cat.astype("string").fillna(df.item),
+            )
+            .sort_values("item_cat")
+            .drop("item_cat", axis=1)
+        )
+    )
     .set_index("file")
 )
 
@@ -123,7 +137,7 @@ with open(PALETTES_FILE, "w") as f:
         {
             "fill": traits_df.fill.iloc[0],
             "trait": traits_df.rect.to_dict(),
-            "layer": TRAITS_ORDER,
+            "layer": LAYERS_ORDER,
             "layerIndexes": traits_df.layer.reset_index(drop=True)
             .drop_duplicates()
             .index.to_list(),
