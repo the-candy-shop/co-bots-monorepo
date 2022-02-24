@@ -303,18 +303,72 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
         feetIndex = randomFeet < 50 ? 10 : randomFeet % 10;
     }
 
+    function getToadItems()
+        public
+        pure
+        returns (
+            uint256 eyesIndex,
+            uint256 mouthIndex,
+            uint256 antennaIndex,
+            uint256 feetIndex
+        )
+    {
+        return (0, 0, 12, 6);
+    }
+
+    function getNounishItems()
+        public
+        pure
+        returns (
+            uint256 eyesIndex,
+            uint256 mouthIndex,
+            uint256 antennaIndex,
+            uint256 feetIndex
+        )
+    {
+        return (0, 0, 13, 0);
+    }
+
+    function getWizardItems()
+        public
+        pure
+        returns (
+            uint256 eyesIndex,
+            uint256 mouthIndex,
+            uint256 antennaIndex,
+            uint256 feetIndex
+        )
+    {
+        return (0, 0, 14, 9);
+    }
+
     function getCoBotItems(
         uint256 tokenId,
         uint8 seed,
         bool status,
         bool color
     ) public pure returns (uint256[10] memory) {
-        (
-            uint256 eyesIndex,
-            uint256 mouthIndex,
-            uint256 antennaIndex,
-            uint256 feetIndex
-        ) = getRandomItems(tokenId, seed);
+        uint256 eyesIndex;
+        uint256 mouthIndex;
+        uint256 antennaIndex;
+        uint256 feetIndex;
+        if (tokenId == 0) {
+            (
+                eyesIndex,
+                mouthIndex,
+                antennaIndex,
+                feetIndex
+            ) = getNounishItems();
+        } else if (tokenId == 1) {
+            (eyesIndex, mouthIndex, antennaIndex, feetIndex) = getToadItems();
+        } else if (tokenId == 2) {
+            (eyesIndex, mouthIndex, antennaIndex, feetIndex) = getWizardItems();
+        } else {
+            (eyesIndex, mouthIndex, antennaIndex, feetIndex) = getRandomItems(
+                tokenId,
+                seed
+            );
+        }
 
         uint256[10] memory items;
         // 0. Colour
@@ -435,12 +489,12 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
         return
             string.concat(
                 "[",
-                '{"trait_type": "Eyes", "value": "',
-                eyes[items[5]],
-                '"},',
-                '{"trait_type": "Mouth", "value": "',
-                mouths[items[6]],
-                '"},',
+                items[7] > 11 ? "" : '{"trait_type": "Eyes", "value": "',
+                items[7] > 11 ? "" : eyes[items[5]],
+                items[7] > 11 ? "" : '"},',
+                items[7] > 11 ? "" : '{"trait_type": "Mouth", "value": "',
+                items[7] > 11 ? "" : mouths[items[6]],
+                items[7] > 11 ? "" : '"},',
                 '{"trait_type": "Antenna", "value": "',
                 antennas[items[7]],
                 '"},',

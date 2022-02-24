@@ -22,6 +22,7 @@ contract CoBots is ERC721A, Ownable, ReentrancyGuard {
     uint256 public constant MAX_COBOTS = 10_000;
     uint256 public constant MINT_PUBLIC_PRICE = 0.05 ether;
     uint8 public constant MAX_MINT_PER_BATCH = 32;
+    uint8 public constant MINT_FOUNDERS_AND_GIVEAWAYS = 33;
 
     // CoBots states variables
     uint8[10_000] public coBotsSeeds;
