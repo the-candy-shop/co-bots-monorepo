@@ -22,12 +22,33 @@ contract CoBots is ERC721A, Ownable, ReentrancyGuard {
     uint256 public constant MAX_COBOTS = 10_000;
     uint256 public constant MINT_PUBLIC_PRICE = 0.05 ether;
     uint8 public constant MAX_MINT_PER_BATCH = 32;
-    uint8 public constant MINT_FOUNDERS_AND_GIVEAWAYS = 33;
+    uint8 public constant MINT_FOUNDERS_AND_GIVEAWAYS = 50;
+    uint256 public constant COBOTS_MINT_DURATION = 168 hours;
+    uint256 public constant COBOTS_MINT_RAFFLE_DELAY = 1 days;
 
     // CoBots states variables
     uint8[10_000] public coBotsSeeds;
     bool[10_000] public coBotsStatusDisabled;
     bool[10_000] public coBotsColors;
+    bool[10_000] public coBotsRefunded;
+    uint16 public cobotsColorAgreement = 5000; // cobots are minted 50%/50%
+    uint256 public publicSaleStartTimestamp;
+
+    function setPublicSaleTimestamp(uint256 timestamp) external onlyOwner {
+        publicSaleStartTimestamp = timestamp;
+    }
+
+    function isPublicSaleOpen() public view returns (bool) {
+        return
+            block.timestamp > publicSaleStartTimestamp &&
+            publicSaleStartTimestamp != 0 &&
+            block.timestamp < publicSaleStartTimestamp + COBOTS_MINT_DURATION;
+    }
+
+    modifier whenPublicSaleActive() {
+        require(isPublicSaleOpen(), "Public sale not open");
+        _;
+    }
 
     // Marketplaces
     address public opensea;
