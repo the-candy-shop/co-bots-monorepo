@@ -3,6 +3,9 @@
 /* eslint-disable */
 export type { SSTORE2 } from "./SSTORE2";
 export type { Bytecode } from "./Bytecode";
+export type { LinkTokenInterface } from "./LinkTokenInterface";
+export type { VRFCoordinatorV2Interface } from "./VRFCoordinatorV2Interface";
+export type { VRFConsumerBaseV2 } from "./VRFConsumerBaseV2";
 export type { Ownable } from "./Ownable";
 export type { Pausable } from "./Pausable";
 export type { ERC1155 } from "./ERC1155";
@@ -27,6 +30,9 @@ export type { ERC721A } from "./ERC721A";
 
 export { SSTORE2__factory } from "./factories/SSTORE2__factory";
 export { Bytecode__factory } from "./factories/Bytecode__factory";
+export { LinkTokenInterface__factory } from "./factories/LinkTokenInterface__factory";
+export { VRFCoordinatorV2Interface__factory } from "./factories/VRFCoordinatorV2Interface__factory";
+export { VRFConsumerBaseV2__factory } from "./factories/VRFConsumerBaseV2__factory";
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { Pausable__factory } from "./factories/Pausable__factory";
 export { ERC1155__factory } from "./factories/ERC1155__factory";

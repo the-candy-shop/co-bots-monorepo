@@ -372,7 +372,7 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
 
         uint256[10] memory items;
         // 0. Colour
-        items[0] = color ? 1 : 0;
+        items[0] = color ? 0 : 1;
         // 1. Digit 1
         items[1] = tokenId / 1000;
         // 2. Digit 2
@@ -505,7 +505,7 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
                 status ? "Online" : "Offline",
                 '"},',
                 '{"trait_type": "Color", "value": "',
-                color ? "Red" : "Blue",
+                color ? "Blue" : "Red",
                 '"}',
                 "]"
             );

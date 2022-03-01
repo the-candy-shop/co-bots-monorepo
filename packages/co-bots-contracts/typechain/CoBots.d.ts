@@ -22,34 +22,64 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface CoBotsInterface extends ethers.utils.Interface {
   functions: {
+    "COBOTS_MINT_DURATION()": FunctionFragment;
+    "COBOTS_MINT_RAFFLE_DELAY()": FunctionFragment;
+    "COBOTS_REFUND_DURATION()": FunctionFragment;
+    "COORDINATION_RAFFLE_PRIZE()": FunctionFragment;
+    "COORDINATION_RAFFLE_THRESHOLD()": FunctionFragment;
+    "COORDINATION_RAFFLE_WINNERS_COUNT()": FunctionFragment;
+    "MAIN_RAFFLE_PRIZE()": FunctionFragment;
+    "MAIN_RAFFLE_WINNERS_COUNT()": FunctionFragment;
     "MAX_COBOTS()": FunctionFragment;
-    "MAX_MINT_PER_BATCH()": FunctionFragment;
+    "MAX_MINT_PER_ADDRESS()": FunctionFragment;
     "MINT_FOUNDERS_AND_GIVEAWAYS()": FunctionFragment;
+    "MINT_GIVEAWAYS()": FunctionFragment;
     "MINT_PUBLIC_PRICE()": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "claimRefund()": FunctionFragment;
+    "coBotsColorAgreement()": FunctionFragment;
     "coBotsColors(uint256)": FunctionFragment;
+    "coBotsRefunded(uint256)": FunctionFragment;
     "coBotsSeeds(uint256)": FunctionFragment;
     "coBotsStatusDisabled(uint256)": FunctionFragment;
+    "cooperativeRaffleEnabled()": FunctionFragment;
+    "currentPrizeMoney()": FunctionFragment;
+    "draw()": FunctionFragment;
+    "drawCount()": FunctionFragment;
     "exists(uint256)": FunctionFragment;
     "flipProxyState(address)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
+    "isDrawOpen()": FunctionFragment;
+    "isMintedOut()": FunctionFragment;
+    "isPublicSaleOpen()": FunctionFragment;
+    "lastDrawTimestamp()": FunctionFragment;
     "looksrare()": FunctionFragment;
-    "mint(uint256)": FunctionFragment;
+    "mintFoundersAndGiveaways(address,uint256)": FunctionFragment;
+    "mintPublicSale(uint256)": FunctionFragment;
     "name()": FunctionFragment;
     "opensea()": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "prizePerAddress(address)": FunctionFragment;
+    "publicSaleStartTimestamp()": FunctionFragment;
+    "rawFulfillRandomWords(uint256,uint256[])": FunctionFragment;
     "renderingContractAddress()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "s_requestId()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setLooksrare(address)": FunctionFragment;
     "setOpensea(address)": FunctionFragment;
+    "setPublicSaleTimestamp(uint256)": FunctionFragment;
     "setRenderingContractAddress(address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
+    "toggleColor(uint256)": FunctionFragment;
+    "toggleColors(uint256[])": FunctionFragment;
+    "toggleStatus(uint256)": FunctionFragment;
+    "toggleStatuses(uint256[])": FunctionFragment;
     "tokenByIndex(uint256)": FunctionFragment;
     "tokenOfOwnerByIndex(address,uint256)": FunctionFragment;
     "tokenURI(uint256)": FunctionFragment;
@@ -60,15 +90,51 @@ interface CoBotsInterface extends ethers.utils.Interface {
   };
 
   encodeFunctionData(
+    functionFragment: "COBOTS_MINT_DURATION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "COBOTS_MINT_RAFFLE_DELAY",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "COBOTS_REFUND_DURATION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "COORDINATION_RAFFLE_PRIZE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "COORDINATION_RAFFLE_THRESHOLD",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "COORDINATION_RAFFLE_WINNERS_COUNT",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MAIN_RAFFLE_PRIZE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MAIN_RAFFLE_WINNERS_COUNT",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "MAX_COBOTS",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "MAX_MINT_PER_BATCH",
+    functionFragment: "MAX_MINT_PER_ADDRESS",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "MINT_FOUNDERS_AND_GIVEAWAYS",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "MINT_GIVEAWAYS",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -81,7 +147,19 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "balanceOf", values: [string]): string;
   encodeFunctionData(
+    functionFragment: "claimRefund",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "coBotsColorAgreement",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "coBotsColors",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "coBotsRefunded",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
@@ -92,6 +170,16 @@ interface CoBotsInterface extends ethers.utils.Interface {
     functionFragment: "coBotsStatusDisabled",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "cooperativeRaffleEnabled",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "currentPrizeMoney",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "draw", values?: undefined): string;
+  encodeFunctionData(functionFragment: "drawCount", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "exists",
     values: [BigNumberish]
@@ -108,8 +196,31 @@ interface CoBotsInterface extends ethers.utils.Interface {
     functionFragment: "isApprovedForAll",
     values: [string, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "isDrawOpen",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isMintedOut",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isPublicSaleOpen",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "lastDrawTimestamp",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "looksrare", values?: undefined): string;
-  encodeFunctionData(functionFragment: "mint", values: [BigNumberish]): string;
+  encodeFunctionData(
+    functionFragment: "mintFoundersAndGiveaways",
+    values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "mintPublicSale",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "opensea", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -118,11 +229,27 @@ interface CoBotsInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "prizePerAddress",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "publicSaleStartTimestamp",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "rawFulfillRandomWords",
+    values: [BigNumberish, BigNumberish[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renderingContractAddress",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "s_requestId",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -139,6 +266,10 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "setOpensea", values: [string]): string;
   encodeFunctionData(
+    functionFragment: "setPublicSaleTimestamp",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setRenderingContractAddress",
     values: [string]
   ): string;
@@ -147,6 +278,22 @@ interface CoBotsInterface extends ethers.utils.Interface {
     values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "symbol", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "toggleColor",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "toggleColors",
+    values: [BigNumberish[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "toggleStatus",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "toggleStatuses",
+    values: [BigNumberish[]]
+  ): string;
   encodeFunctionData(
     functionFragment: "tokenByIndex",
     values: [BigNumberish]
@@ -173,13 +320,49 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "withdraw", values?: undefined): string;
 
+  decodeFunctionResult(
+    functionFragment: "COBOTS_MINT_DURATION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "COBOTS_MINT_RAFFLE_DELAY",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "COBOTS_REFUND_DURATION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "COORDINATION_RAFFLE_PRIZE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "COORDINATION_RAFFLE_THRESHOLD",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "COORDINATION_RAFFLE_WINNERS_COUNT",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MAIN_RAFFLE_PRIZE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MAIN_RAFFLE_WINNERS_COUNT",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "MAX_COBOTS", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "MAX_MINT_PER_BATCH",
+    functionFragment: "MAX_MINT_PER_ADDRESS",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "MINT_FOUNDERS_AND_GIVEAWAYS",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "MINT_GIVEAWAYS",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -189,7 +372,19 @@ interface CoBotsInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "claimRefund",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "coBotsColorAgreement",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "coBotsColors",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "coBotsRefunded",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -200,6 +395,16 @@ interface CoBotsInterface extends ethers.utils.Interface {
     functionFragment: "coBotsStatusDisabled",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "cooperativeRaffleEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "currentPrizeMoney",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "draw", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "drawCount", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "exists", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "flipProxyState",
@@ -213,18 +418,54 @@ interface CoBotsInterface extends ethers.utils.Interface {
     functionFragment: "isApprovedForAll",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isDrawOpen", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "isMintedOut",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isPublicSaleOpen",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "lastDrawTimestamp",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "looksrare", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "mintFoundersAndGiveaways",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "mintPublicSale",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "opensea", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "prizePerAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "publicSaleStartTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "rawFulfillRandomWords",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renderingContractAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "s_requestId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -241,6 +482,10 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setOpensea", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setPublicSaleTimestamp",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "setRenderingContractAddress",
     data: BytesLike
   ): Result;
@@ -249,6 +494,22 @@ interface CoBotsInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "symbol", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "toggleColor",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "toggleColors",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "toggleStatus",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "toggleStatuses",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "tokenByIndex",
     data: BytesLike
@@ -353,11 +614,31 @@ export class CoBots extends BaseContract {
   interface: CoBotsInterface;
 
   functions: {
+    COBOTS_MINT_DURATION(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    COBOTS_MINT_RAFFLE_DELAY(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    COBOTS_REFUND_DURATION(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    COORDINATION_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    COORDINATION_RAFFLE_THRESHOLD(overrides?: CallOverrides): Promise<[number]>;
+
+    COORDINATION_RAFFLE_WINNERS_COUNT(
+      overrides?: CallOverrides
+    ): Promise<[number]>;
+
+    MAIN_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    MAIN_RAFFLE_WINNERS_COUNT(overrides?: CallOverrides): Promise<[number]>;
+
     MAX_COBOTS(overrides?: CallOverrides): Promise<[BigNumber]>;
 
-    MAX_MINT_PER_BATCH(overrides?: CallOverrides): Promise<[number]>;
+    MAX_MINT_PER_ADDRESS(overrides?: CallOverrides): Promise<[number]>;
 
     MINT_FOUNDERS_AND_GIVEAWAYS(overrides?: CallOverrides): Promise<[number]>;
+
+    MINT_GIVEAWAYS(overrides?: CallOverrides): Promise<[number]>;
 
     MINT_PUBLIC_PRICE(overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -369,7 +650,18 @@ export class CoBots extends BaseContract {
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
+    claimRefund(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    coBotsColorAgreement(overrides?: CallOverrides): Promise<[number]>;
+
     coBotsColors(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
+
+    coBotsRefunded(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
@@ -383,6 +675,16 @@ export class CoBots extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[boolean]>;
+
+    cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<[boolean]>;
+
+    currentPrizeMoney(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    draw(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    drawCount(overrides?: CallOverrides): Promise<[number]>;
 
     exists(
       _tokenId: BigNumberish,
@@ -405,9 +707,23 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
+    isDrawOpen(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isMintedOut(overrides?: CallOverrides): Promise<[boolean]>;
+
+    isPublicSaleOpen(overrides?: CallOverrides): Promise<[boolean]>;
+
+    lastDrawTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     looksrare(overrides?: CallOverrides): Promise<[string]>;
 
-    mint(
+    mintFoundersAndGiveaways(
+      to: string,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    mintPublicSale(
       quantity: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -423,11 +739,26 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    prizePerAddress(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    publicSaleStartTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    rawFulfillRandomWords(
+      requestId: BigNumberish,
+      randomWords: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     renderingContractAddress(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    s_requestId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -460,6 +791,11 @@ export class CoBots extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    setPublicSaleTimestamp(
+      timestamp: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     setRenderingContractAddress(
       _renderingContractAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -471,6 +807,26 @@ export class CoBots extends BaseContract {
     ): Promise<[boolean]>;
 
     symbol(overrides?: CallOverrides): Promise<[string]>;
+
+    toggleColor(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    toggleColors(
+      tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    toggleStatus(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
+    toggleStatuses(
+      tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
 
     tokenByIndex(
       index: BigNumberish,
@@ -507,11 +863,29 @@ export class CoBots extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  COBOTS_MINT_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
+  COBOTS_MINT_RAFFLE_DELAY(overrides?: CallOverrides): Promise<BigNumber>;
+
+  COBOTS_REFUND_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
+  COORDINATION_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  COORDINATION_RAFFLE_THRESHOLD(overrides?: CallOverrides): Promise<number>;
+
+  COORDINATION_RAFFLE_WINNERS_COUNT(overrides?: CallOverrides): Promise<number>;
+
+  MAIN_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+  MAIN_RAFFLE_WINNERS_COUNT(overrides?: CallOverrides): Promise<number>;
+
   MAX_COBOTS(overrides?: CallOverrides): Promise<BigNumber>;
 
-  MAX_MINT_PER_BATCH(overrides?: CallOverrides): Promise<number>;
+  MAX_MINT_PER_ADDRESS(overrides?: CallOverrides): Promise<number>;
 
   MINT_FOUNDERS_AND_GIVEAWAYS(overrides?: CallOverrides): Promise<number>;
+
+  MINT_GIVEAWAYS(overrides?: CallOverrides): Promise<number>;
 
   MINT_PUBLIC_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -523,7 +897,18 @@ export class CoBots extends BaseContract {
 
   balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  claimRefund(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  coBotsColorAgreement(overrides?: CallOverrides): Promise<number>;
+
   coBotsColors(arg0: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
+
+  coBotsRefunded(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   coBotsSeeds(arg0: BigNumberish, overrides?: CallOverrides): Promise<number>;
 
@@ -531,6 +916,16 @@ export class CoBots extends BaseContract {
     arg0: BigNumberish,
     overrides?: CallOverrides
   ): Promise<boolean>;
+
+  cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<boolean>;
+
+  currentPrizeMoney(overrides?: CallOverrides): Promise<BigNumber>;
+
+  draw(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  drawCount(overrides?: CallOverrides): Promise<number>;
 
   exists(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
@@ -550,9 +945,23 @@ export class CoBots extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
+  isDrawOpen(overrides?: CallOverrides): Promise<boolean>;
+
+  isMintedOut(overrides?: CallOverrides): Promise<boolean>;
+
+  isPublicSaleOpen(overrides?: CallOverrides): Promise<boolean>;
+
+  lastDrawTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
   looksrare(overrides?: CallOverrides): Promise<string>;
 
-  mint(
+  mintFoundersAndGiveaways(
+    to: string,
+    quantity: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  mintPublicSale(
     quantity: BigNumberish,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -565,11 +974,23 @@ export class CoBots extends BaseContract {
 
   ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
+  prizePerAddress(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
+
+  publicSaleStartTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+  rawFulfillRandomWords(
+    requestId: BigNumberish,
+    randomWords: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   renderingContractAddress(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  s_requestId(overrides?: CallOverrides): Promise<BigNumber>;
 
   "safeTransferFrom(address,address,uint256)"(
     from: string,
@@ -602,6 +1023,11 @@ export class CoBots extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  setPublicSaleTimestamp(
+    timestamp: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   setRenderingContractAddress(
     _renderingContractAddress: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -613,6 +1039,26 @@ export class CoBots extends BaseContract {
   ): Promise<boolean>;
 
   symbol(overrides?: CallOverrides): Promise<string>;
+
+  toggleColor(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  toggleColors(
+    tokenIds: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  toggleStatus(
+    tokenId: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
+  toggleStatuses(
+    tokenIds: BigNumberish[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
 
   tokenByIndex(
     index: BigNumberish,
@@ -646,11 +1092,31 @@ export class CoBots extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    COBOTS_MINT_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COBOTS_MINT_RAFFLE_DELAY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COBOTS_REFUND_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COORDINATION_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COORDINATION_RAFFLE_THRESHOLD(overrides?: CallOverrides): Promise<number>;
+
+    COORDINATION_RAFFLE_WINNERS_COUNT(
+      overrides?: CallOverrides
+    ): Promise<number>;
+
+    MAIN_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MAIN_RAFFLE_WINNERS_COUNT(overrides?: CallOverrides): Promise<number>;
+
     MAX_COBOTS(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MAX_MINT_PER_BATCH(overrides?: CallOverrides): Promise<number>;
+    MAX_MINT_PER_ADDRESS(overrides?: CallOverrides): Promise<number>;
 
     MINT_FOUNDERS_AND_GIVEAWAYS(overrides?: CallOverrides): Promise<number>;
+
+    MINT_GIVEAWAYS(overrides?: CallOverrides): Promise<number>;
 
     MINT_PUBLIC_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -662,7 +1128,16 @@ export class CoBots extends BaseContract {
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    claimRefund(overrides?: CallOverrides): Promise<void>;
+
+    coBotsColorAgreement(overrides?: CallOverrides): Promise<number>;
+
     coBotsColors(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    coBotsRefunded(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
@@ -673,6 +1148,14 @@ export class CoBots extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<boolean>;
+
+    cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<boolean>;
+
+    currentPrizeMoney(overrides?: CallOverrides): Promise<BigNumber>;
+
+    draw(overrides?: CallOverrides): Promise<void>;
+
+    drawCount(overrides?: CallOverrides): Promise<number>;
 
     exists(_tokenId: BigNumberish, overrides?: CallOverrides): Promise<boolean>;
 
@@ -692,9 +1175,26 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
+    isDrawOpen(overrides?: CallOverrides): Promise<boolean>;
+
+    isMintedOut(overrides?: CallOverrides): Promise<boolean>;
+
+    isPublicSaleOpen(overrides?: CallOverrides): Promise<boolean>;
+
+    lastDrawTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
     looksrare(overrides?: CallOverrides): Promise<string>;
 
-    mint(quantity: BigNumberish, overrides?: CallOverrides): Promise<void>;
+    mintFoundersAndGiveaways(
+      to: string,
+      quantity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    mintPublicSale(
+      quantity: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     name(overrides?: CallOverrides): Promise<string>;
 
@@ -704,9 +1204,24 @@ export class CoBots extends BaseContract {
 
     ownerOf(tokenId: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
+    prizePerAddress(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    publicSaleStartTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    rawFulfillRandomWords(
+      requestId: BigNumberish,
+      randomWords: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     renderingContractAddress(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    s_requestId(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -733,6 +1248,11 @@ export class CoBots extends BaseContract {
 
     setOpensea(opensea_: string, overrides?: CallOverrides): Promise<void>;
 
+    setPublicSaleTimestamp(
+      timestamp: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     setRenderingContractAddress(
       _renderingContractAddress: string,
       overrides?: CallOverrides
@@ -744,6 +1264,26 @@ export class CoBots extends BaseContract {
     ): Promise<boolean>;
 
     symbol(overrides?: CallOverrides): Promise<string>;
+
+    toggleColor(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    toggleColors(
+      tokenIds: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    toggleStatus(
+      tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    toggleStatuses(
+      tokenIds: BigNumberish[],
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     tokenByIndex(
       index: BigNumberish,
@@ -851,11 +1391,33 @@ export class CoBots extends BaseContract {
   };
 
   estimateGas: {
+    COBOTS_MINT_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COBOTS_MINT_RAFFLE_DELAY(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COBOTS_REFUND_DURATION(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COORDINATION_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    COORDINATION_RAFFLE_THRESHOLD(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    COORDINATION_RAFFLE_WINNERS_COUNT(
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    MAIN_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MAIN_RAFFLE_WINNERS_COUNT(overrides?: CallOverrides): Promise<BigNumber>;
+
     MAX_COBOTS(overrides?: CallOverrides): Promise<BigNumber>;
 
-    MAX_MINT_PER_BATCH(overrides?: CallOverrides): Promise<BigNumber>;
+    MAX_MINT_PER_ADDRESS(overrides?: CallOverrides): Promise<BigNumber>;
 
     MINT_FOUNDERS_AND_GIVEAWAYS(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MINT_GIVEAWAYS(overrides?: CallOverrides): Promise<BigNumber>;
 
     MINT_PUBLIC_PRICE(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -867,7 +1429,18 @@ export class CoBots extends BaseContract {
 
     balanceOf(owner: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+    claimRefund(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    coBotsColorAgreement(overrides?: CallOverrides): Promise<BigNumber>;
+
     coBotsColors(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    coBotsRefunded(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
@@ -881,6 +1454,16 @@ export class CoBots extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<BigNumber>;
+
+    currentPrizeMoney(overrides?: CallOverrides): Promise<BigNumber>;
+
+    draw(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    drawCount(overrides?: CallOverrides): Promise<BigNumber>;
 
     exists(
       _tokenId: BigNumberish,
@@ -903,9 +1486,23 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    isDrawOpen(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isMintedOut(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isPublicSaleOpen(overrides?: CallOverrides): Promise<BigNumber>;
+
+    lastDrawTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
     looksrare(overrides?: CallOverrides): Promise<BigNumber>;
 
-    mint(
+    mintFoundersAndGiveaways(
+      to: string,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    mintPublicSale(
       quantity: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -921,11 +1518,26 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    prizePerAddress(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    publicSaleStartTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
+
+    rawFulfillRandomWords(
+      requestId: BigNumberish,
+      randomWords: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     renderingContractAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    s_requestId(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -958,6 +1570,11 @@ export class CoBots extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    setPublicSaleTimestamp(
+      timestamp: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     setRenderingContractAddress(
       _renderingContractAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -969,6 +1586,26 @@ export class CoBots extends BaseContract {
     ): Promise<BigNumber>;
 
     symbol(overrides?: CallOverrides): Promise<BigNumber>;
+
+    toggleColor(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    toggleColors(
+      tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    toggleStatus(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    toggleStatuses(
+      tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
 
     tokenByIndex(
       index: BigNumberish,
@@ -1006,15 +1643,47 @@ export class CoBots extends BaseContract {
   };
 
   populateTransaction: {
+    COBOTS_MINT_DURATION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    COBOTS_MINT_RAFFLE_DELAY(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    COBOTS_REFUND_DURATION(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    COORDINATION_RAFFLE_PRIZE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    COORDINATION_RAFFLE_THRESHOLD(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    COORDINATION_RAFFLE_WINNERS_COUNT(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    MAIN_RAFFLE_PRIZE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    MAIN_RAFFLE_WINNERS_COUNT(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     MAX_COBOTS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    MAX_MINT_PER_BATCH(
+    MAX_MINT_PER_ADDRESS(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     MINT_FOUNDERS_AND_GIVEAWAYS(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    MINT_GIVEAWAYS(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     MINT_PUBLIC_PRICE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
@@ -1029,7 +1698,20 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    claimRefund(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    coBotsColorAgreement(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     coBotsColors(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    coBotsRefunded(
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1043,6 +1725,18 @@ export class CoBots extends BaseContract {
       arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    cooperativeRaffleEnabled(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    currentPrizeMoney(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    draw(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    drawCount(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     exists(
       _tokenId: BigNumberish,
@@ -1065,9 +1759,23 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    isDrawOpen(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isMintedOut(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isPublicSaleOpen(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    lastDrawTimestamp(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     looksrare(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    mint(
+    mintFoundersAndGiveaways(
+      to: string,
+      quantity: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    mintPublicSale(
       quantity: BigNumberish,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1083,6 +1791,21 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    prizePerAddress(
+      arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    publicSaleStartTimestamp(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    rawFulfillRandomWords(
+      requestId: BigNumberish,
+      randomWords: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     renderingContractAddress(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1090,6 +1813,8 @@ export class CoBots extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    s_requestId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -1122,6 +1847,11 @@ export class CoBots extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    setPublicSaleTimestamp(
+      timestamp: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     setRenderingContractAddress(
       _renderingContractAddress: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -1133,6 +1863,26 @@ export class CoBots extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     symbol(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    toggleColor(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    toggleColors(
+      tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    toggleStatus(
+      tokenId: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    toggleStatuses(
+      tokenIds: BigNumberish[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
 
     tokenByIndex(
       index: BigNumberish,
