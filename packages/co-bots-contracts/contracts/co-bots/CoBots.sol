@@ -68,7 +68,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     }
 
     function isMintedOut() public view returns (bool) {
-        return _currentIndex == MAX_COBOTS - 1;
+        return _currentIndex == MAX_COBOTS;
     }
 
     modifier whenMintedOut() {

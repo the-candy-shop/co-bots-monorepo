@@ -54,6 +54,18 @@ const mintedOutFixture = deployments.createFixture(async ({}) => {
   return contractsAndUsers;
 });
 
+const partiallyMintedFixture = deployments.createFixture(async ({}) => {
+  const contractsAndUsers = await publicSaleFixture();
+  await Promise.all(
+    contractsAndUsers.users.map((user) =>
+      user.CoBots.mintPublicSale(10, {
+        value: ethers.utils.parseEther("0.5"),
+      })
+    )
+  );
+  return contractsAndUsers;
+});
+
 describe("CoBots", function () {
   describe("mintPublicSale", async function () {
     it("should revert when minting is not open", async () => {
@@ -302,6 +314,47 @@ describe("CoBots", function () {
       );
       expect(prevContractBalance).to.eq(ethers.utils.parseEther("500"));
       expect(newContractBalance).to.eq(ethers.utils.parseEther("0"));
+    });
+  });
+  describe("claimRefund", async function () {
+    it("should revert when co-bots are minted out", async () => {
+      const { users } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+      await expect(users[10].CoBots.claimRefund()).to.be.revertedWith(
+        "Co-Bots are minted out"
+      );
+    });
+    it("should revert when delay is passed", async () => {
+      const { users } = await partiallyMintedFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 * 2 + 1]);
+      expect(users[0].CoBots.claimRefund()).to.be.revertedWith(
+        "Refund period not open"
+      );
+    });
+    it("should revert when co-bots are giveaways", async () => {
+      const { users } = await partiallyMintedFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+      expect(users[0].CoBots.claimRefund()).to.be.revertedWith(
+        "No Co-Bots to refund"
+      );
+    });
+    it("should refund user with correct amount", async () => {
+      const { users } = await partiallyMintedFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+      const prevUserBalance = await ethers.provider.getBalance(
+        users[10].address
+      );
+      const tx = await users[10].CoBots.claimRefund();
+      const receipt = await tx.wait();
+      const paidFees = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
+      const newUserBalance = await ethers.provider.getBalance(
+        users[10].address
+      );
+      expect(newUserBalance.toString()).to.eq(
+        prevUserBalance
+          .add(ethers.utils.parseEther("0.5").sub(paidFees))
+          .toString()
+      );
     });
   });
 });
