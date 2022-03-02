@@ -12,6 +12,7 @@ task(
         constructorArguments: contract.args,
       });
     } catch (e) {
+      console.log(e);
       console.log("Contract already verified");
     }
   }

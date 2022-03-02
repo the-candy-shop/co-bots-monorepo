@@ -422,6 +422,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             winner = ERC721A.ownerOf(selectedToken % 10_000);
         }
         prizePerAddress[winner] = currentPrizeMoney;
-        winner.call{value: currentPrizeMoney}("");
+        (bool success, ) = winner.call{value: currentPrizeMoney}("");
+        require(success, "Transfer failed.");
     }
 }
