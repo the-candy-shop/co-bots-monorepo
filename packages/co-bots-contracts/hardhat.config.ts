@@ -65,6 +65,9 @@ const config: HardhatUserConfig = {
       forking: {
         url: node_url("mainnet"),
       },
+      accounts: {
+        count: 501,
+      },
     },
     localhost: {
       timeout: 1_000_000,

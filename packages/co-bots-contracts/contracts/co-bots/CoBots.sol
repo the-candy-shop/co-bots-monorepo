@@ -182,7 +182,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             "Price does not match"
         );
         require(
-            _currentIndex + quantity < MAX_COBOTS,
+            _currentIndex + quantity < MAX_COBOTS + 1,
             "Too many CoBots to mint"
         );
         require(

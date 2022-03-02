@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CoBots mintPublicSale should mint with random seeds 1`] = `
+Array [
+  54,
+  140,
+  180,
+  6,
+  37,
+  244,
+  116,
+  175,
+  225,
+  129,
+]
+`;
