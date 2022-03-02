@@ -389,7 +389,8 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             "Draw limit reached"
         );
         require(
-            lastDrawTimestamp >= block.timestamp + 1 minutes,
+            (lastDrawTimestamp >= block.timestamp + 1 minutes) ||
+                drawCount == 0,
             "Draws take place once per minute"
         );
         lastDrawTimestamp = block.timestamp;

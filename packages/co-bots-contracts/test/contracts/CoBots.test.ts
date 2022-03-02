@@ -357,4 +357,29 @@ describe("CoBots", function () {
       );
     });
   });
+  describe("draw", async function () {
+    it("should revert when co-bots are not minted out", async () => {
+      const { users } = await partiallyMintedFixture();
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      await expect(users[0].CoBots.draw()).to.be.revertedWith(
+        "Co-Bots are not minted out"
+      );
+    });
+    it("should revert when draw is not open", async () => {
+      const { users } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+      await expect(users[0].CoBots.draw()).to.be.revertedWith(
+        "Draw not active"
+      );
+    });
+    it.skip("should draw", async () => {
+      const { users } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      await users[0].CoBots.draw();
+    });
+  });
 });
