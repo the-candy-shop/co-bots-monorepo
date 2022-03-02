@@ -217,4 +217,49 @@ describe("CoBots", function () {
       expect(Math.abs(prevColorCount - newColorCount)).to.eq(1);
     });
   });
+  describe.only("toggleColors", async function () {
+    it("should revert when caller does not own all the tokens", async () => {
+      const { users } = await mintedOutFixture();
+      const tokenIds = [...Array(11).keys()].map((i) => 2 * i);
+      expect(users[0].CoBots.toggleColors(tokenIds)).to.be.revertedWith(
+        "Only owner can toggle color"
+      );
+    });
+    it("should revert when all token do not have the same color", async () => {
+      const { users, CoBots } = await mintedOutFixture();
+      const tokenIds = await Promise.all(
+        [...Array(20).keys()].map((i) =>
+          CoBots.tokenOfOwnerByIndex(users[0].address, i)
+        )
+      );
+      expect(users[0].CoBots.toggleColors(tokenIds)).to.be.revertedWith(
+        "Toggling colors in two different colors!"
+      );
+    });
+    it("should toggle all the tokens", async () => {
+      const { users, CoBots } = await mintedOutFixture();
+      const tokenIds = await Promise.all(
+        [...Array(20).keys()].map((i) =>
+          CoBots.tokenOfOwnerByIndex(users[0].address, i)
+        )
+      );
+      await users[0].CoBots.toggleColors(tokenIds.filter((i) => i % 2 === 0));
+      const newColors = await Promise.all(
+        tokenIds.map(async (tokenId) => await CoBots.coBotsColors(tokenId))
+      );
+      expect(new Set(newColors).size).to.eq(1);
+    });
+    it("should update the global color count", async () => {
+      const { users, CoBots } = await mintedOutFixture();
+      const tokenIds = await Promise.all(
+        [...Array(20).keys()].map((i) =>
+          CoBots.tokenOfOwnerByIndex(users[0].address, i)
+        )
+      );
+      const prevColorCount = await CoBots.coBotsColorAgreement();
+      await users[0].CoBots.toggleColors(tokenIds.filter((i) => i % 2 === 0));
+      const newColorCount = await CoBots.coBotsColorAgreement();
+      expect(Math.abs(prevColorCount - newColorCount)).to.eq(10);
+    });
+  });
 });

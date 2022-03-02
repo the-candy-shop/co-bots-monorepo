@@ -241,7 +241,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             );
             require(
                 commonColor == coBotsColors[tokenIds[i]],
-                "Toggle colors in two different colors!"
+                "Toggling colors in two different colors!"
             );
             coBotsColors[tokenIds[i]] = !coBotsColors[tokenIds[i]];
         }
