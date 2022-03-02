@@ -44,7 +44,6 @@ interface CoBotsInterface extends ethers.utils.Interface {
     "coBotsSeeds(uint256)": FunctionFragment;
     "coBotsStatusDisabled(uint256)": FunctionFragment;
     "cooperativeRaffleEnabled()": FunctionFragment;
-    "currentPrizeMoney()": FunctionFragment;
     "draw()": FunctionFragment;
     "drawCount()": FunctionFragment;
     "exists(uint256)": FunctionFragment;
@@ -67,7 +66,6 @@ interface CoBotsInterface extends ethers.utils.Interface {
     "rawFulfillRandomWords(uint256,uint256[])": FunctionFragment;
     "renderingContractAddress()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "s_requestId()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setLooksrare(address)": FunctionFragment;
@@ -174,10 +172,6 @@ interface CoBotsInterface extends ethers.utils.Interface {
     functionFragment: "cooperativeRaffleEnabled",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "currentPrizeMoney",
-    values?: undefined
-  ): string;
   encodeFunctionData(functionFragment: "draw", values?: undefined): string;
   encodeFunctionData(functionFragment: "drawCount", values?: undefined): string;
   encodeFunctionData(
@@ -246,10 +240,6 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "s_requestId",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -399,10 +389,6 @@ interface CoBotsInterface extends ethers.utils.Interface {
     functionFragment: "cooperativeRaffleEnabled",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "currentPrizeMoney",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "draw", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "drawCount", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "exists", data: BytesLike): Result;
@@ -462,10 +448,6 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "s_requestId",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -678,8 +660,6 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<[boolean]>;
 
-    currentPrizeMoney(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     draw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -757,8 +737,6 @@ export class CoBots extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
-
-    s_requestId(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -919,8 +897,6 @@ export class CoBots extends BaseContract {
 
   cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<boolean>;
 
-  currentPrizeMoney(overrides?: CallOverrides): Promise<BigNumber>;
-
   draw(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -989,8 +965,6 @@ export class CoBots extends BaseContract {
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  s_requestId(overrides?: CallOverrides): Promise<BigNumber>;
 
   "safeTransferFrom(address,address,uint256)"(
     from: string,
@@ -1151,8 +1125,6 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<boolean>;
 
-    currentPrizeMoney(overrides?: CallOverrides): Promise<BigNumber>;
-
     draw(overrides?: CallOverrides): Promise<void>;
 
     drawCount(overrides?: CallOverrides): Promise<number>;
@@ -1220,8 +1192,6 @@ export class CoBots extends BaseContract {
     renderingContractAddress(overrides?: CallOverrides): Promise<string>;
 
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    s_requestId(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -1457,8 +1427,6 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<BigNumber>;
 
-    currentPrizeMoney(overrides?: CallOverrides): Promise<BigNumber>;
-
     draw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1536,8 +1504,6 @@ export class CoBots extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
-
-    s_requestId(overrides?: CallOverrides): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,
@@ -1730,8 +1696,6 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    currentPrizeMoney(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     draw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -1813,8 +1777,6 @@ export class CoBots extends BaseContract {
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
-
-    s_requestId(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
       from: string,

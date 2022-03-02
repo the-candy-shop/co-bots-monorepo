@@ -63,7 +63,7 @@ const config: HardhatUserConfig = {
       tags: ["local"],
       blockGasLimit: 10 * 50_000_000, // Geth new default is 50M, increased here for tests
       forking: {
-        url: node_url("mainnet"),
+        url: node_url("rinkeby"),
       },
       accounts: {
         count: 501,

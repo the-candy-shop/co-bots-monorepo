@@ -211,7 +211,9 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
                 COBOTS_MINT_DURATION +
                 COBOTS_MINT_RAFFLE_DELAY >
             block.timestamp &&
-            coBotsColorAgreement >= COORDINATION_RAFFLE_THRESHOLD
+            ((coBotsColorAgreement >= COORDINATION_RAFFLE_THRESHOLD) ||
+                (coBotsColorAgreement <=
+                    MAX_COBOTS - COORDINATION_RAFFLE_THRESHOLD))
         ) {
             cooperativeRaffleEnabled = true;
         }
@@ -322,11 +324,10 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     LinkTokenInterface LINKTOKEN;
     uint64 s_subscriptionId;
     bytes32 gasKeyHash;
-    uint256 public s_requestId;
 
     uint256 public lastDrawTimestamp;
-    uint256 public currentPrizeMoney;
     mapping(address => uint256) public prizePerAddress;
+    mapping(uint256 => uint256) prizePerDraw;
     uint16 public drawCount;
     bool public cooperativeRaffleEnabled;
 
@@ -389,28 +390,29 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             "Draw limit reached"
         );
         require(
-            (lastDrawTimestamp >= block.timestamp + 1 minutes) ||
+            (lastDrawTimestamp + 1 minutes <= block.timestamp) ||
                 drawCount == 0,
             "Draws take place once per minute"
         );
         lastDrawTimestamp = block.timestamp;
-        currentPrizeMoney = drawCount < MAIN_RAFFLE_WINNERS_COUNT
+        uint256 currentPrizeMoney = drawCount < MAIN_RAFFLE_WINNERS_COUNT
             ? MAIN_RAFFLE_PRIZE
             : COORDINATION_RAFFLE_PRIZE;
         drawCount++;
-        s_requestId = COORDINATOR.requestRandomWords(
+        uint256 requestId = COORDINATOR.requestRandomWords(
             gasKeyHash,
             s_subscriptionId,
             5, // requestConfirmations
             500_000, // callbackGasLimit
             1 // numWords
         );
+        prizePerDraw[requestId] = currentPrizeMoney;
     }
 
-    function fulfillRandomWords(
-        uint256, /* requestId */
-        uint256[] memory randomWords
-    ) internal override {
+    function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
+        internal
+        override
+    {
         uint256 selectedToken = randomWords[0];
         address winner = ERC721A.ownerOf(selectedToken % 10_000);
         while (
@@ -421,8 +423,8 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             selectedToken = selectedToken >> 1;
             winner = ERC721A.ownerOf(selectedToken % 10_000);
         }
-        prizePerAddress[winner] = currentPrizeMoney;
-        (bool success, ) = winner.call{value: currentPrizeMoney}("");
+        prizePerAddress[winner] = prizePerDraw[requestId];
+        (bool success, ) = winner.call{value: prizePerDraw[requestId]}("");
         require(success, "Transfer failed.");
     }
 }

@@ -273,21 +273,23 @@ describe("CoBots", function () {
       const newColorCount = await CoBots.coBotsColorAgreement();
       expect(Math.abs(prevColorCount - newColorCount)).to.eq(10);
     });
-    it("should enable the collaborative raffle", async () => {
-      const { users, CoBots } = await mintedOutFixture();
-      await Promise.all(
-        users.map(
-          async (user, i) =>
-            await user.CoBots.toggleColors(
-              [...Array(20).keys()]
-                .map((j) => j + i * 20)
-                .filter((j) => j % 2 === 0)
-            )
-        )
-      );
-      const enabled = await CoBots.cooperativeRaffleEnabled();
-      expect(enabled).to.eq(true);
-    });
+    [0, 1].forEach((color) =>
+      it(`should enable the collaborative raffle with color ${color}`, async () => {
+        const { users, CoBots } = await mintedOutFixture();
+        await Promise.all(
+          users.map(
+            async (user, i) =>
+              await user.CoBots.toggleColors(
+                [...Array(20).keys()]
+                  .map((j) => j + i * 20)
+                  .filter((j) => j % 2 === color)
+              )
+          )
+        );
+        const enabled = await CoBots.cooperativeRaffleEnabled();
+        expect(enabled).to.eq(true);
+      })
+    );
   });
   describe("withdraw", async function () {
     it("should revert when raffle is not drawn", async () => {
@@ -374,12 +376,69 @@ describe("CoBots", function () {
         "Draw not active"
       );
     });
-    it.skip("should draw", async () => {
+    it("should draw", async () => {
+      const { users } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      const prevContractBalance = await ethers.provider.getBalance(
+        users[0].CoBots.address
+      );
+      await users[0].CoBots.draw();
+      const newContractBalance = await ethers.provider.getBalance(
+        users[0].CoBots.address
+      );
+      expect(prevContractBalance.sub(newContractBalance)).to.eq(
+        ethers.utils.parseEther("25")
+      );
+    });
+    it("should revert a second draw less than 1 minute after a first draw", async () => {
       const { users } = await mintedOutFixture();
       await network.provider.send("evm_increaseTime", [
         168 * 60 * 60 + 24 * 60 * 60 + 1,
       ]);
       await users[0].CoBots.draw();
+      await expect(users[0].CoBots.draw()).to.be.revertedWith(
+        "Draws take place once per minute"
+      );
+    });
+    it("should revert after 10 draws when only min raffle is enabled", async () => {
+      const { users } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      for (let i = 0; i < 10; i++) {
+        await users[0].CoBots.draw();
+        await network.provider.send("evm_increaseTime", [61]);
+        await network.provider.send("evm_mine");
+      }
+      await expect(users[0].CoBots.draw()).to.be.revertedWith(
+        "Draw limit reached"
+      );
+    });
+    it("should draw the cooperation raffle", async () => {
+      const { users } = await mintedOutFixture();
+      await Promise.all(
+        users.map(
+          async (user, i) =>
+            await user.CoBots.toggleColors(
+              [...Array(20).keys()]
+                .map((j) => j + i * 20)
+                .filter((j) => j % 2 === 0)
+            )
+        )
+      );
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      for (let i = 0; i < 30; i++) {
+        await users[0].CoBots.draw();
+        await network.provider.send("evm_increaseTime", [61]);
+        await network.provider.send("evm_mine");
+      }
+      await expect(users[0].CoBots.draw()).to.be.revertedWith(
+        "Draw limit reached"
+      );
     });
   });
 });

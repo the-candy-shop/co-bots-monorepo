@@ -2,15 +2,15 @@
 
 exports[`CoBots mintPublicSale should mint with random seeds 1`] = `
 Array [
-  219,
-  69,
-  85,
-  168,
-  66,
-  212,
-  6,
-  106,
-  218,
-  241,
+  247,
+  124,
+  215,
+  141,
+  245,
+  16,
+  244,
+  130,
+  2,
+  245,
 ]
 `;
