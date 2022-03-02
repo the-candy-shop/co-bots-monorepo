@@ -217,7 +217,7 @@ describe("CoBots", function () {
       expect(Math.abs(prevColorCount - newColorCount)).to.eq(1);
     });
   });
-  describe.only("toggleColors", async function () {
+  describe("toggleColors", async function () {
     it("should revert when caller does not own all the tokens", async () => {
       const { users } = await mintedOutFixture();
       const tokenIds = [...Array(11).keys()].map((i) => 2 * i);
@@ -260,6 +260,48 @@ describe("CoBots", function () {
       await users[0].CoBots.toggleColors(tokenIds.filter((i) => i % 2 === 0));
       const newColorCount = await CoBots.coBotsColorAgreement();
       expect(Math.abs(prevColorCount - newColorCount)).to.eq(10);
+    });
+    it("should enable the collaborative raffle", async () => {
+      const { users, CoBots } = await mintedOutFixture();
+      await Promise.all(
+        users.map(
+          async (user, i) =>
+            await user.CoBots.toggleColors(
+              [...Array(20).keys()]
+                .map((j) => j + i * 20)
+                .filter((j) => j % 2 === 0)
+            )
+        )
+      );
+      const enabled = await CoBots.cooperativeRaffleEnabled();
+      expect(enabled).to.eq(true);
+    });
+  });
+  describe("withdraw", async function () {
+    it("should revert when raffle is not drawn", async () => {
+      const { deployer } = await mintedOutFixture();
+      expect(deployer.CoBots.withdraw()).to.be.revertedWith(
+        "Dev cannot withdraw before the end of the game"
+      );
+    });
+    it("should revert when caller is not owner", async () => {
+      const { users } = await mintedOutFixture();
+      expect(users[0].CoBots.withdraw()).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+    });
+    it("should withdraw after refund relay", async () => {
+      const { deployer } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 * 2 + 1]);
+      const prevContractBalance = await ethers.provider.getBalance(
+        deployer.CoBots.address
+      );
+      await deployer.CoBots.withdraw();
+      const newContractBalance = await ethers.provider.getBalance(
+        deployer.CoBots.address
+      );
+      expect(prevContractBalance).to.eq(ethers.utils.parseEther("500"));
+      expect(newContractBalance).to.eq(ethers.utils.parseEther("0"));
     });
   });
 });
