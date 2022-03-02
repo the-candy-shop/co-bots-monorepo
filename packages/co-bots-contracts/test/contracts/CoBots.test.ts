@@ -5,6 +5,7 @@ import {
   ethers,
   getNamedAccounts,
   getUnnamedAccounts,
+  network,
 } from "hardhat";
 import { solidity } from "ethereum-waffle";
 import { TAGS } from "../../utils/constants";
@@ -70,6 +71,15 @@ describe("CoBots", function () {
       });
       const balance = await users[0].CoBots.balanceOf(users[0].address);
       expect(balance).to.eq(20);
+    });
+    it("should revert when mint is closed", async () => {
+      const { users } = await publicSaleFixture();
+      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+      expect(
+        users[0].CoBots.mintPublicSale(20, {
+          value: ethers.utils.parseEther("1"),
+        })
+      ).to.be.revertedWith("Public sale not open");
     });
   });
 });

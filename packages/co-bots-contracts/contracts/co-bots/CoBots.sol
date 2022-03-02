@@ -22,7 +22,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     // Constants
     uint256 public constant MAX_COBOTS = 10_000;
     uint256 public constant MINT_PUBLIC_PRICE = 0.05 ether;
-    uint8 public constant MAX_MINT_PER_ADDRESS = 32;
+    uint8 public constant MAX_MINT_PER_ADDRESS = 20;
     uint8 public constant MINT_GIVEAWAYS = 30;
     uint8 public constant MINT_FOUNDERS_AND_GIVEAWAYS = 50;
     uint256 public constant COBOTS_MINT_DURATION = 168 hours;
