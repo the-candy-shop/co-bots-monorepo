@@ -44,6 +44,7 @@ interface CoBotsInterface extends ethers.utils.Interface {
     "coBotsSeeds(uint256)": FunctionFragment;
     "coBotsStatusDisabled(uint256)": FunctionFragment;
     "cooperativeRaffleEnabled()": FunctionFragment;
+    "createSubscriptionAndFund(uint96)": FunctionFragment;
     "draw()": FunctionFragment;
     "drawCount()": FunctionFragment;
     "exists(uint256)": FunctionFragment;
@@ -171,6 +172,10 @@ interface CoBotsInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "cooperativeRaffleEnabled",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "createSubscriptionAndFund",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "draw", values?: undefined): string;
   encodeFunctionData(functionFragment: "drawCount", values?: undefined): string;
@@ -387,6 +392,10 @@ interface CoBotsInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "cooperativeRaffleEnabled",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "createSubscriptionAndFund",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "draw", data: BytesLike): Result;
@@ -660,6 +669,11 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<[boolean]>;
 
+    createSubscriptionAndFund(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     draw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -897,6 +911,11 @@ export class CoBots extends BaseContract {
 
   cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<boolean>;
 
+  createSubscriptionAndFund(
+    amount: BigNumberish,
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   draw(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -1125,7 +1144,12 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<boolean>;
 
-    draw(overrides?: CallOverrides): Promise<void>;
+    createSubscriptionAndFund(
+      amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    draw(overrides?: CallOverrides): Promise<BigNumber>;
 
     drawCount(overrides?: CallOverrides): Promise<number>;
 
@@ -1427,6 +1451,11 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(overrides?: CallOverrides): Promise<BigNumber>;
 
+    createSubscriptionAndFund(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     draw(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -1694,6 +1723,11 @@ export class CoBots extends BaseContract {
 
     cooperativeRaffleEnabled(
       overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    createSubscriptionAndFund(
+      amount: BigNumberish,
+      overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     draw(

@@ -67,6 +67,7 @@ const config: HardhatUserConfig = {
       },
       accounts: {
         count: 501,
+        ...accounts("rinkeby"),
       },
     },
     localhost: {

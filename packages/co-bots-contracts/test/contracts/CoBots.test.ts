@@ -138,7 +138,7 @@ describe("CoBots", function () {
       const seeds = await Promise.all(
         [...Array(10).keys()].map(async (i) => await CoBots.coBotsSeeds(i))
       );
-      expect(seeds).toMatchSnapshot();
+      expect(new Set(seeds).size).to.eq(10);
     });
     it("should mint with blue and red for even and odd", async () => {
       const { users, CoBots } = await publicSaleFixture();
@@ -376,22 +376,6 @@ describe("CoBots", function () {
         "Draw not active"
       );
     });
-    it("should draw", async () => {
-      const { users } = await mintedOutFixture();
-      await network.provider.send("evm_increaseTime", [
-        168 * 60 * 60 + 24 * 60 * 60 + 1,
-      ]);
-      const prevContractBalance = await ethers.provider.getBalance(
-        users[0].CoBots.address
-      );
-      await users[0].CoBots.draw();
-      const newContractBalance = await ethers.provider.getBalance(
-        users[0].CoBots.address
-      );
-      expect(prevContractBalance.sub(newContractBalance)).to.eq(
-        ethers.utils.parseEther("25")
-      );
-    });
     it("should revert a second draw less than 1 minute after a first draw", async () => {
       const { users } = await mintedOutFixture();
       await network.provider.send("evm_increaseTime", [
@@ -402,7 +386,7 @@ describe("CoBots", function () {
         "Draws take place once per minute"
       );
     });
-    it("should revert after 10 draws when only min raffle is enabled", async () => {
+    it("should draw 10 times and revert when only main raffle is enabled", async () => {
       const { users } = await mintedOutFixture();
       await network.provider.send("evm_increaseTime", [
         168 * 60 * 60 + 24 * 60 * 60 + 1,
@@ -416,7 +400,7 @@ describe("CoBots", function () {
         "Draw limit reached"
       );
     });
-    it("should draw the cooperation raffle", async () => {
+    it("should draw 30 times and revert when the cooperation raffle is enabled", async () => {
       const { users } = await mintedOutFixture();
       await Promise.all(
         users.map(

@@ -10,8 +10,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "erc721a/contracts/ERC721A.sol";
 import "../interfaces/ICoBotsRenderer.sol";
 
-import "hardhat/console.sol";
-
 contract OwnableDelegateProxy {}
 
 contract ProxyRegistry {
@@ -137,7 +135,6 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         address _rendererAddress,
         address _opensea,
         address _looksrare,
-        uint64 subscriptionId,
         address vrfCoordinator,
         address link,
         bytes32 keyHash
@@ -147,7 +144,6 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         looksrare = _looksrare;
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
         LINKTOKEN = LinkTokenInterface(link);
-        s_subscriptionId = subscriptionId;
         gasKeyHash = keyHash;
     }
 
@@ -183,7 +179,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         );
         require(
             _currentIndex + quantity < MAX_COBOTS + 1,
-            "Too many CoBots to mint"
+            "There are not enough Co-Bots left to mint that amount"
         );
         require(
             ERC721A.balanceOf(_msgSender()) + quantity <= MAX_MINT_PER_ADDRESS,
@@ -258,7 +254,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     function toggleStatus(uint256 tokenId) public nonReentrant {
         require(
             ERC721A.ownerOf(tokenId) == _msgSender(),
-            "Only owner can toggle color"
+            "Only owner can toggle status"
         );
 
         coBotsStatusDisabled[tokenId] = !coBotsStatusDisabled[tokenId];
@@ -322,10 +318,10 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     ////////////////////////////////////////////////////////////////////////
     VRFCoordinatorV2Interface COORDINATOR;
     LinkTokenInterface LINKTOKEN;
-    uint64 s_subscriptionId;
     bytes32 gasKeyHash;
 
     uint256 public lastDrawTimestamp;
+    uint64 private s_subId;
     mapping(address => uint256) public prizePerAddress;
     mapping(uint256 => uint256) prizePerDraw;
     uint16 public drawCount;
@@ -378,7 +374,25 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         require(success, "Withdrawal failed");
     }
 
-    function draw() external nonReentrant whenDrawOpen whenMintedOut {
+    function createSubscriptionAndFund(uint96 amount) external onlyOwner {
+        if (s_subId == 0) {
+            s_subId = COORDINATOR.createSubscription();
+            COORDINATOR.addConsumer(s_subId, address(this));
+        }
+        LINKTOKEN.transferAndCall(
+            address(COORDINATOR),
+            amount,
+            abi.encode(s_subId)
+        );
+    }
+
+    function draw()
+        external
+        nonReentrant
+        whenDrawOpen
+        whenMintedOut
+        returns (uint256)
+    {
         require(
             drawCount <
                 (
@@ -401,12 +415,13 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         drawCount++;
         uint256 requestId = COORDINATOR.requestRandomWords(
             gasKeyHash,
-            s_subscriptionId,
+            s_subId,
             5, // requestConfirmations
             500_000, // callbackGasLimit
             1 // numWords
         );
         prizePerDraw[requestId] = currentPrizeMoney;
+        return requestId;
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)

@@ -3,8 +3,17 @@
 /* eslint-disable */
 export type { SSTORE2 } from "./SSTORE2";
 export type { Bytecode } from "./Bytecode";
+export type { ConfirmedOwner } from "./ConfirmedOwner";
+export type { ConfirmedOwnerWithProposal } from "./ConfirmedOwnerWithProposal";
+export type { VRFCoordinatorV2 } from "./VRFCoordinatorV2";
+export type { AggregatorV3Interface } from "./AggregatorV3Interface";
+export type { BlockhashStoreInterface } from "./BlockhashStoreInterface";
+export type { ERC677ReceiverInterface } from "./ERC677ReceiverInterface";
 export type { LinkTokenInterface } from "./LinkTokenInterface";
+export type { OwnableInterface } from "./OwnableInterface";
+export type { TypeAndVersionInterface } from "./TypeAndVersionInterface";
 export type { VRFCoordinatorV2Interface } from "./VRFCoordinatorV2Interface";
+export type { VRFCoordinatorV2TestHelper } from "./VRFCoordinatorV2TestHelper";
 export type { VRFConsumerBaseV2 } from "./VRFConsumerBaseV2";
 export type { Ownable } from "./Ownable";
 export type { IERC721Enumerable } from "./IERC721Enumerable";
@@ -22,8 +31,17 @@ export type { ERC721A } from "./ERC721A";
 
 export { SSTORE2__factory } from "./factories/SSTORE2__factory";
 export { Bytecode__factory } from "./factories/Bytecode__factory";
+export { ConfirmedOwner__factory } from "./factories/ConfirmedOwner__factory";
+export { ConfirmedOwnerWithProposal__factory } from "./factories/ConfirmedOwnerWithProposal__factory";
+export { VRFCoordinatorV2__factory } from "./factories/VRFCoordinatorV2__factory";
+export { AggregatorV3Interface__factory } from "./factories/AggregatorV3Interface__factory";
+export { BlockhashStoreInterface__factory } from "./factories/BlockhashStoreInterface__factory";
+export { ERC677ReceiverInterface__factory } from "./factories/ERC677ReceiverInterface__factory";
 export { LinkTokenInterface__factory } from "./factories/LinkTokenInterface__factory";
+export { OwnableInterface__factory } from "./factories/OwnableInterface__factory";
+export { TypeAndVersionInterface__factory } from "./factories/TypeAndVersionInterface__factory";
 export { VRFCoordinatorV2Interface__factory } from "./factories/VRFCoordinatorV2Interface__factory";
+export { VRFCoordinatorV2TestHelper__factory } from "./factories/VRFCoordinatorV2TestHelper__factory";
 export { VRFConsumerBaseV2__factory } from "./factories/VRFConsumerBaseV2__factory";
 export { Ownable__factory } from "./factories/Ownable__factory";
 export { IERC721Enumerable__factory } from "./factories/IERC721Enumerable__factory";
