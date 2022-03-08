@@ -43,6 +43,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       from: deployer,
       log: true,
       args: [linkAddress, blockHashStore, linkEthFeed],
+      contract:
+        "contracts/test/VRFCoordinatorV2TestHelper.sol:VRFCoordinatorV2TestHelper",
     });
     vrfCoordinatorAddress = vrfTx.address;
     await execute(

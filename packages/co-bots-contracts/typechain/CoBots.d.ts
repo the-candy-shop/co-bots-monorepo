@@ -63,6 +63,7 @@ interface CoBotsInterface extends ethers.utils.Interface {
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
     "prizePerAddress(address)": FunctionFragment;
+    "prizePerDraw(uint256)": FunctionFragment;
     "publicSaleStartTimestamp()": FunctionFragment;
     "rawFulfillRandomWords(uint256,uint256[])": FunctionFragment;
     "renderingContractAddress()": FunctionFragment;
@@ -230,6 +231,10 @@ interface CoBotsInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "prizePerAddress",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "prizePerDraw",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "publicSaleStartTimestamp",
@@ -441,6 +446,10 @@ interface CoBotsInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "prizePerAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "prizePerDraw",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -738,6 +747,11 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    prizePerDraw(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
     publicSaleStartTimestamp(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     rawFulfillRandomWords(
@@ -971,6 +985,11 @@ export class CoBots extends BaseContract {
 
   prizePerAddress(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
+  prizePerDraw(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   publicSaleStartTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
   rawFulfillRandomWords(
@@ -1202,6 +1221,11 @@ export class CoBots extends BaseContract {
 
     prizePerAddress(
       arg0: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    prizePerDraw(
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1520,6 +1544,11 @@ export class CoBots extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    prizePerDraw(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     publicSaleStartTimestamp(overrides?: CallOverrides): Promise<BigNumber>;
 
     rawFulfillRandomWords(
@@ -1791,6 +1820,11 @@ export class CoBots extends BaseContract {
 
     prizePerAddress(
       arg0: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    prizePerDraw(
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

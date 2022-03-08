@@ -19,6 +19,7 @@ const setup = async () => {
   await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_PALETTES]);
   const contracts = {
     CoBots: await ethers.getContract("CoBots"),
+    VRFCoordinator: await ethers.getContract("VRFCoordinatorV2TestHelper"),
   };
   const { deployer } = await getNamedAccounts();
   const users = await setupUsers(await getUnnamedAccounts(), contracts);
@@ -26,6 +27,10 @@ const setup = async () => {
     ...contracts,
     users,
     deployer: await setupUser(deployer, contracts),
+    vrfCoordinator: await setupUser(
+      contracts.VRFCoordinator.address,
+      contracts
+    ),
   };
 };
 
@@ -51,6 +56,38 @@ const mintedOutFixture = deployments.createFixture(async ({}) => {
       })
     )
   );
+  return contractsAndUsers;
+});
+
+const cooperationFixture = deployments.createFixture(async ({}) => {
+  const contractsAndUsers = await mintedOutFixture();
+  await Promise.all(
+    contractsAndUsers.users.map(
+      async (user, i) =>
+        await user.CoBots.toggleColors(
+          [...Array(20).keys()]
+            .map((j) => j + i * 20)
+            .filter((j) => j % 2 === 0)
+        )
+    )
+  );
+  return contractsAndUsers;
+});
+
+const vrfFixture = deployments.createFixture(async ({}) => {
+  const contractsAndUsers = await cooperationFixture();
+  const { users, VRFCoordinator } = contractsAndUsers;
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [VRFCoordinator.address],
+  });
+  await (
+    await ethers.getSigner(users[0].address)
+  ).sendTransaction({
+    to: VRFCoordinator.address,
+    value: ethers.utils.parseEther("1"),
+  });
+
   return contractsAndUsers;
 });
 
@@ -401,17 +438,7 @@ describe("CoBots", function () {
       );
     });
     it("should draw 30 times and revert when the cooperation raffle is enabled", async () => {
-      const { users } = await mintedOutFixture();
-      await Promise.all(
-        users.map(
-          async (user, i) =>
-            await user.CoBots.toggleColors(
-              [...Array(20).keys()]
-                .map((j) => j + i * 20)
-                .filter((j) => j % 2 === 0)
-            )
-        )
-      );
+      const { users } = await cooperationFixture();
       await network.provider.send("evm_increaseTime", [
         168 * 60 * 60 + 24 * 60 * 60 + 1,
       ]);
@@ -423,6 +450,68 @@ describe("CoBots", function () {
       await expect(users[0].CoBots.draw()).to.be.revertedWith(
         "Draw limit reached"
       );
+    });
+  });
+  describe("fulfillRandomWords", async function () {
+    it("should send prize to winner with correct amount", async () => {
+      const { users, vrfCoordinator, CoBots } = await vrfFixture();
+
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      for (let i = 0; i < 30; i++) {
+        const tokenId = 20 * (i + 10);
+        const owner = await CoBots.ownerOf(tokenId);
+        const tx = await users[0].CoBots.draw();
+        const receipt = await tx.wait();
+        const requestId = receipt.events[0].data.slice(0, 2 + 32 * 2);
+        const balancePrev = await ethers.provider.getBalance(owner);
+        await vrfCoordinator.CoBots.rawFulfillRandomWords(requestId, [tokenId]);
+        const balanceNext = await ethers.provider.getBalance(owner);
+        expect(balanceNext.sub(balancePrev)).to.eq(
+          ethers.utils.parseEther(i < 10 ? "25" : "2.5")
+        );
+        await network.provider.send("evm_increaseTime", [61]);
+        await network.provider.send("evm_mine");
+      }
+    });
+    it("should skip founders tokens", async () => {
+      const { users, vrfCoordinator, CoBots } = await vrfFixture();
+
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      const tokenId = 40;
+      const winner = await CoBots.ownerOf(tokenId / 2);
+      const tx = await users[0].CoBots.draw();
+      const receipt = await tx.wait();
+      const requestId = receipt.events[0].data.slice(0, 2 + 32 * 2);
+      const balancePrev = await ethers.provider.getBalance(winner);
+      await vrfCoordinator.CoBots.rawFulfillRandomWords(requestId, [tokenId]);
+      const balanceNext = await ethers.provider.getBalance(winner);
+      expect(balanceNext.sub(balancePrev)).to.eq(ethers.utils.parseEther("25"));
+    });
+    it("should skip winner if it has already won", async () => {
+      const { users, vrfCoordinator, CoBots } = await vrfFixture();
+
+      await network.provider.send("evm_increaseTime", [
+        168 * 60 * 60 + 24 * 60 * 60 + 1,
+      ]);
+      const tokenId = 100;
+      const firstWinner = await CoBots.ownerOf(tokenId);
+      const secondWinner = await CoBots.ownerOf(tokenId / 2);
+      const tx = await users[0].CoBots.draw();
+      const receipt = await tx.wait();
+      const requestId = receipt.events[0].data.slice(0, 2 + 32 * 2);
+      let balancePrev = await ethers.provider.getBalance(firstWinner);
+      await vrfCoordinator.CoBots.rawFulfillRandomWords(requestId, [tokenId]);
+      let balanceNext = await ethers.provider.getBalance(firstWinner);
+      expect(balanceNext.sub(balancePrev)).to.eq(ethers.utils.parseEther("25"));
+
+      balancePrev = await ethers.provider.getBalance(secondWinner);
+      await vrfCoordinator.CoBots.rawFulfillRandomWords(requestId, [tokenId]);
+      balanceNext = await ethers.provider.getBalance(secondWinner);
+      expect(balanceNext.sub(balancePrev)).to.eq(ethers.utils.parseEther("25"));
     });
   });
 });
