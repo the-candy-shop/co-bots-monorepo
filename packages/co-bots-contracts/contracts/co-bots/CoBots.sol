@@ -418,6 +418,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
 
     function cancelSubscription() external onlyOwner {
         COORDINATOR.cancelSubscription(s_subId, _msgSender());
+        s_subId = 0;
     }
 
     function draw()
