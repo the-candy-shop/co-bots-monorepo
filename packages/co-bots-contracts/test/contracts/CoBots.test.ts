@@ -355,45 +355,98 @@ describe("CoBots", function () {
       expect(newContractBalance).to.eq(ethers.utils.parseEther("0"));
     });
   });
-  describe("claimRefund", async function () {
-    it("should revert when co-bots are minted out", async () => {
-      const { users } = await mintedOutFixture();
-      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
-      await expect(users[10].CoBots.claimRefund()).to.be.revertedWith(
-        "Co-Bots are minted out"
-      );
-    });
-    it("should revert when delay is passed", async () => {
-      const { users } = await partiallyMintedFixture();
-      await network.provider.send("evm_increaseTime", [168 * 60 * 60 * 2 + 1]);
-      expect(users[0].CoBots.claimRefund()).to.be.revertedWith(
-        "Refund period not open"
-      );
-    });
-    it("should revert when co-bots are giveaways", async () => {
-      const { users } = await partiallyMintedFixture();
-      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
-      expect(users[0].CoBots.claimRefund()).to.be.revertedWith(
-        "No Co-Bots to refund"
-      );
-    });
-    it("should refund user with correct amount", async () => {
-      const { users } = await partiallyMintedFixture();
-      await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
-      const prevUserBalance = await ethers.provider.getBalance(
-        users[10].address
-      );
-      const tx = await users[10].CoBots.claimRefund();
-      const receipt = await tx.wait();
-      const paidFees = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
-      const newUserBalance = await ethers.provider.getBalance(
-        users[10].address
-      );
-      expect(newUserBalance.toString()).to.eq(
-        prevUserBalance
-          .add(ethers.utils.parseEther("0.5").sub(paidFees))
-          .toString()
-      );
+  [
+    { key: "claimRefund()", tokenIds: undefined },
+    {
+      key: "claimRefund(uint256[])",
+      tokenIds: [...Array(10).keys()].map((i) => i + 100),
+    },
+  ].forEach(({ key, tokenIds }) => {
+    describe.only(key, async function () {
+      it("should revert when minting is still open", async () => {
+        const { users } = await partiallyMintedFixture();
+        await expect(
+          tokenIds
+            ? users[10].CoBots.functions[key](tokenIds)
+            : users[10].CoBots.functions[key]()
+        ).to.be.revertedWith("Refund period not open");
+      });
+      it("should revert when co-bots are minted out", async () => {
+        const { users } = await mintedOutFixture();
+        await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+        await expect(
+          tokenIds
+            ? users[10].CoBots.functions[key](tokenIds)
+            : users[10].CoBots.functions[key]()
+        ).to.be.revertedWith("Co-Bots are minted out");
+      });
+      it("should revert when delay is passed", async () => {
+        const { users } = await partiallyMintedFixture();
+        await network.provider.send("evm_increaseTime", [
+          168 * 60 * 60 * 2 + 1,
+        ]);
+        await expect(
+          tokenIds
+            ? users[0].CoBots.functions[key](tokenIds)
+            : users[0].CoBots.functions[key]()
+        ).to.be.revertedWith("Refund period not open");
+      });
+      it("should revert when co-bots are giveaways", async () => {
+        const { users } = await partiallyMintedFixture();
+        await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+        await expect(
+          tokenIds
+            ? users[0].CoBots.functions[key]([...Array(10).keys()])
+            : users[0].CoBots.functions[key]()
+        ).to.be.revertedWith("No Co-Bots to refund");
+      });
+      it("should refund user with correct amount", async () => {
+        const { users } = await partiallyMintedFixture();
+        await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+        const prevUserBalance = await ethers.provider.getBalance(
+          users[10].address
+        );
+        const tx = await (tokenIds
+          ? users[10].CoBots.functions[key](tokenIds)
+          : users[10].CoBots.functions[key]());
+        const receipt = await tx.wait();
+        const paidFees = receipt.cumulativeGasUsed.mul(
+          receipt.effectiveGasPrice
+        );
+        const newUserBalance = await ethers.provider.getBalance(
+          users[10].address
+        );
+        expect(newUserBalance.toString()).to.eq(
+          prevUserBalance
+            .add(ethers.utils.parseEther("0.5").sub(paidFees))
+            .toString()
+        );
+      });
+      it("should revert a second claim for the same token", async () => {
+        const { users } = await partiallyMintedFixture();
+        await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+        await (tokenIds
+          ? users[10].CoBots.functions[key](tokenIds)
+          : users[10].CoBots.functions[key]());
+        await expect(
+          tokenIds
+            ? users[10].CoBots.functions[key](tokenIds)
+            : users[10].CoBots.functions[key]()
+        ).to.be.revertedWith("No Co-Bots to refund");
+      });
+      if (tokenIds) {
+        it("should revert when claiming tokens that are not owned", async () => {
+          const { users } = await partiallyMintedFixture();
+          await network.provider.send("evm_increaseTime", [168 * 60 * 60 + 1]);
+          await expect(
+            users[10].CoBots.functions[key](
+              [...Array(10).keys()].map((i) => i + 200)
+            )
+          ).to.be.revertedWith(
+            "You cannot claim a refund for a token you do not own"
+          );
+        });
+      }
     });
   });
   describe("draw", async function () {

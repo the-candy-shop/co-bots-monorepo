@@ -10,15 +10,10 @@ artifacts
 # PyCharm files
 .idea/
 
-# Runners files
+# Project files
 .DS_Store
-runner1-*.svg
 __pycache__
-/palettes.json
-/palettes-hv.json
-/palettes-storage.json
-/runners-layers.json
-/runners-dna.json
-/traits-gas.json
-assets/DREAMERS/
 test/contracts/__snapshots__/TOKENS
+
+# Typechain files
+typechain
