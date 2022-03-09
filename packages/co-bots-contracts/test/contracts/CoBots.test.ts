@@ -90,7 +90,7 @@ const mintedOutFixture = deployments.createFixture(async ({}) => {
       })
     )
   );
-  return contractsAndUsers;
+  return { ...contractsAndUsers, minted: contractsAndUsers.MAX_COBOTS };
 });
 
 const cooperationFixture = deployments.createFixture(async ({}) => {
@@ -136,7 +136,7 @@ const partiallyMintedFixture = deployments.createFixture(async ({}) => {
       })
     )
   );
-  return contractsAndUsers;
+  return { ...contractsAndUsers, minted: contractsAndUsers.MAX_COBOTS / 2 };
 });
 
 describe("CoBots", function () {
@@ -383,28 +383,31 @@ describe("CoBots", function () {
         "Ownable: caller is not the owner"
       );
     });
-    it("should withdraw after refund relay", async () => {
-      const {
-        deployer,
-        COBOTS_MINT_DURATION,
-        COBOTS_REFUND_DURATION,
-        MINT_PUBLIC_PRICE,
-        MAX_COBOTS,
-      } = await partiallyMintedFixture();
-      await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_REFUND_DURATION + 1,
-      ]);
-      const prevContractBalance = await ethers.provider.getBalance(
-        deployer.CoBots.address
-      );
-      await deployer.CoBots.withdraw();
-      const newContractBalance = await ethers.provider.getBalance(
-        deployer.CoBots.address
-      );
-      expect(prevContractBalance).to.eq(
-        MINT_PUBLIC_PRICE.mul(MAX_COBOTS).div(2)
-      );
-      expect(newContractBalance).to.eq(ethers.utils.parseEther("0"));
+    [
+      { fixture: partiallyMintedFixture, name: "partially minted" },
+      { fixture: mintedOutFixture, name: "minted out" },
+    ].forEach((item) => {
+      it(`should withdraw after refund relay when ${item.name}`, async () => {
+        const {
+          deployer,
+          COBOTS_MINT_DURATION,
+          COBOTS_REFUND_DURATION,
+          MINT_PUBLIC_PRICE,
+          minted,
+        } = await item.fixture();
+        await network.provider.send("evm_increaseTime", [
+          COBOTS_MINT_DURATION + COBOTS_REFUND_DURATION + 1,
+        ]);
+        const prevContractBalance = await ethers.provider.getBalance(
+          deployer.CoBots.address
+        );
+        await deployer.CoBots.withdraw();
+        const newContractBalance = await ethers.provider.getBalance(
+          deployer.CoBots.address
+        );
+        expect(prevContractBalance).to.eq(MINT_PUBLIC_PRICE.mul(minted));
+        expect(newContractBalance).to.eq(ethers.utils.parseEther("0"));
+      });
     });
     it("should withdraw after all winners are drawn (cooperation prize disabled)", async () => {
       const {
@@ -582,23 +585,24 @@ describe("CoBots", function () {
         COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       await expect(users[0].CoBots.draw()).to.be.revertedWith(
-        "Co-Bots are not minted out"
+        "Draw not active"
       );
     });
     it("should revert when draw is not open", async () => {
-      const { users, COBOTS_MINT_DURATION } = await mintedOutFixture();
-      await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + 1,
+      const { users, COBOTS_MINT_RAFFLE_DELAY, CoBots } =
+        await mintedOutFixture();
+      const mintedOutTimestamp = await CoBots.mintedOutTimestamp();
+      await network.provider.send("evm_setNextBlockTimestamp", [
+        mintedOutTimestamp.add(COBOTS_MINT_RAFFLE_DELAY - 1).toNumber(),
       ]);
       await expect(users[0].CoBots.draw()).to.be.revertedWith(
         "Draw not active"
       );
     });
     it("should revert a second draw less than 1 minute after a first draw", async () => {
-      const { users, COBOTS_MINT_DURATION, COBOTS_MINT_RAFFLE_DELAY } =
-        await mintedOutFixture();
+      const { users, COBOTS_MINT_RAFFLE_DELAY } = await mintedOutFixture();
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       await users[0].CoBots.draw();
       await expect(users[0].CoBots.draw()).to.be.revertedWith(
@@ -608,13 +612,12 @@ describe("CoBots", function () {
     it("should draw 10 times and revert when only main raffle is enabled", async () => {
       const {
         users,
-        COBOTS_MINT_DURATION,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_WINNERS_COUNT,
         RAFFLE_DRAW_DELAY,
       } = await mintedOutFixture();
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       for (let i = 0; i < MAIN_RAFFLE_WINNERS_COUNT; i++) {
         await users[0].CoBots.draw();
@@ -630,14 +633,13 @@ describe("CoBots", function () {
     it("should draw 30 times and revert when the cooperation raffle is enabled", async () => {
       const {
         users,
-        COBOTS_MINT_DURATION,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_WINNERS_COUNT,
         COORDINATION_RAFFLE_WINNERS_COUNT,
         RAFFLE_DRAW_DELAY,
       } = await cooperationFixture();
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       for (
         let i = 0;
@@ -661,7 +663,6 @@ describe("CoBots", function () {
         users,
         vrfCoordinator,
         CoBots,
-        COBOTS_MINT_DURATION,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_WINNERS_COUNT,
         MAIN_RAFFLE_PRIZE,
@@ -672,7 +673,7 @@ describe("CoBots", function () {
       } = await vrfFixture();
 
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       for (
         let i = 0;
@@ -706,12 +707,11 @@ describe("CoBots", function () {
         vrfCoordinator,
         CoBots,
         COBOTS_MINT_RAFFLE_DELAY,
-        COBOTS_MINT_DURATION,
         MAIN_RAFFLE_PRIZE,
       } = await vrfFixture();
 
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_RAFFLE_DELAY + COBOTS_MINT_DURATION + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       const tokenId = 40;
       const winner = await CoBots.ownerOf(tokenId / 2);
@@ -728,13 +728,12 @@ describe("CoBots", function () {
         users,
         vrfCoordinator,
         CoBots,
-        COBOTS_MINT_DURATION,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_PRIZE,
       } = await vrfFixture();
 
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       const tokenId = 100;
       const firstWinner = await CoBots.ownerOf(tokenId);

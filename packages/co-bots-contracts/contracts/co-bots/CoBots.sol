@@ -44,6 +44,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     ////////////////////////// Schedule ////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
     uint256 public publicSaleStartTimestamp;
+    uint256 public mintedOutTimestamp;
 
     function setPublicSaleTimestamp(uint256 timestamp) external onlyOwner {
         publicSaleStartTimestamp = timestamp;
@@ -188,6 +189,10 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         );
 
         _mint(_msgSender(), quantity);
+
+        if (isMintedOut()) {
+            mintedOutTimestamp = block.timestamp;
+        }
     }
 
     function mintFoundersAndGiveaways(address to, uint256 quantity)
@@ -200,14 +205,21 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         );
 
         _mint(to, quantity);
+
+        if (isMintedOut()) {
+            mintedOutTimestamp = block.timestamp;
+        }
     }
 
     function updateCooperativeRaffleStatus() internal {
         if (
-            publicSaleStartTimestamp +
-                COBOTS_MINT_DURATION +
-                COBOTS_MINT_RAFFLE_DELAY >
-            block.timestamp &&
+            ((block.timestamp <
+                mintedOutTimestamp + COBOTS_MINT_RAFFLE_DELAY) ||
+                (mintedOutTimestamp == 0 &&
+                    block.timestamp <
+                    publicSaleStartTimestamp +
+                        COBOTS_MINT_DURATION +
+                        COBOTS_MINT_RAFFLE_DELAY)) &&
             ((coBotsColorAgreement >= COORDINATION_RAFFLE_THRESHOLD) ||
                 (coBotsColorAgreement <=
                     MAX_COBOTS - COORDINATION_RAFFLE_THRESHOLD))
@@ -331,11 +343,8 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
 
     function isDrawOpen() public view returns (bool) {
         return
-            !isPublicSaleOpen() &&
-            block.timestamp >
-            publicSaleStartTimestamp +
-                COBOTS_MINT_DURATION +
-                COBOTS_MINT_RAFFLE_DELAY;
+            isMintedOut() &&
+            block.timestamp > mintedOutTimestamp + COBOTS_MINT_RAFFLE_DELAY;
     }
 
     modifier whenDrawOpen() {
@@ -421,13 +430,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         s_subId = 0;
     }
 
-    function draw()
-        external
-        nonReentrant
-        whenDrawOpen
-        whenMintedOut
-        returns (uint256)
-    {
+    function draw() external nonReentrant whenDrawOpen returns (uint256) {
         require(
             drawCount <
                 (
