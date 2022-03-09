@@ -324,6 +324,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint256 public lastDrawTimestamp;
     uint64 private s_subId;
     mapping(address => uint256) public prizePerAddress;
+    address[] public winners;
     mapping(uint256 => uint256) public prizePerDraw;
     uint16 public drawCount;
     bool public cooperativeRaffleEnabled;
@@ -415,6 +416,10 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         );
     }
 
+    function cancelSubscription() external onlyOwner {
+        COORDINATOR.cancelSubscription(s_subId, _msgSender());
+    }
+
     function draw()
         external
         nonReentrant
@@ -467,6 +472,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             selectedToken = selectedToken >> 1;
             winner = ERC721A.ownerOf(selectedToken % 10_000);
         }
+        winners.push(winner);
         prizePerAddress[winner] = prizePerDraw[requestId];
         (bool success, ) = winner.call{value: prizePerDraw[requestId]}("");
         require(success, "Transfer failed.");

@@ -5,8 +5,7 @@ import { DeployFunction } from "hardhat-deploy/types";
 import { loadPalettesEncoded, TAGS } from "../utils/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, ethers } = hre;
-  const { BigNumber } = ethers;
+  const { deployments, getNamedAccounts } = hre;
   const { execute } = deployments;
 
   const { deployer } = await getNamedAccounts();
@@ -14,9 +13,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 
   const palettesEncoded = loadPalettesEncoded();
 
-  let gas = BigNumber.from(0);
-  let tx;
-  tx = await execute(
+  await execute(
     "CoBotsRenderer",
     {
       from: deployer,
@@ -25,8 +22,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "setFillPalette",
     palettesEncoded.fillBytes
   );
-  gas = gas.add(BigNumber.from(tx.gasUsed));
-  tx = await execute(
+  await execute(
     "CoBotsRenderer",
     {
       from: deployer,
@@ -35,8 +31,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "setTraitPalette",
     palettesEncoded.traitBytes
   );
-  gas = gas.add(BigNumber.from(tx.gasUsed));
-  tx = await execute(
+  await execute(
     "CoBotsRenderer",
     {
       from: deployer,
@@ -45,9 +40,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "setTraitPaletteIndexes",
     palettesEncoded.traitBytesIndexes
   );
-  gas = gas.add(BigNumber.from(tx.gasUsed));
-
-  tx = await execute(
+  await execute(
     "CoBotsRenderer",
     {
       from: deployer,
@@ -56,9 +49,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     "setLayerIndexes",
     palettesEncoded.layerIndexes
   );
-  gas = gas.add(BigNumber.from(tx.gasUsed));
-
-  console.log(`Palettes gas: ${gas.toString()}`);
 };
 
 export default func;
