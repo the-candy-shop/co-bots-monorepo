@@ -94,6 +94,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     ],
   });
 
+  console.log("CoBots address:", coBotsTx.address);
   const LinkToken = await ethers.getContractAt(
     [
       "function balanceOf(address owner) view returns (uint256 balance)",
@@ -103,10 +104,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     linkAddress,
     deployer
   );
+  console.log("Link address:", LinkToken.address);
   const deployerBalance = await LinkToken.balanceOf(deployer);
+  console.log("Deployer balance:", deployerBalance.toString());
   await LinkToken.approve(deployer, deployerBalance, {
     from: deployer,
   });
+  console.log("Approved");
   const txTransfer = await LinkToken.transferFrom(
     deployer,
     coBotsTx.address,
