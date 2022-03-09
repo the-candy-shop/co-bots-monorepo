@@ -26,6 +26,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint256 public constant COBOTS_MINT_DURATION = 168 hours;
     uint256 public constant COBOTS_MINT_RAFFLE_DELAY = 1 days;
     uint256 public constant COBOTS_REFUND_DURATION = 168 hours;
+    uint256 public constant RAFFLE_DRAW_DELAY = 1 minutes;
     uint256 public constant MAIN_RAFFLE_PRIZE = 25 ether;
     uint8 public constant MAIN_RAFFLE_WINNERS_COUNT = 10;
     uint256 public constant COORDINATION_RAFFLE_PRIZE = 2.5 ether;
@@ -432,7 +433,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             "Draw limit reached"
         );
         require(
-            (lastDrawTimestamp + 1 minutes <= block.timestamp) ||
+            (lastDrawTimestamp + RAFFLE_DRAW_DELAY <= block.timestamp) ||
                 drawCount == 0,
             "Draws take place once per minute"
         );
