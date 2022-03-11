@@ -79,7 +79,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   // Deploy token
-  const coBotsTx = await deploy("CoBots", {
+  await deploy("CoBots", {
     from: deployer,
     log: true,
     args: [
@@ -93,32 +93,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       gasKeyHash,
     ],
   });
-
-  const LinkToken = await ethers.getContractAt(
-    [
-      "function balanceOf(address owner) view returns (uint256 balance)",
-      "function transferFrom(address from, address to, uint256 value) returns (bool success)",
-      "function approve(address _spender, uint256 _value) returns (bool)",
-    ],
-    linkAddress,
-    deployer
-  );
-  const deployerBalance = await LinkToken.balanceOf(deployer);
-  await LinkToken.approve(deployer, deployerBalance, {
-    from: deployer,
-  });
-  const txTransfer = await LinkToken.transferFrom(
-    deployer,
-    coBotsTx.address,
-    deployerBalance
-  );
-  await txTransfer.wait();
-  await execute(
-    "CoBots",
-    { from: deployer },
-    "createSubscriptionAndFund",
-    deployerBalance
-  );
 };
 export default func;
 func.tags = [TAGS.CO_BOTS];

@@ -40,4 +40,5 @@ export const TAGS = {
   INTEGERS: "Integers",
   CO_BOTS: "CoBots",
   CO_BOTS_PALETTES: "CoBotsPalettes",
+  CO_BOTS_SUBSCRIPTION: "CoBotsSubscription",
 };

@@ -16,7 +16,11 @@ chai.use(solidity);
 const { expect } = chai;
 
 const setup = async () => {
-  await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_PALETTES]);
+  await deployments.fixture([
+    TAGS.CO_BOTS,
+    TAGS.CO_BOTS_PALETTES,
+    TAGS.CO_BOTS_SUBSCRIPTION,
+  ]);
   const contracts = {
     CoBots: await ethers.getContract("CoBots"),
     VRFCoordinator: await ethers.getContract("VRFCoordinatorV2TestHelper"),
@@ -69,13 +73,7 @@ const setup = async () => {
 
 const publicSaleFixture = deployments.createFixture(async ({ network }) => {
   const contractsAndUsers = await setup();
-  const currentBlockNumber = await ethers.provider.getBlockNumber();
-  const currentTimestamp = await ethers.provider
-    .getBlock(currentBlockNumber)
-    .then((block) => block.timestamp);
-  await contractsAndUsers.deployer.CoBots.setPublicSaleTimestamp(
-    currentTimestamp
-  );
+  await contractsAndUsers.deployer.CoBots.openPublicSale();
   await network.provider.send("evm_mine");
   return contractsAndUsers;
 });
@@ -413,13 +411,12 @@ describe("CoBots", function () {
       const {
         deployer,
         CoBots,
-        COBOTS_MINT_DURATION,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_WINNERS_COUNT,
         RAFFLE_DRAW_DELAY,
       } = await mintedOutFixture();
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       for (let i = 0; i < MAIN_RAFFLE_WINNERS_COUNT; i++) {
         await expect(deployer.CoBots.withdraw()).to.be.revertedWith(
@@ -440,14 +437,13 @@ describe("CoBots", function () {
       const {
         deployer,
         CoBots,
-        COBOTS_MINT_DURATION,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_WINNERS_COUNT,
         COORDINATION_RAFFLE_WINNERS_COUNT,
         RAFFLE_DRAW_DELAY,
       } = await cooperationFixture();
       await network.provider.send("evm_increaseTime", [
-        COBOTS_MINT_DURATION + COBOTS_MINT_RAFFLE_DELAY + 1,
+        COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
       for (
         let i = 0;

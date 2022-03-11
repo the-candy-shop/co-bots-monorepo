@@ -46,14 +46,14 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint256 public publicSaleStartTimestamp;
     uint256 public mintedOutTimestamp;
 
-    function setPublicSaleTimestamp(uint256 timestamp) external onlyOwner {
-        publicSaleStartTimestamp = timestamp;
+    function openPublicSale() external onlyOwner {
+        publicSaleStartTimestamp = block.timestamp;
     }
 
     function isPublicSaleOpen() public view returns (bool) {
         return
-            block.timestamp > publicSaleStartTimestamp &&
             publicSaleStartTimestamp != 0 &&
+            block.timestamp > publicSaleStartTimestamp &&
             block.timestamp < publicSaleStartTimestamp + COBOTS_MINT_DURATION;
     }
 
@@ -301,10 +301,13 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             );
     }
 
-    function contractURI() public view returns (string memory) {
+    function contractURI() public pure returns (string memory) {
         return
             string.concat(
-                'data:application/json,{"name": "Co-Bots", "description": "Co-Bots are cooperation robots.\nCC0 & 100% On-Chain.\n\nco-bots.com."}'
+                "data:application/json,{",
+                '"name": "Co-Bots",',
+                '"description": "Co-Bots are cooperation robots.\nCC0 & 100% On-Chain.\n\nco-bots.com."',
+                "}"
             );
     }
 
