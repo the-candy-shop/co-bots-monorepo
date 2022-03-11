@@ -365,28 +365,6 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         _;
     }
 
-    function claimRefund()
-        external
-        nonReentrant
-        whenRefundAllowed
-        whenNotMintedOut
-    {
-        uint256 value;
-        for (uint256 i = 0; i < ERC721A.balanceOf(_msgSender()); i++) {
-            uint256 tokenId = ERC721A.tokenOfOwnerByIndex(_msgSender(), i);
-            if (tokenId < MINT_FOUNDERS_AND_GIVEAWAYS) {
-                continue;
-            }
-            if (!coBotsRefunded[tokenId]) {
-                value += MINT_PUBLIC_PRICE;
-                coBotsRefunded[tokenId] = true;
-            }
-        }
-        require(value > 0, "No Co-Bots to refund");
-        (bool success, ) = _msgSender().call{value: value}("");
-        require(success, "Withdrawal failed");
-    }
-
     function claimRefund(uint256[] calldata tokenIds)
         external
         nonReentrant

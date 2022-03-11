@@ -470,7 +470,6 @@ describe("CoBots", function () {
     });
   });
   [
-    { key: "claimRefund()", tokenIds: undefined },
     {
       key: "claimRefund(uint256[])",
       tokenIds: [...Array(10).keys()].map((i) => i + 100),
