@@ -353,14 +353,14 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
         uint256 antennaIndex;
         uint256 feetIndex;
         if (tokenId == 0) {
+            (eyesIndex, mouthIndex, antennaIndex, feetIndex) = getToadItems();
+        } else if (tokenId == 1) {
             (
                 eyesIndex,
                 mouthIndex,
                 antennaIndex,
                 feetIndex
             ) = getNounishItems();
-        } else if (tokenId == 1) {
-            (eyesIndex, mouthIndex, antennaIndex, feetIndex) = getToadItems();
         } else if (tokenId == 2) {
             (eyesIndex, mouthIndex, antennaIndex, feetIndex) = getWizardItems();
         } else {
