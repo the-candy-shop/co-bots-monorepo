@@ -524,7 +524,7 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
                 '{"image_data": "',
                 getCoBotImageURI(items),
                 '"',
-                ',"description": "Co-Bots are cooperation robots.\nCC0 & 100% On-Chain.\n\nco-bots.com."',
+                ',"description": "Co-Bots are cooperation robots.%0ACC0 & 100% On-Chain.%0A%0Aco-bots.com."',
                 ',"name": "Co-Bot #',
                 tokenId.toString(),
                 '"',
