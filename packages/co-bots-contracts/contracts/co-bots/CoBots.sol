@@ -301,16 +301,6 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
             );
     }
 
-    function contractURI() public view returns (string memory) {
-        return
-            string.concat(
-                "data:application/json,{",
-                '"name": "Co-Bots",',
-                '"description": "Co-Bots are cooperation robots.%0ACC0 & 100% On-Chain.%0A%0Aco-bots.com."',
-                "}"
-            );
-    }
-
     function exists(uint256 _tokenId) external view returns (bool) {
         return _exists(_tokenId);
     }
