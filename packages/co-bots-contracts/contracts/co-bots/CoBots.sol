@@ -341,7 +341,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     bytes32 gasKeyHash;
 
     uint256 public lastDrawTimestamp;
-    uint64 private s_subId;
+    uint64 public s_subId;
     mapping(address => uint256) public prizePerAddress;
     address[] public winners;
     mapping(uint256 => uint256) public prizePerDraw;
