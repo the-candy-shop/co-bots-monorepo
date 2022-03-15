@@ -28,7 +28,7 @@ const setup = async () => {
   const constants = {
     MAX_COBOTS: await contracts.CoBots.MAX_COBOTS(),
     MINT_PUBLIC_PRICE: ethers.BigNumber.from(
-      (await contracts.CoBots.MINT_PUBLIC_PRICE()).toString()
+      (await contracts.CoBots.mintPublicPrice()).toString()
     ),
     MAX_MINT_PER_ADDRESS: await contracts.CoBots.MAX_MINT_PER_ADDRESS(),
     MINT_GIVEAWAYS: await contracts.CoBots.MINT_GIVEAWAYS(),
@@ -45,12 +45,12 @@ const setup = async () => {
     ).toNumber(),
     RAFFLE_DRAW_DELAY: (await contracts.CoBots.RAFFLE_DRAW_DELAY()).toNumber(),
     MAIN_RAFFLE_PRIZE: ethers.BigNumber.from(
-      (await contracts.CoBots.MAIN_RAFFLE_PRIZE()).toString()
+      (await contracts.CoBots.mainRafflePrize()).toString()
     ),
     MAIN_RAFFLE_WINNERS_COUNT:
       await contracts.CoBots.MAIN_RAFFLE_WINNERS_COUNT(),
     COORDINATION_RAFFLE_PRIZE: ethers.BigNumber.from(
-      (await contracts.CoBots.COORDINATION_RAFFLE_PRIZE()).toString()
+      (await contracts.CoBots.coordinationRafflePrize()).toString()
     ),
     COORDINATION_RAFFLE_WINNERS_COUNT:
       await contracts.CoBots.COORDINATION_RAFFLE_WINNERS_COUNT(),
@@ -138,6 +138,20 @@ const partiallyMintedFixture = deployments.createFixture(async ({}) => {
 });
 
 describe("CoBots", function () {
+  describe("constructor", async function () {
+    it("should set the raffle prizes correctly", async () => {
+      const {
+        MAX_COBOTS,
+        MINT_PUBLIC_PRICE,
+        MAIN_RAFFLE_PRIZE,
+        COORDINATION_RAFFLE_PRIZE,
+      } = await setup();
+      expect(MAIN_RAFFLE_PRIZE).to.eq(
+        MINT_PUBLIC_PRICE.mul(MAX_COBOTS).div(20)
+      );
+      expect(COORDINATION_RAFFLE_PRIZE).to.eq(MAIN_RAFFLE_PRIZE.div(10));
+    });
+  });
   describe("mintPublicSale", async function () {
     it("should revert when minting is not open", async () => {
       const { users } = await setup();
