@@ -47,6 +47,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint256 public mintedOutTimestamp;
 
     function openPublicSale() external onlyOwner {
+        require(publicSaleStartTimestamp != 0, "Public sale already started");
         publicSaleStartTimestamp = block.timestamp;
     }
 
