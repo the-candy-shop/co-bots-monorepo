@@ -684,7 +684,8 @@ describe("CoBots", function () {
         await vrfCoordinator.CoBots.rawFulfillRandomWords(requestId, [tokenId]);
         const balanceNext = await ethers.provider.getBalance(owner);
         const winner = await CoBots.winners(i);
-        expect(winner).to.equal(owner);
+        expect(winner[0]).to.equal(owner);
+        expect(winner[1]).to.equal(tokenId);
         expect(balanceNext.sub(balancePrev)).to.eq(
           i < MAIN_RAFFLE_WINNERS_COUNT
             ? MAIN_RAFFLE_PRIZE

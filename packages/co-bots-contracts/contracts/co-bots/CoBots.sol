@@ -18,7 +18,7 @@ contract ProxyRegistry {
 
 contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     // Constants
-    uint256 public constant MAX_COBOTS = 10_000;
+    uint16 public constant MAX_COBOTS = 10_000;
     uint256 public constant MINT_PUBLIC_PRICE = 0.05 ether;
     uint8 public constant MAX_MINT_PER_ADDRESS = 20;
     uint8 public constant MINT_GIVEAWAYS = 30;
@@ -34,11 +34,11 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint16 public constant COORDINATION_RAFFLE_THRESHOLD = 9_500;
 
     // CoBots states variables
-    uint8[10_000] public coBotsSeeds;
-    bool[10_000] public coBotsStatusDisabled;
-    bool[10_000] public coBotsColors;
-    bool[10_000] public coBotsRefunded;
-    uint16 public coBotsColorAgreement = 5000; // cobots are minted 50%/50%
+    uint8[MAX_COBOTS] public coBotsSeeds;
+    bool[MAX_COBOTS] public coBotsStatusDisabled;
+    bool[MAX_COBOTS] public coBotsColors;
+    bool[MAX_COBOTS] public coBotsRefunded;
+    uint16 public coBotsColorAgreement = MAX_COBOTS / 2; // cobots are minted 50%/50%
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Schedule ////////////////////////////////////
@@ -333,10 +333,15 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     LinkTokenInterface LINKTOKEN;
     bytes32 gasKeyHash;
 
+    struct Winner {
+        address winner;
+        uint16 tokenId;
+    }
+
     uint256 public lastDrawTimestamp;
     uint64 public s_subId;
     mapping(address => uint256) public prizePerAddress;
-    address[] public winners;
+    Winner[] public winners;
     mapping(uint256 => uint256) public prizePerDraw;
     uint16 public drawCount;
     bool public cooperativeRaffleEnabled;
@@ -445,16 +450,16 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         override
     {
         uint256 selectedToken = randomWords[0];
-        address winner = ERC721A.ownerOf(selectedToken % 10_000);
+        address winner = ERC721A.ownerOf(selectedToken % MAX_COBOTS);
         while (
             prizePerAddress[winner] > 0 ||
-            (selectedToken % 10_000 >= MINT_GIVEAWAYS &&
-                selectedToken % 10_000 < MINT_FOUNDERS_AND_GIVEAWAYS)
+            (selectedToken % MAX_COBOTS >= MINT_GIVEAWAYS &&
+                selectedToken % MAX_COBOTS < MINT_FOUNDERS_AND_GIVEAWAYS)
         ) {
             selectedToken = selectedToken >> 1;
-            winner = ERC721A.ownerOf(selectedToken % 10_000);
+            winner = ERC721A.ownerOf(selectedToken % MAX_COBOTS);
         }
-        winners.push(winner);
+        winners.push(Winner(winner, uint16(selectedToken % MAX_COBOTS)));
         prizePerAddress[winner] = prizePerDraw[requestId];
         (bool success, ) = winner.call{value: prizePerDraw[requestId]}("");
         require(success, "Transfer failed.");
