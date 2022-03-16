@@ -19,6 +19,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let mintPublicPrice;
   let maxCobots;
   let mainRaffleWinnersCount;
+  let timeUnit;
 
   if (network.tags.mainnet) {
     openseaAddress = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
@@ -33,6 +34,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     mintPublicPrice = ethers.utils.parseEther("0.05");
     maxCobots = 10_000;
     mainRaffleWinnersCount = 10;
+    timeUnit = 60 * 60 * 24; // 1 day
   } else {
     openseaAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
     looksrareAddress = "0xf42aa99f011a1fa7cda90e5e98b277e306bca83e";
@@ -46,6 +48,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     mintPublicPrice = ethers.utils.parseEther("0.00005");
     maxCobots = 100;
     mainRaffleWinnersCount = 1;
+    timeUnit = 60; // 1 minute
   }
   if (network.tags.local) {
     const vrfTx = await deploy("VRFCoordinatorV2TestHelper", {
@@ -100,9 +103,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       vrfCoordinatorAddress,
       linkAddress,
       gasKeyHash,
-      mintPublicPrice,
-      maxCobots,
-      mainRaffleWinnersCount,
+      { mintPublicPrice, maxCobots, mainRaffleWinnersCount, timeUnit },
     ],
   });
 };

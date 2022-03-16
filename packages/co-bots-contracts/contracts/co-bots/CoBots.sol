@@ -21,18 +21,18 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint8 public constant MAX_MINT_PER_ADDRESS = 20;
     uint8 public constant MINT_GIVEAWAYS = 30;
     uint8 public constant MINT_FOUNDERS_AND_GIVEAWAYS = 50;
-    uint256 public constant COBOTS_MINT_DURATION = 168 hours;
-    uint256 public constant COBOTS_MINT_RAFFLE_DELAY = 1 days;
-    uint256 public constant COBOTS_REFUND_DURATION = 168 hours;
     uint256 public constant RAFFLE_DRAW_DELAY = 1 minutes;
     uint8 public constant COORDINATION_RAFFLE_THRESHOLD = 95; // percentage of MAX_COBOTS
     // These are set only once in constructor but are not constant for testing purposes
     uint256 public MINT_PUBLIC_PRICE;
-    uint256 public MAIN_RAFFLE_PRIZE;
-    uint256 public COORDINATION_RAFFLE_PRIZE;
     uint16 public MAX_COBOTS;
     uint8 public MAIN_RAFFLE_WINNERS_COUNT;
+    uint72 public MAIN_RAFFLE_PRIZE;
     uint8 public COORDINATION_RAFFLE_WINNERS_COUNT;
+    uint72 public COORDINATION_RAFFLE_PRIZE;
+    uint256 public COBOTS_MINT_DURATION;
+    uint256 public COBOTS_MINT_RAFFLE_DELAY;
+    uint256 public COBOTS_REFUND_DURATION;
 
     // CoBots states variables
     uint8[] public coBotsSeeds;
@@ -133,6 +133,13 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         renderer = ICoBotsRenderer(renderingContractAddress);
     }
 
+    struct Parameters {
+        uint16 maxCobots;
+        uint72 mintPublicPrice;
+        uint8 mainRaffleWinnersCount;
+        uint24 timeUnit;
+    }
+
     constructor(
         string memory name_,
         string memory symbol_,
@@ -142,9 +149,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         address vrfCoordinator,
         address link,
         bytes32 keyHash,
-        uint256 _mintPublicPrice,
-        uint16 _maxCobots,
-        uint8 _mainRaffleWinnersCount
+        Parameters memory parameters
     ) ERC721A(name_, symbol_) VRFConsumerBaseV2(vrfCoordinator) {
         setRenderingContractAddress(_rendererAddress);
         opensea = _opensea;
@@ -152,18 +157,25 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
         LINKTOKEN = LinkTokenInterface(link);
         gasKeyHash = keyHash;
-        MAX_COBOTS = _maxCobots;
-        MINT_PUBLIC_PRICE = _mintPublicPrice;
-        MAIN_RAFFLE_PRIZE = (_mintPublicPrice * _maxCobots) / 20;
+        MAX_COBOTS = parameters.maxCobots;
+        MINT_PUBLIC_PRICE = parameters.mintPublicPrice;
+        MAIN_RAFFLE_PRIZE =
+            (parameters.mintPublicPrice * parameters.maxCobots) /
+            20;
+        MAIN_RAFFLE_WINNERS_COUNT = parameters.mainRaffleWinnersCount;
+        COORDINATION_RAFFLE_WINNERS_COUNT =
+            parameters.mainRaffleWinnersCount *
+            2;
         COORDINATION_RAFFLE_PRIZE = MAIN_RAFFLE_PRIZE / 10;
-        MAIN_RAFFLE_WINNERS_COUNT = _mainRaffleWinnersCount;
-        COORDINATION_RAFFLE_WINNERS_COUNT = _mainRaffleWinnersCount * 2;
+        COBOTS_MINT_DURATION = parameters.timeUnit * 7;
+        COBOTS_MINT_RAFFLE_DELAY = parameters.timeUnit;
+        COBOTS_REFUND_DURATION = parameters.timeUnit * 7;
 
-        coBotsSeeds = new uint8[](_maxCobots);
-        coBotsStatusDisabled = new bool[](_maxCobots);
-        coBotsColors = new bool[](_maxCobots);
-        coBotsRefunded = new bool[](_maxCobots);
-        coBotsColorAgreement = _maxCobots / 2; // CoBots are minted 50%/50%
+        coBotsSeeds = new uint8[](parameters.maxCobots);
+        coBotsStatusDisabled = new bool[](parameters.maxCobots);
+        coBotsColors = new bool[](parameters.maxCobots);
+        coBotsRefunded = new bool[](parameters.maxCobots);
+        coBotsColorAgreement = parameters.maxCobots / 2; // CoBots are minted 50%/50%
     }
 
     function _mint(address to, uint256 quantity) internal {
