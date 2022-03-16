@@ -28,7 +28,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint256 public constant RAFFLE_DRAW_DELAY = 1 minutes;
     uint8 public constant MAIN_RAFFLE_WINNERS_COUNT = 10;
     uint8 public constant COORDINATION_RAFFLE_WINNERS_COUNT = 20;
-    uint16 public constant COORDINATION_RAFFLE_THRESHOLD = 9_500;
+    uint8 public constant COORDINATION_RAFFLE_THRESHOLD = 95; // percentage of MAX_COBOTS
     // These are set only once in constructor but are not constant for testing purposes
     uint256 public mintPublicPrice;
     uint256 public mainRafflePrize;
@@ -218,6 +218,9 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     }
 
     function updateCooperativeRaffleStatus() internal {
+        if (cooperativeRaffleEnabled) {
+            return;
+        }
         if (
             ((block.timestamp <
                 mintedOutTimestamp + COBOTS_MINT_RAFFLE_DELAY) ||
@@ -226,9 +229,11 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
                     publicSaleStartTimestamp +
                         COBOTS_MINT_DURATION +
                         COBOTS_MINT_RAFFLE_DELAY)) &&
-            ((coBotsColorAgreement >= COORDINATION_RAFFLE_THRESHOLD) ||
+            ((coBotsColorAgreement >=
+                ((MAX_COBOTS / 100) * COORDINATION_RAFFLE_THRESHOLD)) ||
                 (coBotsColorAgreement <=
-                    MAX_COBOTS - COORDINATION_RAFFLE_THRESHOLD))
+                    MAX_COBOTS -
+                        ((MAX_COBOTS / 100) * COORDINATION_RAFFLE_THRESHOLD)))
         ) {
             cooperativeRaffleEnabled = true;
         }
