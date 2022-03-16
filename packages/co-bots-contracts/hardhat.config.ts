@@ -71,6 +71,7 @@ const config: HardhatUserConfig = {
       },
     },
     localhost: {
+      tags: ["local"],
       timeout: 1_000_000,
     },
   },
