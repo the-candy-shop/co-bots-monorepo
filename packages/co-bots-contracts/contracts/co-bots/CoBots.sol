@@ -18,7 +18,6 @@ contract ProxyRegistry {
 
 contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     // Constants
-    uint16 public constant MAX_COBOTS = 10_000;
     uint8 public constant MAX_MINT_PER_ADDRESS = 20;
     uint8 public constant MINT_GIVEAWAYS = 30;
     uint8 public constant MINT_FOUNDERS_AND_GIVEAWAYS = 50;
@@ -26,20 +25,21 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
     uint256 public constant COBOTS_MINT_RAFFLE_DELAY = 1 days;
     uint256 public constant COBOTS_REFUND_DURATION = 168 hours;
     uint256 public constant RAFFLE_DRAW_DELAY = 1 minutes;
-    uint8 public constant MAIN_RAFFLE_WINNERS_COUNT = 10;
-    uint8 public constant COORDINATION_RAFFLE_WINNERS_COUNT = 20;
     uint8 public constant COORDINATION_RAFFLE_THRESHOLD = 95; // percentage of MAX_COBOTS
     // These are set only once in constructor but are not constant for testing purposes
-    uint256 public mintPublicPrice;
-    uint256 public mainRafflePrize;
-    uint256 public coordinationRafflePrize;
+    uint256 public MINT_PUBLIC_PRICE;
+    uint256 public MAIN_RAFFLE_PRIZE;
+    uint256 public COORDINATION_RAFFLE_PRIZE;
+    uint16 public MAX_COBOTS;
+    uint8 public MAIN_RAFFLE_WINNERS_COUNT;
+    uint8 public COORDINATION_RAFFLE_WINNERS_COUNT;
 
     // CoBots states variables
-    uint8[MAX_COBOTS] public coBotsSeeds;
-    bool[MAX_COBOTS] public coBotsStatusDisabled;
-    bool[MAX_COBOTS] public coBotsColors;
-    bool[MAX_COBOTS] public coBotsRefunded;
-    uint16 public coBotsColorAgreement = MAX_COBOTS / 2; // cobots are minted 50%/50%
+    uint8[] public coBotsSeeds;
+    bool[] public coBotsStatusDisabled;
+    bool[] public coBotsColors;
+    bool[] public coBotsRefunded;
+    uint16 public coBotsColorAgreement;
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Schedule ////////////////////////////////////
@@ -142,7 +142,9 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         address vrfCoordinator,
         address link,
         bytes32 keyHash,
-        uint256 _mintPublicPrice
+        uint256 _mintPublicPrice,
+        uint16 _maxCobots,
+        uint8 _mainRaffleWinnersCount
     ) ERC721A(name_, symbol_) VRFConsumerBaseV2(vrfCoordinator) {
         setRenderingContractAddress(_rendererAddress);
         opensea = _opensea;
@@ -150,9 +152,18 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
         LINKTOKEN = LinkTokenInterface(link);
         gasKeyHash = keyHash;
-        mintPublicPrice = _mintPublicPrice;
-        mainRafflePrize = (_mintPublicPrice * MAX_COBOTS) / 20;
-        coordinationRafflePrize = mainRafflePrize / 10;
+        MAX_COBOTS = _maxCobots;
+        MINT_PUBLIC_PRICE = _mintPublicPrice;
+        MAIN_RAFFLE_PRIZE = (_mintPublicPrice * _maxCobots) / 20;
+        COORDINATION_RAFFLE_PRIZE = MAIN_RAFFLE_PRIZE / 10;
+        MAIN_RAFFLE_WINNERS_COUNT = _mainRaffleWinnersCount;
+        COORDINATION_RAFFLE_WINNERS_COUNT = _mainRaffleWinnersCount * 2;
+
+        coBotsSeeds = new uint8[](_maxCobots);
+        coBotsStatusDisabled = new bool[](_maxCobots);
+        coBotsColors = new bool[](_maxCobots);
+        coBotsRefunded = new bool[](_maxCobots);
+        coBotsColorAgreement = _maxCobots / 2; // CoBots are minted 50%/50%
     }
 
     function _mint(address to, uint256 quantity) internal {
@@ -182,7 +193,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         nonReentrant
     {
         require(
-            msg.value == mintPublicPrice * quantity,
+            msg.value == MINT_PUBLIC_PRICE * quantity,
             "Price does not match"
         );
         require(
@@ -398,7 +409,7 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
                 "You cannot claim a refund for a token you do not own"
             );
             if (!coBotsRefunded[tokenId]) {
-                value += mintPublicPrice;
+                value += MINT_PUBLIC_PRICE;
                 coBotsRefunded[tokenId] = true;
             }
         }
@@ -442,8 +453,8 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         );
         lastDrawTimestamp = block.timestamp;
         uint256 currentPrizeMoney = drawCount < MAIN_RAFFLE_WINNERS_COUNT
-            ? mainRafflePrize
-            : coordinationRafflePrize;
+            ? MAIN_RAFFLE_PRIZE
+            : COORDINATION_RAFFLE_PRIZE;
         drawCount++;
         uint256 requestId = COORDINATOR.requestRandomWords(
             gasKeyHash,

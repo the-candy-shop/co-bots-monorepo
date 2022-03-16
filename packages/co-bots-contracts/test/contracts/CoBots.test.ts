@@ -28,7 +28,7 @@ const setup = async () => {
   const constants = {
     MAX_COBOTS: await contracts.CoBots.MAX_COBOTS(),
     MINT_PUBLIC_PRICE: ethers.BigNumber.from(
-      (await contracts.CoBots.mintPublicPrice()).toString()
+      (await contracts.CoBots.MINT_PUBLIC_PRICE()).toString()
     ),
     MAX_MINT_PER_ADDRESS: await contracts.CoBots.MAX_MINT_PER_ADDRESS(),
     MINT_GIVEAWAYS: await contracts.CoBots.MINT_GIVEAWAYS(),
@@ -45,12 +45,12 @@ const setup = async () => {
     ).toNumber(),
     RAFFLE_DRAW_DELAY: (await contracts.CoBots.RAFFLE_DRAW_DELAY()).toNumber(),
     MAIN_RAFFLE_PRIZE: ethers.BigNumber.from(
-      (await contracts.CoBots.mainRafflePrize()).toString()
+      (await contracts.CoBots.MAIN_RAFFLE_PRIZE()).toString()
     ),
     MAIN_RAFFLE_WINNERS_COUNT:
       await contracts.CoBots.MAIN_RAFFLE_WINNERS_COUNT(),
     COORDINATION_RAFFLE_PRIZE: ethers.BigNumber.from(
-      (await contracts.CoBots.coordinationRafflePrize()).toString()
+      (await contracts.CoBots.COORDINATION_RAFFLE_PRIZE()).toString()
     ),
     COORDINATION_RAFFLE_WINNERS_COUNT:
       await contracts.CoBots.COORDINATION_RAFFLE_WINNERS_COUNT(),
@@ -58,7 +58,12 @@ const setup = async () => {
       await contracts.CoBots.COORDINATION_RAFFLE_THRESHOLD(),
   };
   const { deployer } = await getNamedAccounts();
-  const users = await setupUsers(await getUnnamedAccounts(), contracts);
+  const users = await setupUsers(
+    (
+      await getUnnamedAccounts()
+    ).slice(0, constants.MAX_COBOTS / constants.MAX_MINT_PER_ADDRESS),
+    contracts
+  );
   return {
     ...contracts,
     users,
@@ -81,14 +86,19 @@ const publicSaleFixture = deployments.createFixture(async ({ network }) => {
 const mintedOutFixture = deployments.createFixture(async ({}) => {
   const contractsAndUsers = await publicSaleFixture();
   const { MAX_MINT_PER_ADDRESS, MINT_PUBLIC_PRICE } = contractsAndUsers;
+  const mintedPerAddress = MAX_MINT_PER_ADDRESS;
   await Promise.all(
     contractsAndUsers.users.map((user) =>
-      user.CoBots.mintPublicSale(MAX_MINT_PER_ADDRESS, {
-        value: MINT_PUBLIC_PRICE.mul(MAX_MINT_PER_ADDRESS),
+      user.CoBots.mintPublicSale(mintedPerAddress, {
+        value: MINT_PUBLIC_PRICE.mul(mintedPerAddress),
       })
     )
   );
-  return { ...contractsAndUsers, minted: contractsAndUsers.MAX_COBOTS };
+  return {
+    ...contractsAndUsers,
+    mintedPerAddress,
+    minted: contractsAndUsers.MAX_COBOTS,
+  };
 });
 
 const cooperationFixture = deployments.createFixture(async ({}) => {
@@ -118,7 +128,7 @@ const vrfFixture = deployments.createFixture(async ({}) => {
     await ethers.getSigner(users[0].address)
   ).sendTransaction({
     to: VRFCoordinator.address,
-    value: ethers.utils.parseEther("1"),
+    value: ethers.utils.parseEther("100"),
   });
 
   return contractsAndUsers;
@@ -127,14 +137,19 @@ const vrfFixture = deployments.createFixture(async ({}) => {
 const partiallyMintedFixture = deployments.createFixture(async ({}) => {
   const contractsAndUsers = await publicSaleFixture();
   const { MAX_MINT_PER_ADDRESS, MINT_PUBLIC_PRICE } = contractsAndUsers;
+  const mintedPerAddress = MAX_MINT_PER_ADDRESS - 1;
   await Promise.all(
     contractsAndUsers.users.map((user) =>
-      user.CoBots.mintPublicSale(MAX_MINT_PER_ADDRESS / 2, {
-        value: MINT_PUBLIC_PRICE.mul(MAX_MINT_PER_ADDRESS).div(2),
+      user.CoBots.mintPublicSale(mintedPerAddress, {
+        value: MINT_PUBLIC_PRICE.mul(mintedPerAddress),
       })
     )
   );
-  return { ...contractsAndUsers, minted: contractsAndUsers.MAX_COBOTS / 2 };
+  return {
+    ...contractsAndUsers,
+    mintedPerAddress,
+    minted: mintedPerAddress * contractsAndUsers.users.length,
+  };
 });
 
 describe("CoBots", function () {
@@ -244,7 +259,7 @@ describe("CoBots", function () {
       ).map((color, index) => (index % 2 == 1 ? !color : color));
       expect(colors).to.deep.eq(Array(MAX_MINT_PER_ADDRESS).fill(true));
     });
-    it("should mint out up to token 9999", async () => {
+    it("should mint out up to id MAX_COBOTS - 1", async () => {
       const { CoBots, MAX_COBOTS } = await mintedOutFixture();
       await CoBots.ownerOf(MAX_COBOTS - 1);
       expect(CoBots.ownerOf(MAX_COBOTS)).to.be.revertedWith(
@@ -479,111 +494,98 @@ describe("CoBots", function () {
       );
     });
   });
-  [
-    {
-      key: "claimRefund(uint256[])",
-      tokenIds: [...Array(10).keys()].map((i) => i + 100),
-    },
-  ].forEach(({ key, tokenIds }) => {
-    describe(key, async function () {
-      it("should revert when minting is still open", async () => {
-        const { users } = await partiallyMintedFixture();
-        await expect(
-          tokenIds
-            ? users[10].CoBots.functions[key](tokenIds)
-            : users[10].CoBots.functions[key]()
-        ).to.be.revertedWith("Refund period not open");
-      });
-      it("should revert when co-bots are minted out", async () => {
-        const { users, COBOTS_MINT_DURATION } = await mintedOutFixture();
-        await network.provider.send("evm_increaseTime", [
-          COBOTS_MINT_DURATION + 1,
-        ]);
-        await expect(
-          tokenIds
-            ? users[10].CoBots.functions[key](tokenIds)
-            : users[10].CoBots.functions[key]()
-        ).to.be.revertedWith("Co-Bots are minted out");
-      });
-      it("should revert when delay is passed", async () => {
-        const { users, COBOTS_MINT_DURATION, COBOTS_REFUND_DURATION } =
-          await partiallyMintedFixture();
-        await network.provider.send("evm_increaseTime", [
-          COBOTS_MINT_DURATION + COBOTS_REFUND_DURATION + 1,
-        ]);
-        await expect(
-          tokenIds
-            ? users[0].CoBots.functions[key](tokenIds)
-            : users[0].CoBots.functions[key]()
-        ).to.be.revertedWith("Refund period not open");
-      });
-      it("should revert when co-bots are giveaways", async () => {
-        const { users, COBOTS_MINT_DURATION } = await partiallyMintedFixture();
-        await network.provider.send("evm_increaseTime", [
-          COBOTS_MINT_DURATION + 1,
-        ]);
-        await expect(
-          tokenIds
-            ? users[0].CoBots.functions[key]([...Array(10).keys()])
-            : users[0].CoBots.functions[key]()
-        ).to.be.revertedWith("No Co-Bots to refund");
-      });
-      it("should refund user with correct amount", async () => {
-        const { users, COBOTS_MINT_DURATION, MINT_PUBLIC_PRICE } =
-          await partiallyMintedFixture();
-        await network.provider.send("evm_increaseTime", [
-          COBOTS_MINT_DURATION + 1,
-        ]);
-        const prevUserBalance = await ethers.provider.getBalance(
-          users[10].address
-        );
-        const tx = await (tokenIds
-          ? users[10].CoBots.functions[key](tokenIds)
-          : users[10].CoBots.functions[key]());
-        const receipt = await tx.wait();
-        const paidFees = receipt.cumulativeGasUsed.mul(
-          receipt.effectiveGasPrice
-        );
-        const newUserBalance = await ethers.provider.getBalance(
-          users[10].address
-        );
-        expect(newUserBalance.toString()).to.eq(
-          prevUserBalance
-            .add(MINT_PUBLIC_PRICE.mul(10))
-            .sub(paidFees)
-            .toString()
-        );
-      });
-      it("should revert a second claim for the same token", async () => {
-        const { users, COBOTS_MINT_DURATION } = await partiallyMintedFixture();
-        await network.provider.send("evm_increaseTime", [
-          COBOTS_MINT_DURATION + 1,
-        ]);
-        await (tokenIds
-          ? users[10].CoBots.functions[key](tokenIds)
-          : users[10].CoBots.functions[key]());
-        await expect(
-          tokenIds
-            ? users[10].CoBots.functions[key](tokenIds)
-            : users[10].CoBots.functions[key]()
-        ).to.be.revertedWith("No Co-Bots to refund");
-      });
-      if (tokenIds) {
-        it("should revert when claiming tokens that are not owned", async () => {
-          const { users, COBOTS_MINT_DURATION } =
-            await partiallyMintedFixture();
-          await network.provider.send("evm_increaseTime", [
-            COBOTS_MINT_DURATION + 1,
-          ]);
-          await expect(
-            users[10].CoBots.functions[key](
-              [...Array(10).keys()].map((i) => i + 200)
-            )
-          ).to.be.revertedWith(
-            "You cannot claim a refund for a token you do not own"
-          );
-        });
-      }
+  describe("claimRefund", async function () {
+    it("should revert when minting is still open", async () => {
+      const { users, MAX_MINT_PER_ADDRESS } = await partiallyMintedFixture();
+      const user = users[users.length - 1];
+      const tokenIds = [...Array(MAX_MINT_PER_ADDRESS).keys()].map(
+        (i) => i + MAX_MINT_PER_ADDRESS * (users.length - 1)
+      );
+      await expect(user.CoBots.claimRefund(tokenIds)).to.be.revertedWith(
+        "Refund period not open"
+      );
+    });
+    it("should revert when co-bots are minted out", async () => {
+      const { users, MAX_MINT_PER_ADDRESS, COBOTS_MINT_DURATION } =
+        await mintedOutFixture();
+      const user = users[users.length - 1];
+      const tokenIds = [...Array(MAX_MINT_PER_ADDRESS).keys()].map(
+        (i) => i + MAX_MINT_PER_ADDRESS * (users.length - 1)
+      );
+      await network.provider.send("evm_increaseTime", [
+        COBOTS_MINT_DURATION + 1,
+      ]);
+      await expect(user.CoBots.claimRefund(tokenIds)).to.be.revertedWith(
+        "Co-Bots are minted out"
+      );
+    });
+    it("should revert when delay is passed", async () => {
+      const {
+        users,
+        MAX_MINT_PER_ADDRESS,
+        COBOTS_MINT_DURATION,
+        COBOTS_REFUND_DURATION,
+      } = await partiallyMintedFixture();
+      const user = users[users.length - 1];
+      const tokenIds = [...Array(MAX_MINT_PER_ADDRESS).keys()].map(
+        (i) => i + MAX_MINT_PER_ADDRESS * (users.length - 1)
+      );
+      await network.provider.send("evm_increaseTime", [
+        COBOTS_MINT_DURATION + COBOTS_REFUND_DURATION + 1,
+      ]);
+      await expect(user.CoBots.claimRefund(tokenIds)).to.be.revertedWith(
+        "Refund period not open"
+      );
+    });
+    it("should revert when co-bots are giveaways", async () => {
+      const { users, COBOTS_MINT_DURATION } = await partiallyMintedFixture();
+      await network.provider.send("evm_increaseTime", [
+        COBOTS_MINT_DURATION + 1,
+      ]);
+      await expect(
+        users[0].CoBots.claimRefund([...Array(10).keys()])
+      ).to.be.revertedWith("No Co-Bots to refund");
+    });
+    it("should refund user with correct amount and revert a second claim", async () => {
+      const {
+        users,
+        mintedPerAddress,
+        COBOTS_MINT_DURATION,
+        MINT_PUBLIC_PRICE,
+      } = await partiallyMintedFixture();
+      const user = users[users.length - 1];
+      const tokenIds = [...Array(mintedPerAddress).keys()].map(
+        (i) => i + mintedPerAddress * (users.length - 1)
+      );
+      await network.provider.send("evm_increaseTime", [
+        COBOTS_MINT_DURATION + 1,
+      ]);
+      const prevUserBalance = await ethers.provider.getBalance(user.address);
+      const tx = await user.CoBots.claimRefund(tokenIds);
+      const receipt = await tx.wait();
+      const paidFees = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
+      const newUserBalance = await ethers.provider.getBalance(user.address);
+      expect(newUserBalance.toString()).to.eq(
+        prevUserBalance
+          .add(MINT_PUBLIC_PRICE.mul(mintedPerAddress))
+          .sub(paidFees)
+          .toString()
+      );
+      await expect(user.CoBots.claimRefund(tokenIds)).to.be.revertedWith(
+        "No Co-Bots to refund"
+      );
+    });
+    it("should revert when claiming tokens that are not owned", async () => {
+      const { users, COBOTS_MINT_DURATION } = await partiallyMintedFixture();
+      const user = users[users.length - 1];
+      await network.provider.send("evm_increaseTime", [
+        COBOTS_MINT_DURATION + 1,
+      ]);
+      await expect(
+        user.CoBots.claimRefund([...Array(10).keys()].map((i) => i + 50))
+      ).to.be.revertedWith(
+        "You cannot claim a refund for a token you do not own"
+      );
     });
   });
   describe("draw", async function () {
@@ -609,7 +611,7 @@ describe("CoBots", function () {
       );
     });
     it("should revert a second draw less than 1 minute after a first draw", async () => {
-      const { users, COBOTS_MINT_RAFFLE_DELAY } = await mintedOutFixture();
+      const { users, COBOTS_MINT_RAFFLE_DELAY } = await cooperationFixture();
       await network.provider.send("evm_increaseTime", [
         COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
@@ -677,19 +679,28 @@ describe("CoBots", function () {
         MAIN_RAFFLE_PRIZE,
         COORDINATION_RAFFLE_WINNERS_COUNT,
         COORDINATION_RAFFLE_PRIZE,
-        MAX_MINT_PER_ADDRESS,
         RAFFLE_DRAW_DELAY,
+        MINT_GIVEAWAYS,
+        MINT_FOUNDERS_AND_GIVEAWAYS,
+        mintedPerAddress,
       } = await vrfFixture();
 
       await network.provider.send("evm_increaseTime", [
         COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
+      let tokenId = 0;
       for (
         let i = 0;
         i < MAIN_RAFFLE_WINNERS_COUNT + COORDINATION_RAFFLE_WINNERS_COUNT;
         i++
       ) {
-        const tokenId = MAX_MINT_PER_ADDRESS * (i + 10);
+        if (
+          MINT_GIVEAWAYS <= mintedPerAddress * i &&
+          mintedPerAddress * i < MINT_FOUNDERS_AND_GIVEAWAYS
+        ) {
+          tokenId += mintedPerAddress;
+        }
+
         const owner = await CoBots.ownerOf(tokenId);
         const tx = await users[0].CoBots.draw();
         const receipt = await tx.wait();
@@ -709,6 +720,7 @@ describe("CoBots", function () {
           RAFFLE_DRAW_DELAY + 1,
         ]);
         await network.provider.send("evm_mine");
+        tokenId += mintedPerAddress;
       }
     });
     it("should skip founders tokens", async () => {
@@ -740,12 +752,13 @@ describe("CoBots", function () {
         CoBots,
         COBOTS_MINT_RAFFLE_DELAY,
         MAIN_RAFFLE_PRIZE,
+        mintedPerAddress,
       } = await vrfFixture();
 
       await network.provider.send("evm_increaseTime", [
         COBOTS_MINT_RAFFLE_DELAY + 1,
       ]);
-      const tokenId = 100;
+      const tokenId = mintedPerAddress + 2;
       const firstWinner = await CoBots.ownerOf(tokenId);
       const secondWinner = await CoBots.ownerOf(tokenId / 2);
       const tx = await users[0].CoBots.draw();
