@@ -469,9 +469,9 @@ contract CoBotsRenderer is Ownable, ReentrancyGuard, ICoBotsRenderer {
             "Western", // 9
             "Royal", // 50 times
             "Hacky", // 25 times
-            "!croak", // 1 time for tokeId 69
-            "Nounish", // 1 time for tokeId 420
-            "Wizard" // 1 time for tokeId 777
+            "!croak", // 1 time
+            "Nounish", // 1 time
+            "Wizard" // 1 time
         ];
         string[11] memory feet = [
             "Classic", // 0
