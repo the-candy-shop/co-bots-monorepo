@@ -16,10 +16,10 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   let gasKeyHash;
   let linkEthFeed;
   let blockHashStore;
-  let mintPublicPrice;
-  let maxCobots;
-  let mainRaffleWinnersCount;
-  let timeUnit;
+  const mintPublicPrice = ethers.utils.parseEther("0.05");
+  const maxCobots = 10_000;
+  const mainRaffleWinnersCount = 10;
+  const timeUnit = 60 * 60 * 24; // 1 day
 
   if (network.tags.mainnet) {
     openseaAddress = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
@@ -31,10 +31,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "0x9fe0eebf5e446e3c998ec9bb19951541aee00bb90ea201ae456421a2ded86805";
     linkEthFeed = "0xDC530D9457755926550b59e8ECcdaE7624181557";
     blockHashStore = "0xAA25602bccF3bBdE8E2F0F09f3a1f6DEF54593c0";
-    mintPublicPrice = ethers.utils.parseEther("0.05");
-    maxCobots = 10_000;
-    mainRaffleWinnersCount = 10;
-    timeUnit = 60 * 60 * 24; // 1 day
   } else {
     openseaAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
     looksrareAddress = "0xf42aa99f011a1fa7cda90e5e98b277e306bca83e";
@@ -45,11 +41,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc";
     linkEthFeed = "0xFABe80711F3ea886C3AC102c81ffC9825E16162E";
     blockHashStore = ethers.constants.AddressZero;
-    mintPublicPrice = ethers.utils.parseEther("0.00005");
-    maxCobots = 100;
-    mainRaffleWinnersCount = 1;
-    timeUnit = 60; // 1 minute
   }
+
   if (network.tags.local) {
     const vrfTx = await deploy("VRFCoordinatorV2TestHelper", {
       from: deployer,
