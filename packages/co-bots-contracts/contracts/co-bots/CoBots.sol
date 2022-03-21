@@ -262,21 +262,6 @@ contract CoBots is ERC721A, VRFConsumerBaseV2, Ownable, ReentrancyGuard {
         }
     }
 
-    function toggleColor(uint256 tokenId) external nonReentrant {
-        require(
-            ERC721A.ownerOf(tokenId) == _msgSender(),
-            "Only owner can toggle color"
-        );
-
-        coBotsColors[tokenId] = !coBotsColors[tokenId];
-        unchecked {
-            coBotsColorAgreement = coBotsColors[tokenId]
-                ? coBotsColorAgreement + 1
-                : coBotsColorAgreement - 1;
-        }
-        updateCooperativeRaffleStatus();
-    }
-
     function toggleColors(uint256[] calldata tokenIds) external nonReentrant {
         bool commonColor = coBotsColors[tokenIds[0]];
         for (uint256 i = 0; i < tokenIds.length; i++) {

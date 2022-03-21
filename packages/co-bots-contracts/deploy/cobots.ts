@@ -22,8 +22,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const timeUnit = 60 * 60 * 24; // 1 day
 
   if (network.tags.mainnet) {
-    openseaAddress = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
-    looksrareAddress = "0x3f65a762f15d01809cdc6b43d8849ff24949c86a";
+    openseaAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
+    looksrareAddress = "0xf42aa99f011a1fa7cda90e5e98b277e306bca83e";
     integersAddress = "0xe5d03576716d2D66Becf01a3F3BC7B80eb05952E";
     vrfCoordinatorAddress = "0x271682DEB8C4E0901D1a1550aD2e64D568E69909";
     linkAddress = "0x514910771af9ca656af840dff83e8264ecf986ca";
@@ -32,8 +32,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     linkEthFeed = "0xDC530D9457755926550b59e8ECcdaE7624181557";
     blockHashStore = "0xAA25602bccF3bBdE8E2F0F09f3a1f6DEF54593c0";
   } else {
-    openseaAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
-    looksrareAddress = "0xf42aa99f011a1fa7cda90e5e98b277e306bca83e";
+    openseaAddress = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
+    looksrareAddress = "0x3f65a762f15d01809cdc6b43d8849ff24949c86a";
     integersAddress = "0x03abFda4e7cec3484D518848B5e6aa10965F91DD";
     vrfCoordinatorAddress = "0x6168499c0cFfCaCD319c818142124B7A15E857ab";
     linkAddress = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709";

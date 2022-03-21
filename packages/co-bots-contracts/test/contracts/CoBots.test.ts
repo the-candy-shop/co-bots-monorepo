@@ -290,46 +290,6 @@ describe("CoBots", function () {
       expect(owner).to.eq(users[0].address);
     });
   });
-  describe("toggleColor", async function () {
-    it("should revert when caller is not owner", async () => {
-      const { users, CoBots } = await mintedOutFixture();
-      let tokenId = 0;
-      let owner = await CoBots.ownerOf(tokenId);
-      while (owner == users[0].address) {
-        tokenId++;
-        owner = await CoBots.ownerOf(tokenId);
-      }
-      expect(users[0].CoBots.toggleColor(tokenId)).to.be.revertedWith(
-        "Only owner can toggle color"
-      );
-    });
-    it("should toggle color", async () => {
-      const { users, CoBots } = await mintedOutFixture();
-      let tokenId = 0;
-      let owner = await CoBots.ownerOf(tokenId);
-      while (owner != users[0].address) {
-        tokenId++;
-        owner = await CoBots.ownerOf(tokenId);
-      }
-      const prevColor = await CoBots.coBotsColors(tokenId);
-      await users[0].CoBots.toggleColor(tokenId);
-      const newColor = await CoBots.coBotsColors(tokenId);
-      expect(prevColor).to.eq(!newColor);
-    });
-    it("should update global color count", async () => {
-      const { users, CoBots } = await mintedOutFixture();
-      let tokenId = 0;
-      let owner = await CoBots.ownerOf(tokenId);
-      while (owner != users[0].address) {
-        tokenId++;
-        owner = await CoBots.ownerOf(tokenId);
-      }
-      const prevColorCount = await CoBots.coBotsColorAgreement();
-      await users[0].CoBots.toggleColor(tokenId);
-      const newColorCount = await CoBots.coBotsColorAgreement();
-      expect(Math.abs(prevColorCount - newColorCount)).to.eq(1);
-    });
-  });
   describe("toggleColors", async function () {
     it("should revert when caller does not own all the tokens", async () => {
       const { users } = await mintedOutFixture();
