@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'AvenirNext';
+    font-weight: 500;
+    src: url('./fonts/AvenirNext-DemiBold.ttf');
+  }
+  @font-face {
+    font-family: 'AvenirNext';
+    font-weight: 700;
+    src: url('./fonts/AvenirNext-Bold.ttf');
+  }
+
+  @font-face {
+    font-family: 'AvenirNext';
+    font-weight: 900;
+    src: url('./fonts/AvenirNext-Heavy.ttf');
+  }
+}
+
+
+
+
+
