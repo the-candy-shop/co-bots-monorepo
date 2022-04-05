@@ -19,6 +19,12 @@
     font-weight: 900;
     src: url('./fonts/AvenirNext-Heavy.ttf');
   }
+
+  @font-face {
+    font-family: 'CheeseButterCream';
+    font-weight: 900;
+    src: url('./fonts/Cheese-Butter-Cream.ttf');
+  }
 }
 
 
