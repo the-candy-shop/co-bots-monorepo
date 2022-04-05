@@ -17,3 +17,5 @@ test/contracts/__snapshots__/TOKENS
 
 # Typechain files
 typechain
+
+deployments/localhost
