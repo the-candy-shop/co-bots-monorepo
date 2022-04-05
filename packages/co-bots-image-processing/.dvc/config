@@ -1,0 +1,5 @@
+[core]
+    remote = s3
+['remote "s3"']
+    url = s3://co-bots/
+    region = eu-west-3
