@@ -13,6 +13,7 @@ module.exports = {
       },
       colors: {
         "cobots-green": "#45E545",
+        "cobots-green-2": "#7ce445",
         "cobots-red": "#FF5967",
         "cobots-silver": "#CED5D9",
         "cobots-silver-2": "#919699",

@@ -6,26 +6,28 @@
       <Logo class="w-[96px] fill-white" />
       <social-media-buttons class="w-24" />
     </div>
-    <div class="flex-row flex items-center md:pl-9 sm:py-4 w-full pb-2">
-      <Logo class="hidden sm:block fill-white" />
+    <div class="flex-row flex justify-between items-center md:px-9 sm:py-4 w-full pb-2">
+      <div class="flex-row flex w-3/12 text-cobots-silver-2">
+        <Logo class="hidden sm:block fill-white" />
+        <div class="flex-row flex space-x-4 pl-8">
+          <div>MY BOTS</div>
+          <div>FAQ</div>
+          <div>RULES</div>
+        </div>
+      </div>
 
       <div
-        class="w-full flex-row flex items-center justify-center text-[16px] lg:divide-x divide-cobots-silver-2"
+        class="flex-row flex items-center justify-center text-[16px] lg:divide-x divide-cobots-silver-2"
       >
         <div class="items-center px-2 hidden lg:flex">
           <p class="text-cobots-silver-2 mr-1">MINTED:</p>
-          <p class="text-white font-extrabold">
+          <p class="text-cobots-green-2 font-extrabold">
             {{ totalString }}/{{ maxString }}
           </p>
         </div>
-        <div v-if="canMint" class="flex items-center px-2">
-          <p class="text-cobots-silver-2 mr-1">MINT PRICE:</p>
-          <p class="text-white font-black">{{ mintPrice }} ETH</p>
-        </div>
-        <count-down v-if="!refundEnabled" />
       </div>
 
-      <social-media-buttons class="hidden sm:flex" />
+      <social-media-buttons class="hidden sm:flex w-3/12 justify-end" />
     </div>
   </div>
 </template>
