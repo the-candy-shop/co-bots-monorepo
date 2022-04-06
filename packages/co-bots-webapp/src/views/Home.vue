@@ -1,22 +1,26 @@
 <template>
   <div class="overflow-hidden overscroll-none">
+    <div class="flex flex-col justify-center items-center">
+      <img
+        class="hidden lg:block w-full mt-[72px] max-w-3xl p-6"
+        src="../images/ExtravagainzaLabel.png"
+      />
+
+      <div class="w-[200px] h-1 bg-cobots-silver rounded"></div>
+
+      <div class="font-['CheeseButterCream'] mb-4 mt-11 px-6 text-black text-3xl">Hey Anon, wanna play a game?</div>
+      <div class="w-[675px] text-cobots-silver-3 text-xl px-6">It's simple: at each mint checkpoint, a Co-Bot wins a prize. The earlier you mint, the more chances you have to win. Good luck!</div>
+    </div>
     <div
-      class="flex flex-col justify-center items-center mt-[72px]"
+      class="flex flex-col justify-center items-center mt-12"
       :class="{
-        'h-[calc(100vh-72px)]':
+        '':
           canFlip || canMint || mintFailed || refundEnabled,
       }"
     >
-      <div
-        v-if="walletConnected"
-        class="absolute sm:right-4 top-[90px] sm:top-[90px]"
-      >
-        <wallet-button @viewBots="scrollToMyBots" />
-      </div>
       <connect-wallet-panel
         v-if="!walletConnected && !canFlip && (canMint || refundEnabled)"
       />
-      <refund v-else-if="refundEnabled" />
       <mint-panel v-else-if="canMint" />
       <div class="flex-grow" v-else-if="mintFailed"></div>
       <bonus-challenge-panel
@@ -24,14 +28,6 @@
         @moreDetailsClick="scrollToBonusPrizes"
       />
       <raffle v-else />
-      <img
-        class="hidden lg:block w-full"
-        src="../images/Bot-Illustration.svg"
-      />
-      <img
-        class="block lg:hidden"
-        src="../images/Bot-Illustration-Mobile.svg"
-      />
     </div>
 
     <div class="bg-black text-white flex flex-col items-center">
@@ -47,7 +43,6 @@
 
 <script>
 import InfoSection from "@/components/InfoSection.vue";
-import WalletButton from "@/components/walletButton.vue";
 import MyBotsSection from "@/components/MyBots/index.vue";
 import ConnectWalletPanel from "@/components/ConnectWalletPanel.vue";
 import MintPanel from "@/components/MintPanel.vue";
@@ -60,7 +55,6 @@ export default {
   name: "Home",
   components: {
     InfoSection,
-    WalletButton,
     MyBotsSection,
     ConnectWalletPanel,
     MintPanel,
