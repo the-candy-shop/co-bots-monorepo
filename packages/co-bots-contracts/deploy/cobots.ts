@@ -2,56 +2,42 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { TAGS } from "../utils/constants";
+import { MYSTERY_CHALLENGE, PRIZES, TAGS } from "../utils/constants";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network, ethers } = hre;
   const { deploy, execute } = deployments;
-  const { deployer } = await getNamedAccounts();
-  let openseaAddress;
-  let looksrareAddress;
-  let integersAddress;
-  let vrfCoordinatorAddress;
-  let linkAddress;
-  let gasKeyHash;
-  let linkEthFeed;
-  let blockHashStore;
-  const mintPublicPrice = ethers.utils.parseEther("0.05");
-  const maxCobots = 10_000;
-  const mainRaffleWinnersCount = 10;
-  const timeUnit = 60 * 60 * 24; // 1 day
+  const { deployer, integers, linkToken, ens } = await getNamedAccounts();
+  let { vrfCoordinator } = await getNamedAccounts();
+  const parameters = {
+    cobotsV1Discount: 2,
+    mintOutFoundersWithdrawalDelay: 2 * 60 * 60, // 2 hours
+    grandPrizeDelay: 60 * 60, // 1 hour
+    maxCobots: 10_000,
+    contestDuration: 28 * 24 * 60 * 60, // 28 days
+    mintPublicPrice: ethers.utils.parseEther("0.05"),
+  };
 
+  let gasKeyHash;
   if (network.tags.mainnet) {
-    openseaAddress = "0xa5409ec958c83c3f309868babaca7c86dcb077c1";
-    looksrareAddress = "0xf42aa99f011a1fa7cda90e5e98b277e306bca83e";
-    integersAddress = "0xe5d03576716d2D66Becf01a3F3BC7B80eb05952E";
-    vrfCoordinatorAddress = "0x271682DEB8C4E0901D1a1550aD2e64D568E69909";
-    linkAddress = "0x514910771af9ca656af840dff83e8264ecf986ca";
     gasKeyHash =
       "0x9fe0eebf5e446e3c998ec9bb19951541aee00bb90ea201ae456421a2ded86805";
-    linkEthFeed = "0xDC530D9457755926550b59e8ECcdaE7624181557";
-    blockHashStore = "0xAA25602bccF3bBdE8E2F0F09f3a1f6DEF54593c0";
   } else {
-    openseaAddress = "0xf57b2c51ded3a29e6891aba85459d600256cf317";
-    looksrareAddress = "0x3f65a762f15d01809cdc6b43d8849ff24949c86a";
-    integersAddress = "0x03abFda4e7cec3484D518848B5e6aa10965F91DD";
-    vrfCoordinatorAddress = "0x6168499c0cFfCaCD319c818142124B7A15E857ab";
-    linkAddress = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709";
     gasKeyHash =
       "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc";
-    linkEthFeed = "0xFABe80711F3ea886C3AC102c81ffC9825E16162E";
-    blockHashStore = ethers.constants.AddressZero;
   }
 
   if (network.tags.local) {
+    const linkEthFeed = "0xFABe80711F3ea886C3AC102c81ffC9825E16162E";
+
     const vrfTx = await deploy("VRFCoordinatorV2TestHelper", {
       from: deployer,
       log: true,
-      args: [linkAddress, blockHashStore, linkEthFeed],
+      args: [linkToken, ethers.constants.AddressZero, linkEthFeed],
       contract:
         "contracts/test/VRFCoordinatorV2TestHelper.sol:VRFCoordinatorV2TestHelper",
     });
-    vrfCoordinatorAddress = vrfTx.address;
+    vrfCoordinator = vrfTx.address;
     await execute(
       "VRFCoordinatorV2TestHelper",
       { from: deployer },
@@ -76,27 +62,37 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Deploy renderer
-  const rendererTx = await deploy("CoBotsRenderer", {
+  const rendererTx = await deploy("CoBotsRendererV2", {
     from: deployer,
     log: true,
     args: [],
-    libraries: { Integers: integersAddress },
+    libraries: { Integers: integers },
   });
 
   // Deploy token
-  await deploy("CoBots", {
+  if (PRIZES.reduce((acc, prize) => acc + prize.amount, 0) !== 300) {
+    throw new Error(
+      "The total prize amount must be 300 ETH. Please update the PRIZES constant."
+    );
+  }
+
+  await deploy("CoBotsV2", {
     from: deployer,
     log: true,
     args: [
-      "Co-Bots",
-      "CBTS",
+      "Co-Bots Extravaganza",
+      "CBTE",
       rendererTx.address,
-      openseaAddress,
-      looksrareAddress,
-      vrfCoordinatorAddress,
-      linkAddress,
+      vrfCoordinator,
+      linkToken,
       gasKeyHash,
-      { mintPublicPrice, maxCobots, mainRaffleWinnersCount, timeUnit },
+      parameters,
+      PRIZES.map((prize) => ({
+        ...prize,
+        amount: ethers.utils.parseEther(prize.amount.toString()),
+      })),
+      ens,
+      MYSTERY_CHALLENGE,
     ],
   });
 };

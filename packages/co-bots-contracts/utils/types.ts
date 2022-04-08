@@ -22,3 +22,15 @@ export type PalettesStorage = {
   traitBytesIndexes: string;
   layerIndexes: string;
 };
+
+export type Prize = {
+  checkpoint: number;
+  amount: number;
+  isContest: boolean;
+};
+
+export type MysteryChallenge = {
+  ensId: number;
+  value: number;
+  prizeIndex: number;
+};

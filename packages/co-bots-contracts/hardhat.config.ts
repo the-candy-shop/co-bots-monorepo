@@ -47,6 +47,21 @@ const config: HardhatUserConfig = {
     deployer: {
       default: 0,
     },
+    ens: {
+      default: "0x57f1887a8BF19b14fC0dF6Fd9B2acc9Af147eA85",
+    },
+    integers: {
+      mainnet: "0xe5d03576716d2D66Becf01a3F3BC7B80eb05952E",
+      default: "0x03abFda4e7cec3484D518848B5e6aa10965F91DD",
+    },
+    vrfCoordinator: {
+      mainnet: "0x271682DEB8C4E0901D1a1550aD2e64D568E69909",
+      default: "0x6168499c0cFfCaCD319c818142124B7A15E857ab",
+    },
+    linkToken: {
+      mainnet: "0x514910771af9ca656af840dff83e8264ecf986ca",
+      default: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
+    },
   },
   networks: {
     mainnet: {
