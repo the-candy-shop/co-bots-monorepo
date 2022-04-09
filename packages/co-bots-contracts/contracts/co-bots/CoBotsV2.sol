@@ -22,6 +22,9 @@ error MysteryChallengeSenderDoesNotOwnENS();
 error MysteryChallengeValueDoesNotMatch();
 error FulfillmentAlreadyFulfilled();
 error FulfillRequestForNonExistentContest();
+error RedeemTokenNotOwner();
+error RedeemTokenAlreadyRedeemed();
+error NoGiveawayToTrigger();
 
 contract CoBotsV2 is
     ERC721A,
@@ -62,6 +65,7 @@ contract CoBotsV2 is
     Prize[] PRIZES;
     MysteryChallenge MYSTERY_CHALLENGE;
     IERC721 ENS;
+    IERC721 COBOTS_V1;
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Token ///////////////////////////////////////
@@ -70,6 +74,7 @@ contract CoBotsV2 is
     address public renderingContractAddress;
     ICoBotsRendererV2 public renderer;
     uint8[] public coBotsSeeds;
+    mapping(uint256 => bool) public coBotsV1Redeemed;
 
     function setRenderingContractAddress(address _renderingContractAddress)
         public
@@ -90,6 +95,7 @@ contract CoBotsV2 is
         Parameters memory _parameters,
         Prize[] memory _prizes,
         address ens,
+        address cobotsV1,
         MysteryChallenge memory _mysteryChallenge
     ) ERC721A(name_, symbol_) VRFConsumerBaseV2(vrfCoordinator) {
         setRenderingContractAddress(_rendererAddress);
@@ -101,6 +107,7 @@ contract CoBotsV2 is
             PRIZES.push(_prizes[i]);
         }
         ENS = IERC721(ens);
+        COBOTS_V1 = IERC721(cobotsV1);
         MYSTERY_CHALLENGE = _mysteryChallenge;
     }
 
@@ -116,24 +123,47 @@ contract CoBotsV2 is
             )
         );
         for (uint256 i = 0; i < quantity; i++) {
-            coBotsSeeds.push(uint8(seeds[i]) << 1); // insure last digit is 0
+            coBotsSeeds.push(uint8(seeds[i]) << 1); // insure last digit is 0, used for Metta status
         }
 
         ERC721A._safeMint(to, quantity);
     }
 
-    function mintPublicSale(uint256 quantity)
+    /**
+     * Mints a batch of Co-Bots to the sender.
+     *
+     * @dev The tokenIdsV1 parameter can be empty. The call will revert only if the sender pretends to own some
+     *      Co-Bots V1 that they actually don't. However it accepts already redeemed token and just ignore them silently.
+     *      This is to make it easier for people using etherscan to copy a bunch of token Ids without having to
+     *      manually check if they are redeemed or not. However, it is optimal in terms of gas fees to only give
+     *      tokenIds if they can actually be redeemed.
+     * @param quantity The number of COBOTS to mint.
+     * @param tokenIdsV1 A list of V1 Co-Bots token Ids owned by the sender, used to determine the discount.
+     */
+    function mintPublicSale(uint256 quantity, uint256[] memory tokenIdsV1)
         external
         payable
         whenPublicSaleOpen
         nonReentrant
     {
-        if (msg.value != PARAMETERS.mintPublicPrice * quantity)
-            revert WrongPrice();
         if (_currentIndex + quantity > PARAMETERS.maxCobots)
             revert TotalSupplyExceeded();
         if (ERC721A.balanceOf(_msgSender()) + quantity > MAX_MINT_PER_ADDRESS)
             revert AllocationExceeded();
+        uint256 price = PARAMETERS.mintPublicPrice * quantity;
+        uint256 redeemed = 0;
+        for (uint256 i = 0; i < tokenIdsV1.length; i++) {
+            if (COBOTS_V1.ownerOf(tokenIdsV1[i]) != _msgSender())
+                revert RedeemTokenNotOwner();
+            if (!coBotsV1Redeemed[tokenIdsV1[i]] && redeemed < quantity) {
+                coBotsV1Redeemed[tokenIdsV1[i]] = true;
+                redeemed++;
+                price -=
+                    PARAMETERS.mintPublicPrice *
+                    (1 - 1 / PARAMETERS.cobotsV1Discount);
+            }
+        }
+        if (msg.value != price) revert WrongPrice();
         if (quantity + _currentIndex == PARAMETERS.maxCobots) {
             mintedOutTimestamp = block.timestamp;
         }
@@ -201,7 +231,6 @@ contract CoBotsV2 is
         bool fulfilled;
     }
 
-    mapping(address => uint256) public prizePerAddress;
     mapping(uint256 => Fulfillment) public fulfillments;
     Winner[] public winners;
     uint8 drawCounts;
@@ -223,16 +252,26 @@ contract CoBotsV2 is
         chainlinkSubscriptionId = 0;
     }
 
+    /**
+     * @notice This function can be called at any time by anyone to trigger the unlocked giveaways. It will
+     *         revert if there is nothing to unlock to prevent anon from making useless tx. (Usually wallet, e.g.
+     *         metamask, warn this before signing).
+     *         Giveaways that use Chainlink VRF oracle will be fulfilled automatically by Chainlink. Giveaways that
+     *         require founders to unlock will be fulfilled by the founders.
+     */
     function draw() external nonReentrant {
         if (chainlinkSubscriptionId == 0) {
             revert ChainlinkSubscriptionNotFound();
         }
+        if (PRIZES[drawCounts].checkpoint > _currentIndex)
+            revert NoGiveawayToTrigger();
         while (PRIZES[drawCounts].checkpoint < _currentIndex + 1) {
             uint256 requestId;
             if (
-                PRIZES[drawCounts].isContest &&
-                block.timestamp <
-                publicSaleStartTimestamp + PARAMETERS.contestDuration
+                (PRIZES[drawCounts].isContest &&
+                    block.timestamp <
+                    publicSaleStartTimestamp + PARAMETERS.contestDuration) ||
+                (drawCounts == MYSTERY_CHALLENGE.prizeIndex)
             ) {
                 requestId = _computeRequestId(drawCounts);
             } else {
@@ -265,7 +304,6 @@ contract CoBotsV2 is
             revert FulfillRequestForNonExistentContest();
         fulfillments[requestId].fulfilled = true;
         winners.push(Winner(winner, uint16(selectedToken)));
-        prizePerAddress[winner] = fulfillments[requestId].prize.amount;
         (bool success, ) = winner.call{
             value: fulfillments[requestId].prize.amount
         }("");
@@ -279,13 +317,16 @@ contract CoBotsV2 is
         uint256 checkpoint = fulfillments[requestId].prize.checkpoint;
         uint256 selectedToken = randomWords[0] % checkpoint;
         address winner = ERC721A.ownerOf(selectedToken);
-        while (prizePerAddress[winner] > 0 || (selectedToken < MINT_FOUNDERS)) {
-            selectedToken = (selectedToken >> 1) % checkpoint;
-            winner = ERC721A.ownerOf(selectedToken);
-        }
         _fulfill(requestId, winner, selectedToken);
     }
 
+    /**
+     * @notice This function lets the owner fulfill a giveaway. If the giveaway has not been unlocked, this will
+     *         revert.
+     * @param giveawayIndex The index of the giveaway to fulfill, 0 based (the first giveaway is index 0).
+     * @param winner The selected winner address.
+     * @param selectedToken The selected token to be displayed on the website.
+     */
     function fulfillContest(
         uint256 giveawayIndex,
         address winner,
@@ -295,10 +336,13 @@ contract CoBotsV2 is
         _fulfill(requestId, winner, selectedToken);
     }
 
-    function fulfillMysteryChallenge(uint256 value, uint256 tokenId)
-        external
-        nonReentrant
-    {
+    /**
+     * @notice Call this when, you know, you probably know what you're doing here.
+     *         revert.
+     * @param value Word biggest mysteries are solved with this single value.
+     * @param tokenId The selected token to be displayed on the website.
+     */
+    function TheAnswer(uint256 value, uint256 tokenId) external nonReentrant {
         if (ENS.ownerOf(MYSTERY_CHALLENGE.ensId) != _msgSender()) {
             revert MysteryChallengeSenderDoesNotOwnENS();
         }

@@ -62,6 +62,10 @@ const config: HardhatUserConfig = {
       mainnet: "0x514910771af9ca656af840dff83e8264ecf986ca",
       default: "0x01BE23585060835E02B77ef475b0Cc51aA1e0709",
     },
+    coBotsV1: {
+      mainnet: "0x2eFa2743B863F3Bd6f624Ac0d58445bC5fB62bf6",
+      default: "0x1dffc87aAd86c95ca8bD611b2e63BB017578b77e",
+    },
   },
   networks: {
     mainnet: {

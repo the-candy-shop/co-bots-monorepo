@@ -7,7 +7,8 @@ import { MYSTERY_CHALLENGE, PRIZES, TAGS } from "../utils/constants";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network, ethers } = hre;
   const { deploy, execute } = deployments;
-  const { deployer, integers, linkToken, ens } = await getNamedAccounts();
+  const { deployer, integers, linkToken, ens, coBotsV1 } =
+    await getNamedAccounts();
   let { vrfCoordinator } = await getNamedAccounts();
   const parameters = {
     cobotsV1Discount: 2,
@@ -92,6 +93,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
         amount: ethers.utils.parseEther(prize.amount.toString()),
       })),
       ens,
+      coBotsV1,
       MYSTERY_CHALLENGE,
     ],
   });
