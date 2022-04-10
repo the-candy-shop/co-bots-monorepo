@@ -1,5 +1,12 @@
 import fs from "fs";
-import { MysteryChallenge, Palettes, PalettesStorage, Prize } from "./types";
+import {
+  CoBotsParameters,
+  MysteryChallenge,
+  Palettes,
+  PalettesStorage,
+  Prize,
+} from "./types";
+import { ethers } from "ethers";
 
 export const MAX_CONTRACT_SIZE = 24_000;
 
@@ -43,6 +50,17 @@ export const TAGS = {
   CO_BOTS: "CoBots",
   CO_BOTS_PALETTES: "CoBotsPalettes",
   CO_BOTS_SUBSCRIPTION: "CoBotsSubscription",
+  VRF_COORDINATOR: "VrfCoordinator",
+};
+
+// Contract constants
+export const PARAMETERS: CoBotsParameters = {
+  cobotsV1Discount: 2,
+  mintOutFoundersWithdrawalDelay: 2 * 60 * 60, // 2 hours
+  grandPrizeDelay: 60 * 60, // 1 hour
+  maxCobots: 10_000,
+  contestDuration: 28 * 24 * 60 * 60, // 28 days
+  mintPublicPrice: ethers.utils.parseEther("0.05"),
 };
 
 // Prizes constants
@@ -145,7 +163,9 @@ export const PRIZES: Prize[] = [
 ];
 
 export const MYSTERY_CHALLENGE: MysteryChallenge = {
-  ensId: 0,
+  ensId: ethers.BigNumber.from(
+    "50339762084112735281647694152894396699789156759838299774246919152996091353870"
+  ),
   value: 42,
   prizeIndex: 11,
 };

@@ -1,3 +1,5 @@
+import { BigNumberish } from "ethers";
+
 export type Rect = {
   x: number;
   y: number;
@@ -25,12 +27,21 @@ export type PalettesStorage = {
 
 export type Prize = {
   checkpoint: number;
-  amount: number;
+  amount: BigNumberish;
   isContest: boolean;
 };
 
 export type MysteryChallenge = {
-  ensId: number;
+  ensId: BigNumberish;
   value: number;
   prizeIndex: number;
+};
+
+export type CoBotsParameters = {
+  cobotsV1Discount: number;
+  mintOutFoundersWithdrawalDelay: number;
+  grandPrizeDelay: number;
+  maxCobots: number;
+  contestDuration: number;
+  mintPublicPrice: BigNumberish;
 };

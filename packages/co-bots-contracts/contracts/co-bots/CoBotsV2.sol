@@ -20,6 +20,7 @@ error ChainlinkSubscriptionNotFound();
 error TransferFailed();
 error MysteryChallengeSenderDoesNotOwnENS();
 error MysteryChallengeValueDoesNotMatch();
+error MysteryChallengeSenderDoesNotOwnToken();
 error FulfillmentAlreadyFulfilled();
 error FulfillRequestForNonExistentContest();
 error RedeemTokenNotOwner();
@@ -59,11 +60,11 @@ contract CoBotsV2 is
     }
 
     // Constants
-    uint8 public constant MAX_MINT_PER_ADDRESS = 20;
     uint8 public constant MINT_FOUNDERS = 3;
-    Parameters PARAMETERS;
-    Prize[] PRIZES;
-    MysteryChallenge MYSTERY_CHALLENGE;
+    uint8 public constant MINT_BATCH_LIMIT = 32;
+    Parameters public PARAMETERS;
+    Prize[] public PRIZES;
+    MysteryChallenge private MYSTERY_CHALLENGE;
     IERC721 ENS;
     IERC721 COBOTS_V1;
 
@@ -112,7 +113,7 @@ contract CoBotsV2 is
     }
 
     function _mintCoBots(address to, uint256 quantity) internal {
-        if (quantity > 32) revert BatchLimitExceeded();
+        if (quantity > MINT_BATCH_LIMIT) revert BatchLimitExceeded();
         bytes32 seeds = keccak256(
             abi.encodePacked(
                 quantity,
@@ -148,8 +149,6 @@ contract CoBotsV2 is
     {
         if (_currentIndex + quantity > PARAMETERS.maxCobots)
             revert TotalSupplyExceeded();
-        if (ERC721A.balanceOf(_msgSender()) + quantity > MAX_MINT_PER_ADDRESS)
-            revert AllocationExceeded();
         uint256 price = PARAMETERS.mintPublicPrice * quantity;
         uint256 redeemed = 0;
         for (uint256 i = 0; i < tokenIdsV1.length; i++) {
@@ -176,6 +175,13 @@ contract CoBotsV2 is
             revert AllocationExceeded();
 
         _mintCoBots(to, quantity);
+    }
+
+    /** @notice Return true if the Co-Bot displays metta screen
+     *   @param tokenId The Co-Bot token ID
+     */
+    function isMettaEnabled(uint256 tokenId) external view returns (bool) {
+        return coBotsSeeds[tokenId] & 1 == 1;
     }
 
     function toggleMetta(uint256 tokenId) public nonReentrant {
@@ -340,7 +346,7 @@ contract CoBotsV2 is
      * @notice Call this when, you know, you probably know what you're doing here.
      *         revert.
      * @param value Word biggest mysteries are solved with this single value.
-     * @param tokenId The selected token to be displayed on the website.
+     * @param tokenId The selected token to be displayed on the website. This should be owned by the winner.
      */
     function TheAnswer(uint256 value, uint256 tokenId) external nonReentrant {
         if (ENS.ownerOf(MYSTERY_CHALLENGE.ensId) != _msgSender()) {
@@ -348,6 +354,9 @@ contract CoBotsV2 is
         }
         if (value != MYSTERY_CHALLENGE.value) {
             revert MysteryChallengeValueDoesNotMatch();
+        }
+        if (ERC721A.ownerOf(tokenId) != _msgSender()) {
+            revert MysteryChallengeSenderDoesNotOwnToken();
         }
         _fulfill(
             _computeRequestId(MYSTERY_CHALLENGE.prizeIndex),

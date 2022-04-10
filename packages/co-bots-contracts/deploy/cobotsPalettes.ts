@@ -9,45 +9,17 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { execute } = deployments;
 
   const { deployer } = await getNamedAccounts();
-  await deployments.get("CoBotsRenderer");
 
   const palettesEncoded = loadPalettesEncoded();
 
   await execute(
-    "CoBotsRenderer",
+    "CoBotsRendererV2",
     {
       from: deployer,
       log: true,
     },
     "setFillPalette",
     palettesEncoded.fillBytes
-  );
-  await execute(
-    "CoBotsRenderer",
-    {
-      from: deployer,
-      log: true,
-    },
-    "setTraitPalette",
-    palettesEncoded.traitBytes
-  );
-  await execute(
-    "CoBotsRenderer",
-    {
-      from: deployer,
-      log: true,
-    },
-    "setTraitPaletteIndexes",
-    palettesEncoded.traitBytesIndexes
-  );
-  await execute(
-    "CoBotsRenderer",
-    {
-      from: deployer,
-      log: true,
-    },
-    "setLayerIndexes",
-    palettesEncoded.layerIndexes
   );
 };
 

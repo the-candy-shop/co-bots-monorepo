@@ -2,22 +2,23 @@
 
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
-import { MYSTERY_CHALLENGE, PRIZES, TAGS } from "../utils/constants";
+import {
+  MYSTERY_CHALLENGE,
+  PARAMETERS,
+  PRIZES,
+  TAGS,
+} from "../utils/constants";
+import { BigNumber } from "ethers";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network, ethers } = hre;
-  const { deploy, execute } = deployments;
+  const { deploy, get } = deployments;
   const { deployer, integers, linkToken, ens, coBotsV1 } =
     await getNamedAccounts();
   let { vrfCoordinator } = await getNamedAccounts();
-  const parameters = {
-    cobotsV1Discount: 2,
-    mintOutFoundersWithdrawalDelay: 2 * 60 * 60, // 2 hours
-    grandPrizeDelay: 60 * 60, // 1 hour
-    maxCobots: 10_000,
-    contestDuration: 28 * 24 * 60 * 60, // 28 days
-    mintPublicPrice: ethers.utils.parseEther("0.05"),
-  };
+  if (network.tags.local) {
+    vrfCoordinator = (await get("VRFCoordinatorV2TestHelper")).address;
+  }
 
   let gasKeyHash;
   if (network.tags.mainnet) {
@@ -26,40 +27,6 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   } else {
     gasKeyHash =
       "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc";
-  }
-
-  if (network.tags.local) {
-    const linkEthFeed = "0xFABe80711F3ea886C3AC102c81ffC9825E16162E";
-
-    const vrfTx = await deploy("VRFCoordinatorV2TestHelper", {
-      from: deployer,
-      log: true,
-      args: [linkToken, ethers.constants.AddressZero, linkEthFeed],
-      contract:
-        "contracts/test/VRFCoordinatorV2TestHelper.sol:VRFCoordinatorV2TestHelper",
-    });
-    vrfCoordinator = vrfTx.address;
-    await execute(
-      "VRFCoordinatorV2TestHelper",
-      { from: deployer },
-      "setConfig",
-      3,
-      2500000,
-      86400,
-      33285,
-      "60000000000000000",
-      {
-        fulfillmentFlatFeeLinkPPMTier1: 250000,
-        fulfillmentFlatFeeLinkPPMTier2: 250000,
-        fulfillmentFlatFeeLinkPPMTier3: 250000,
-        fulfillmentFlatFeeLinkPPMTier4: 250000,
-        fulfillmentFlatFeeLinkPPMTier5: 250000,
-        reqsForTier2: 0,
-        reqsForTier3: 0,
-        reqsForTier4: 0,
-        reqsForTier5: 0,
-      }
-    );
   }
 
   // Deploy renderer
@@ -71,7 +38,12 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   });
 
   // Deploy token
-  if (PRIZES.reduce((acc, prize) => acc + prize.amount, 0) !== 300) {
+  if (
+    PRIZES.reduce(
+      (acc, prize) => acc.add(prize.amount),
+      BigNumber.from(0)
+    ).toNumber() !== 300
+  ) {
     throw new Error(
       "The total prize amount must be 300 ETH. Please update the PRIZES constant."
     );
@@ -81,13 +53,13 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     from: deployer,
     log: true,
     args: [
-      "Co-Bots Extravaganza",
+      "Co-Bots 2.0",
       "CBTE",
       rendererTx.address,
       vrfCoordinator,
       linkToken,
       gasKeyHash,
-      parameters,
+      PARAMETERS,
       PRIZES.map((prize) => ({
         ...prize,
         amount: ethers.utils.parseEther(prize.amount.toString()),
@@ -100,3 +72,4 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
 };
 export default func;
 func.tags = [TAGS.CO_BOTS];
+func.dependencies = [TAGS.VRF_COORDINATOR];
