@@ -11,7 +11,12 @@ import { solidity } from "ethereum-waffle";
 import { PRIZES as PRIZES_INPUT, TAGS } from "../../utils/constants";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { CoBotsParameters, Prize } from "../../utils/types";
-import { CoBotsV2, VRFCoordinatorV2TestHelper } from "../../typechain";
+import {
+  CoBots,
+  CoBots__factory,
+  CoBotsV2,
+  VRFCoordinatorV2TestHelper,
+} from "../../typechain";
 
 chai.use(jestSnapshotPlugin());
 chai.use(solidity);
@@ -19,7 +24,12 @@ const { expect } = chai;
 
 const setup = async () => {
   await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_SUBSCRIPTION]);
+  const { deployer, coBotsV1 } = await getNamedAccounts();
   const contracts = {
+    CoBotsV1: (await ethers.getContractAt(
+      CoBots__factory.abi,
+      coBotsV1
+    )) as CoBots,
     CoBotsV2: (await ethers.getContract("CoBotsV2")) as CoBotsV2,
     VRFCoordinator: (await ethers.getContract(
       "VRFCoordinatorV2TestHelper"
@@ -35,7 +45,6 @@ const setup = async () => {
       )
     ),
   };
-  const { deployer } = await getNamedAccounts();
   const users = await setupUsers(
     (
       await getUnnamedAccounts()
@@ -60,23 +69,6 @@ const publicSaleFixture = deployments.createFixture(async ({ network }) => {
   await network.provider.send("evm_mine");
   return contractsAndUsers;
 });
-
-// const vrfFixture = deployments.createFixture(async ({}) => {
-//   const contractsAndUsers = await publicSaleFixture();
-//   const { users, VRFCoordinator } = contractsAndUsers;
-//   await network.provider.request({
-//     method: "hardhat_impersonateAccount",
-//     params: [VRFCoordinator.address],
-//   });
-//   await (
-//     await ethers.getSigner(users[0].address)
-//   ).sendTransaction({
-//     to: VRFCoordinator.address,
-//     value: ethers.utils.parseEther("100"),
-//   });
-//
-//   return contractsAndUsers;
-// });
 
 describe("CoBotsV2", function () {
   describe("constructor", async function () {
@@ -155,7 +147,7 @@ describe("CoBotsV2", function () {
         MINT_BATCH_LIMIT * 0.7
       ); // Magic number, there is a chance that some seeds are the same
     });
-    it("should mint out up to id MAX_COBOTS - 1", async () => {
+    it("should mint up to id MAX_COBOTS - 1", async () => {
       const { users, PARAMETERS, MINT_BATCH_LIMIT } = await publicSaleFixture();
       await Promise.all(
         users.map((user) =>
@@ -179,6 +171,87 @@ describe("CoBotsV2", function () {
         )
       ).to.be.revertedWith("TotalSupplyExceeded");
     });
+    it("should mint with discount price", async () => {
+      const { deployer, CoBotsV1, PARAMETERS, MINT_BATCH_LIMIT } =
+        await publicSaleFixture();
+      const deployerBalance = await CoBotsV1.balanceOf(deployer.address);
+      const deployerTokenIdsV1 = await Promise.all(
+        [...Array(deployerBalance.toNumber()).keys()].map((i) =>
+          CoBotsV1.tokenOfOwnerByIndex(deployer.address, i)
+        )
+      );
+      const mintedV2 = Math.min(deployerBalance.toNumber(), MINT_BATCH_LIMIT);
+      await deployer.CoBotsV2.mintPublicSale(mintedV2, deployerTokenIdsV1, {
+        value: BigNumber.from(PARAMETERS.mintPublicPrice)
+          .mul(mintedV2)
+          .div(PARAMETERS.cobotsV1Discount),
+      });
+    });
+    it("should redeem only the required number of tokens", async () => {
+      const { deployer, CoBotsV1, PARAMETERS, CoBotsV2 } =
+        await publicSaleFixture();
+      const deployerBalance = await CoBotsV1.balanceOf(deployer.address);
+      const deployerTokenIdsV1 = await Promise.all(
+        [...Array(deployerBalance).keys()].map((i) =>
+          CoBotsV1.tokenOfOwnerByIndex(deployer.address, i)
+        )
+      );
+      await deployer.CoBotsV2.mintPublicSale(1, deployerTokenIdsV1, {
+        value: BigNumber.from(PARAMETERS.mintPublicPrice).div(
+          PARAMETERS.cobotsV1Discount
+        ),
+      });
+      const redeemed = (
+        await Promise.all(
+          deployerTokenIdsV1.map(
+            async (tokenId) => await CoBotsV2.coBotsV1Redeemed(tokenId)
+          )
+        )
+      ).reduce((acc, val) => (val ? acc + 1 : acc), 0);
+      expect(redeemed).to.eq(1);
+    });
+    it("should not be able to redeem the same token twice", async () => {
+      const { deployer, CoBotsV1, PARAMETERS } = await publicSaleFixture();
+      const deployerBalance = await CoBotsV1.balanceOf(deployer.address);
+      const deployerTokenIdsV1 = await Promise.all(
+        [...Array(deployerBalance).keys()].map((i) =>
+          CoBotsV1.tokenOfOwnerByIndex(deployer.address, i)
+        )
+      );
+      await deployer.CoBotsV2.mintPublicSale(
+        1,
+        deployerTokenIdsV1.slice(0, 1),
+        {
+          value: BigNumber.from(PARAMETERS.mintPublicPrice).div(
+            PARAMETERS.cobotsV1Discount
+          ),
+        }
+      );
+      await expect(
+        deployer.CoBotsV2.mintPublicSale(1, deployerTokenIdsV1.slice(0, 1), {
+          value: BigNumber.from(PARAMETERS.mintPublicPrice).div(
+            PARAMETERS.cobotsV1Discount
+          ),
+        })
+      ).to.be.revertedWith("WrongPrice");
+    });
+    it("should not be able to redeem a token not owned by sender", async () => {
+      const { users, deployer, CoBotsV1, PARAMETERS } =
+        await publicSaleFixture();
+      const deployerBalance = await CoBotsV1.balanceOf(deployer.address);
+      const deployerTokenIdsV1 = await Promise.all(
+        [...Array(deployerBalance).keys()].map((i) =>
+          CoBotsV1.tokenOfOwnerByIndex(deployer.address, i)
+        )
+      );
+      await expect(
+        users[0].CoBotsV2.mintPublicSale(1, deployerTokenIdsV1.slice(0, 1), {
+          value: BigNumber.from(PARAMETERS.mintPublicPrice).div(
+            PARAMETERS.cobotsV1Discount
+          ),
+        })
+      ).to.be.revertedWith("RedeemTokenNotOwner");
+    });
   });
   describe("mintFounders", async function () {
     it("should revert when user is not owner", async () => {
@@ -198,6 +271,33 @@ describe("CoBotsV2", function () {
       await deployer.CoBotsV2.mintFounders(users[0].address, 1);
       const owner = await CoBotsV2.ownerOf(0);
       expect(owner).to.eq(users[0].address);
+    });
+  });
+  describe("isMettaEnabled", async function () {
+    it("should return false for newly minted token", async () => {
+      const { deployer, CoBotsV2 } = await setup();
+      await deployer.CoBotsV2.mintFounders(deployer.address, 1);
+      expect(await CoBotsV2.isMettaEnabled(0)).to.eq(false);
+    });
+    it("should return true after toggling the state", async () => {
+      const { deployer, CoBotsV2 } = await setup();
+      await deployer.CoBotsV2.mintFounders(deployer.address, 1);
+      await deployer.CoBotsV2.toggleMetta([0]);
+      expect(await CoBotsV2.isMettaEnabled(0)).to.eq(true);
+    });
+  });
+  describe("toggleMetta", async function () {
+    it("should batch toggle token states", async () => {
+      const { deployer, CoBotsV2 } = await setup();
+      await deployer.CoBotsV2.mintFounders(deployer.address, 2);
+      const prevState = await Promise.all(
+        [0, 1].map(async (tokenId) => await CoBotsV2.isMettaEnabled(tokenId))
+      );
+      await deployer.CoBotsV2.toggleMetta([0, 1]);
+      const newState = await Promise.all(
+        [0, 1].map(async (tokenId) => await CoBotsV2.isMettaEnabled(tokenId))
+      );
+      expect(prevState).to.deep.eq(newState.map((s) => !s));
     });
   });
 });

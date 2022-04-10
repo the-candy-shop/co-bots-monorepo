@@ -150,6 +150,7 @@ contract CoBotsV2 is
         if (_currentIndex + quantity > PARAMETERS.maxCobots)
             revert TotalSupplyExceeded();
         uint256 price = PARAMETERS.mintPublicPrice * quantity;
+
         uint256 redeemed = 0;
         for (uint256 i = 0; i < tokenIdsV1.length; i++) {
             if (COBOTS_V1.ownerOf(tokenIdsV1[i]) != _msgSender())
@@ -158,8 +159,8 @@ contract CoBotsV2 is
                 coBotsV1Redeemed[tokenIdsV1[i]] = true;
                 redeemed++;
                 price -=
-                    PARAMETERS.mintPublicPrice *
-                    (1 - 1 / PARAMETERS.cobotsV1Discount);
+                    PARAMETERS.mintPublicPrice /
+                    PARAMETERS.cobotsV1Discount;
             }
         }
         if (msg.value != price) revert WrongPrice();
@@ -184,7 +185,7 @@ contract CoBotsV2 is
         return coBotsSeeds[tokenId] & 1 == 1;
     }
 
-    function toggleMetta(uint256 tokenId) public nonReentrant {
+    function _toggleMetta(uint256 tokenId) internal {
         if (ERC721A.ownerOf(tokenId) != _msgSender())
             revert ToggleMettaCallerNotOwner();
 
@@ -193,7 +194,7 @@ contract CoBotsV2 is
 
     function toggleMetta(uint256[] calldata tokenIds) public nonReentrant {
         for (uint256 i = 0; i < tokenIds.length; i++) {
-            toggleMetta(tokenIds[i]);
+            _toggleMetta(tokenIds[i]);
         }
     }
 
@@ -240,8 +241,9 @@ contract CoBotsV2 is
     mapping(uint256 => Fulfillment) public fulfillments;
     Winner[] public winners;
     uint8 drawCounts;
+    uint256 public drawnAmount;
 
-    function createSubscriptionAndFund(uint96 amount) external onlyOwner {
+    function createSubscriptionAndFund(uint96 amount) external nonReentrant {
         if (chainlinkSubscriptionId == 0) {
             chainlinkSubscriptionId = COORDINATOR.createSubscription();
             COORDINATOR.addConsumer(chainlinkSubscriptionId, address(this));
@@ -289,6 +291,7 @@ contract CoBotsV2 is
                     1 // numWords
                 );
             }
+            drawnAmount += PRIZES[drawCounts].amount;
             fulfillments[requestId] = Fulfillment(PRIZES[drawCounts++], false);
         }
     }
