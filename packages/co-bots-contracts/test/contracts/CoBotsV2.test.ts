@@ -5,6 +5,7 @@ import {
   ethers,
   getNamedAccounts,
   getUnnamedAccounts,
+  network,
 } from "hardhat";
 import { BigNumber } from "ethers";
 import { solidity } from "ethereum-waffle";
@@ -48,7 +49,10 @@ const setup = async () => {
   const users = await setupUsers(
     (
       await getUnnamedAccounts()
-    ).slice(0, constants.PARAMETERS.maxCobots / constants.MINT_BATCH_LIMIT),
+    ).slice(
+      0,
+      Math.ceil(constants.PARAMETERS.maxCobots / constants.MINT_BATCH_LIMIT)
+    ),
     contracts
   );
   return {
@@ -69,6 +73,30 @@ const publicSaleFixture = deployments.createFixture(async ({ network }) => {
   await network.provider.send("evm_mine");
   return contractsAndUsers;
 });
+
+const mintedOutFixture = deployments.createFixture(
+  async ({ network }, contestOver) => {
+    const contractsAndUsers = await publicSaleFixture();
+    await network.provider.send("evm_increaseTime", [
+      contestOver ? contractsAndUsers.PARAMETERS.contestDuration : 0,
+    ]);
+    await Promise.all(
+      contractsAndUsers.users.map(async (user, i) => {
+        const quantity =
+          i === contractsAndUsers.users.length - 1
+            ? contractsAndUsers.PARAMETERS.maxCobots %
+              contractsAndUsers.MINT_BATCH_LIMIT
+            : contractsAndUsers.MINT_BATCH_LIMIT;
+        await user.CoBotsV2.mintPublicSale(quantity, [], {
+          value: BigNumber.from(
+            contractsAndUsers.PARAMETERS.mintPublicPrice
+          ).mul(quantity),
+        });
+      })
+    );
+    return contractsAndUsers;
+  }
+);
 
 describe("CoBotsV2", function () {
   describe("constructor", async function () {
@@ -91,19 +119,19 @@ describe("CoBotsV2", function () {
   describe("mintPublicSale", async function () {
     it("should revert when minting is not open", async () => {
       const { users } = await setup();
-      expect(users[0].CoBotsV2.mintPublicSale(1, [])).to.be.revertedWith(
+      await expect(users[0].CoBotsV2.mintPublicSale(1, [])).to.be.revertedWith(
         "PublicSaleNotOpen"
       );
     });
     it("should revert when price does not match", async () => {
       const { users } = await publicSaleFixture();
-      expect(users[0].CoBotsV2.mintPublicSale(1, [])).to.be.revertedWith(
+      await expect(users[0].CoBotsV2.mintPublicSale(1, [])).to.be.revertedWith(
         "WrongPrice"
       );
     });
     it("should revert when quantity is too high", async () => {
       const { users, MINT_BATCH_LIMIT, PARAMETERS } = await publicSaleFixture();
-      expect(
+      await expect(
         users[0].CoBotsV2.mintPublicSale(MINT_BATCH_LIMIT + 1, [], {
           value: BigNumber.from(PARAMETERS.mintPublicPrice).mul(
             MINT_BATCH_LIMIT + 1
@@ -148,27 +176,11 @@ describe("CoBotsV2", function () {
       ); // Magic number, there is a chance that some seeds are the same
     });
     it("should mint up to id MAX_COBOTS - 1", async () => {
-      const { users, PARAMETERS, MINT_BATCH_LIMIT } = await publicSaleFixture();
-      await Promise.all(
-        users.map((user) =>
-          user.CoBotsV2.mintPublicSale(MINT_BATCH_LIMIT, [], {
-            value: BigNumber.from(PARAMETERS.mintPublicPrice).mul(
-              MINT_BATCH_LIMIT
-            ),
-          })
-        )
-      );
-      const currentId = await users[0].CoBotsV2.totalSupply();
-      expect(
-        users[0].CoBotsV2.mintPublicSale(
-          PARAMETERS.maxCobots - currentId.toNumber() + 1,
-          [],
-          {
-            value: BigNumber.from(PARAMETERS.mintPublicPrice).mul(
-              PARAMETERS.maxCobots - currentId.toNumber() + 1
-            ),
-          }
-        )
+      const { users, PARAMETERS } = await mintedOutFixture();
+      await expect(
+        users[0].CoBotsV2.mintPublicSale(1, [], {
+          value: BigNumber.from(PARAMETERS.mintPublicPrice),
+        })
       ).to.be.revertedWith("TotalSupplyExceeded");
     });
     it("should mint with discount price", async () => {
@@ -256,13 +268,13 @@ describe("CoBotsV2", function () {
   describe("mintFounders", async function () {
     it("should revert when user is not owner", async () => {
       const { users } = await setup();
-      expect(
+      await expect(
         users[0].CoBotsV2.mintFounders(users[0].address, 1)
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
     it("should revert when deployer try to mint more than allowed", async () => {
       const { deployer, users, MINT_FOUNDERS } = await setup();
-      expect(
+      await expect(
         deployer.CoBotsV2.mintFounders(users[0].address, MINT_FOUNDERS + 1)
       ).to.be.revertedWith("AllocationExceeded");
     });
@@ -298,6 +310,83 @@ describe("CoBotsV2", function () {
         [0, 1].map(async (tokenId) => await CoBotsV2.isMettaEnabled(tokenId))
       );
       expect(prevState).to.deep.eq(newState.map((s) => !s));
+    });
+  });
+  describe("draw", async function () {
+    it("should draw unlocked giveaways iteratively", async () => {
+      const { users, CoBotsV2, PARAMETERS, MINT_BATCH_LIMIT } =
+        await publicSaleFixture();
+      await expect(users[0].CoBotsV2.draw()).to.be.revertedWith(
+        "NoGiveawayToTrigger"
+      );
+      const prizes = PRIZES_INPUT.slice(0, -1);
+      for (const prize of prizes) {
+        const currentSupply = await CoBotsV2.totalSupply();
+        const checkpoint = prize.checkpoint;
+        const nUsers = Math.ceil(
+          (checkpoint - currentSupply.toNumber()) / MINT_BATCH_LIMIT
+        );
+        if (nUsers === 0) {
+          continue;
+        }
+        await Promise.all(
+          users.slice(0, nUsers).map(async (user, i) => {
+            const quantity =
+              i === nUsers - 1
+                ? (checkpoint - currentSupply.toNumber()) % MINT_BATCH_LIMIT
+                : MINT_BATCH_LIMIT;
+            await user.CoBotsV2.mintPublicSale(quantity, [], {
+              value: BigNumber.from(PARAMETERS.mintPublicPrice).mul(quantity),
+            });
+          })
+        );
+        const tx = await users[0].CoBotsV2.draw();
+        const receipt = await tx.wait();
+        expect(receipt.events?.length).to.eq(
+          prizes
+            .filter((_p) => _p.checkpoint === prize.checkpoint)
+            .map((_p) => (_p.isContest ? 1 : 2))
+            .reduce((a, b) => a + b, 0)
+        );
+        await expect(users[0].CoBotsV2.draw()).to.be.revertedWith(
+          "NoGiveawayToTrigger"
+        );
+      }
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.grandPrizeDelay + 1,
+      ]);
+      const tx = await users[0].CoBotsV2.draw();
+      const receipt = await tx.wait();
+      expect(receipt.events?.length).to.eq(3); // 1 more for end of giveaways
+      await expect(users[0].CoBotsV2.draw()).to.be.revertedWith(
+        "NoGiveawayToTrigger"
+      );
+    });
+    it("should draw all giveaways at once when minted out and grand prize delay passed", async () => {
+      const { users, PARAMETERS } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.grandPrizeDelay + 1,
+      ]);
+      const tx = await users[0].CoBotsV2.draw();
+      const receipt = await tx.wait();
+      expect(receipt.events?.length).to.eq(
+        PRIZES_INPUT.map((_p) => (_p.isContest ? 1 : 2)).reduce(
+          (a, b) => a + b,
+          0
+        ) + 1
+      );
+      await expect(users[0].CoBotsV2.draw()).to.be.revertedWith(
+        "NoGiveawayToTrigger"
+      );
+    });
+    it("should draw all giveaways apart mystery challenge randomly after delay", async () => {
+      const { users, PARAMETERS } = await mintedOutFixture(true);
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.grandPrizeDelay + 1,
+      ]);
+      const tx = await users[0].CoBotsV2.draw();
+      const receipt = await tx.wait();
+      expect(receipt.events?.length).to.eq(PRIZES_INPUT.length * 2); // 2 events per prize, minus 1 for mystery challenge + 1 for final draw
     });
   });
 });

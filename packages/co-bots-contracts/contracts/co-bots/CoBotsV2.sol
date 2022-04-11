@@ -36,6 +36,14 @@ contract CoBotsV2 is
 {
     // Events
     event RendererContractUpdated(address indexed renderer);
+    event MettaToggled(uint256 indexed tokenId, bool isMetta);
+    event CheckpointDrawn(uint256 indexed requestId, Prize prize);
+    event CheckpointFulfilled(
+        uint256 indexed requestId,
+        Prize prize,
+        Winner winner
+    );
+    event GiveawayFinished();
 
     // Data structures
     struct Prize {
@@ -271,6 +279,15 @@ contract CoBotsV2 is
         if (chainlinkSubscriptionId == 0) {
             revert ChainlinkSubscriptionNotFound();
         }
+        if (drawCounts == PRIZES.length) {
+            revert NoGiveawayToTrigger();
+        }
+        if (
+            (drawCounts == PRIZES.length - 1) &&
+            (block.timestamp < mintedOutTimestamp + PARAMETERS.grandPrizeDelay)
+        ) {
+            revert NoGiveawayToTrigger();
+        }
         if (PRIZES[drawCounts].checkpoint > _currentIndex)
             revert NoGiveawayToTrigger();
         while (PRIZES[drawCounts].checkpoint < _currentIndex + 1) {
@@ -292,7 +309,20 @@ contract CoBotsV2 is
                 );
             }
             drawnAmount += PRIZES[drawCounts].amount;
-            fulfillments[requestId] = Fulfillment(PRIZES[drawCounts++], false);
+            fulfillments[requestId] = Fulfillment(PRIZES[drawCounts], false);
+            emit CheckpointDrawn(requestId, PRIZES[drawCounts]);
+            drawCounts++;
+            if (
+                (drawCounts == PRIZES.length - 1) &&
+                (block.timestamp <
+                    mintedOutTimestamp + PARAMETERS.grandPrizeDelay)
+            ) {
+                return;
+            }
+            if (drawCounts == PRIZES.length) {
+                emit GiveawayFinished();
+                return;
+            }
         }
     }
 
@@ -303,7 +333,7 @@ contract CoBotsV2 is
 
     function _fulfill(
         uint256 requestId,
-        address winner,
+        address winnerAddress,
         uint256 selectedToken
     ) internal nonReentrant {
         if (fulfillments[requestId].fulfilled) {
@@ -312,11 +342,17 @@ contract CoBotsV2 is
         if (fulfillments[requestId].prize.amount == 0)
             revert FulfillRequestForNonExistentContest();
         fulfillments[requestId].fulfilled = true;
-        winners.push(Winner(winner, uint16(selectedToken)));
-        (bool success, ) = winner.call{
+        Winner memory winner = Winner(winnerAddress, uint16(selectedToken));
+        winners.push(winner);
+        (bool success, ) = winnerAddress.call{
             value: fulfillments[requestId].prize.amount
         }("");
         if (!success) revert TransferFailed();
+        emit CheckpointFulfilled(
+            requestId,
+            fulfillments[requestId].prize,
+            winner
+        );
     }
 
     function fulfillRandomWords(uint256 requestId, uint256[] memory randomWords)
