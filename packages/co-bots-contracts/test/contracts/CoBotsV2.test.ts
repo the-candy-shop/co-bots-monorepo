@@ -538,4 +538,114 @@ describe("CoBotsV2", function () {
       );
     });
   });
+  describe("withdraw", async function () {
+    it("should revert when caller is not owner", async () => {
+      const { users } = await mintedOutFixture();
+      await expect(users[0].CoBotsV2.withdraw()).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+    });
+    it("should withdrawn all funds after the end of the game", async () => {
+      const { deployer, PRIZES, PARAMETERS } = await mintedOutFixture();
+      await deployer.CoBotsV2.draw();
+      const balancePrev = await ethers.provider.getBalance(deployer.address);
+      const tx = await deployer.CoBotsV2.withdraw();
+      const receipt = await tx.wait();
+      const paidFees = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
+      const balanceNext = await ethers.provider.getBalance(deployer.address);
+      const mintOutRevenue = BigNumber.from(PARAMETERS.mintPublicPrice).mul(
+        PARAMETERS.maxCobots
+      );
+      expect(balanceNext.sub(balancePrev).add(paidFees)).to.eq(
+        mintOutRevenue.sub(
+          PRIZES.reduce(
+            (acc, prize) => acc.add(prize.amount),
+            BigNumber.from(0)
+          )
+        )
+      );
+    });
+    it("should withdraw limited funds at any checkpoint without compromising the giveaways", async () => {
+      const {
+        deployer,
+        users,
+        CoBotsV2,
+        PRIZES,
+        PARAMETERS,
+        MINT_BATCH_LIMIT,
+      } = await publicSaleFixture();
+      await expect(deployer.CoBotsV2.withdraw()).to.be.revertedWith(
+        "InsufficientFunds"
+      );
+      const withdrawnAmounts = [];
+      const prizes = PRIZES.slice(0, -1);
+      for (const prize of prizes) {
+        const currentSupply = await CoBotsV2.totalSupply();
+        const checkpoint = prize.checkpoint;
+        const nUsers = Math.ceil(
+          (checkpoint - currentSupply.toNumber()) / MINT_BATCH_LIMIT
+        );
+        if (nUsers === 0) {
+          continue;
+        }
+        await Promise.all(
+          users.slice(0, nUsers).map(async (user, i) => {
+            const quantity =
+              i === nUsers - 1
+                ? (checkpoint - currentSupply.toNumber()) % MINT_BATCH_LIMIT
+                : MINT_BATCH_LIMIT;
+            await user.CoBotsV2.mintPublicSale(quantity, [], {
+              value: BigNumber.from(PARAMETERS.mintPublicPrice).mul(quantity),
+            });
+          })
+        );
+        await users[0].CoBotsV2.draw();
+        try {
+          const balancePrev = await ethers.provider.getBalance(
+            deployer.address
+          );
+          const tx = await deployer.CoBotsV2.withdraw();
+          const receipt = await tx.wait();
+          const paidFees = receipt.cumulativeGasUsed.mul(
+            receipt.effectiveGasPrice
+          );
+          const balanceNext = await ethers.provider.getBalance(
+            deployer.address
+          );
+          withdrawnAmounts.push(
+            balanceNext.sub(balancePrev).add(paidFees).toString()
+          );
+        } catch (e) {
+          await expect(deployer.CoBotsV2.withdraw()).to.be.revertedWith(
+            "InsufficientFunds"
+          );
+          withdrawnAmounts.push("0");
+        }
+      }
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.grandPrizeDelay + 1,
+      ]);
+      await users[0].CoBotsV2.draw();
+      await expect(deployer.CoBotsV2.withdraw()).to.be.revertedWith(
+        "InsufficientFunds"
+      );
+      withdrawnAmounts.push("0");
+      expect(withdrawnAmounts).toMatchSnapshot();
+      const mintOutRevenue = BigNumber.from(PARAMETERS.mintPublicPrice).mul(
+        PARAMETERS.maxCobots
+      );
+      expect(
+        withdrawnAmounts
+          .map((amount) => BigNumber.from(amount))
+          .reduce((acc, amount) => acc.add(amount))
+      ).to.eq(
+        mintOutRevenue.sub(
+          PRIZES.reduce(
+            (acc, prize) => acc.add(prize.amount),
+            BigNumber.from(0)
+          )
+        )
+      );
+    });
+  });
 });

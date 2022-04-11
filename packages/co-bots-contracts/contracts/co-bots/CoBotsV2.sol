@@ -26,6 +26,8 @@ error FulfillRequestWithTokenNotOwnedByWinner();
 error RedeemTokenNotOwner();
 error RedeemTokenAlreadyRedeemed();
 error NoGiveawayToTrigger();
+error InsufficientFunds();
+error WithdrawalFailed();
 
 contract CoBotsV2 is
     ERC721A,
@@ -44,6 +46,7 @@ contract CoBotsV2 is
         Winner winner
     );
     event GiveawayFinished();
+    event Withdrawal(uint256 amount);
 
     // Data structures
     struct Prize {
@@ -74,7 +77,7 @@ contract CoBotsV2 is
     Prize[] public PRIZES;
     MysteryChallenge private MYSTERY_CHALLENGE;
     IERC721 ENS;
-    IERC721 COBOTS_V1;
+    IERC721Enumerable COBOTS_V1;
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Token ///////////////////////////////////////
@@ -84,6 +87,7 @@ contract CoBotsV2 is
     ICoBotsRendererV2 public renderer;
     uint8[] public coBotsSeeds;
     mapping(uint256 => bool) public coBotsV1Redeemed;
+    uint256 private _redeemedCount;
 
     function setRenderingContractAddress(address _renderingContractAddress)
         public
@@ -116,7 +120,7 @@ contract CoBotsV2 is
             PRIZES.push(_prizes[i]);
         }
         ENS = IERC721(ens);
-        COBOTS_V1 = IERC721(cobotsV1);
+        COBOTS_V1 = IERC721Enumerable(cobotsV1);
         MYSTERY_CHALLENGE = _mysteryChallenge;
     }
 
@@ -171,6 +175,7 @@ contract CoBotsV2 is
                     PARAMETERS.cobotsV1Discount;
             }
         }
+        _redeemedCount += redeemed;
         if (msg.value != price) revert WrongPrice();
         if (quantity + _currentIndex == PARAMETERS.maxCobots) {
             mintedOutTimestamp = block.timestamp;
@@ -228,6 +233,76 @@ contract CoBotsV2 is
 
     receive() external payable {}
 
+    /** @notice At any point in time, founders can withdraw only up to the required balance to insure that the giveaways
+     *          will be paid. We take a conservative approach considering that all the remaining discounted bots will be minted
+     *          as soon as possible.
+     */
+    function withdraw() public onlyOwner {
+        // Draw eventual remaining giveaways
+        if (_shouldDraw()) {
+            draw();
+        }
+
+        // Start with the current contract's balance
+        uint256 balance = address(this).balance;
+
+        // Correct amount with giveaways that are pending fulfillments, typically previously drawn random fulfillments
+        for (uint256 i = 0; i < requestIds.length; i++) {
+            if (!fulfillments[requestIds[i]].fulfilled) {
+                balance -= fulfillments[requestIds[i]].prize.amount;
+            }
+        }
+
+        // Use the corrected balance as a base possible withdrawn value
+        uint256 value = balance;
+        if (value == 0) revert InsufficientFunds();
+
+        // Compute number of remaining discount sales
+        uint256 remainingVoucher = COBOTS_V1.totalSupply() - _redeemedCount;
+        // Initialize the number of already minted bots for checkpoints
+        uint256 previousCheckpoint = _currentIndex;
+
+        // Loop over locked checkpoint to estimate funds and withdrawal capacities
+        for (uint256 i = requestIds.length; i < PRIZES.length; i++) {
+            // to unlock the next checkpoint, remainingBots bots need to be minted
+            uint256 remainingBots = PRIZES[i].checkpoint - previousCheckpoint;
+
+            // They will top up the contract's balance, depending on the number of voucher
+            if (remainingVoucher > remainingBots) {
+                balance +=
+                    remainingBots *
+                    (PARAMETERS.mintPublicPrice / PARAMETERS.cobotsV1Discount);
+                remainingVoucher -= remainingBots;
+            } else {
+                balance +=
+                    remainingVoucher *
+                    (PARAMETERS.mintPublicPrice / PARAMETERS.cobotsV1Discount) +
+                    (remainingBots - remainingVoucher) *
+                    PARAMETERS.mintPublicPrice;
+                remainingVoucher = 0;
+            }
+
+            // Then the current prize will be paid
+            balance -= PRIZES[i].amount;
+
+            // If at some point in the future it's not possible to pay, then the withdraw tx is reverted
+            if (balance < 1) {
+                revert InsufficientFunds();
+            }
+
+            // The possible withdrawal amount is the minimum between the current balance and the contract's balance
+            // after each giveaway.
+            if (balance < value) {
+                value = balance;
+            }
+            previousCheckpoint = PRIZES[i].checkpoint;
+        }
+
+        (bool success, ) = _msgSender().call{value: value}("");
+        if (!success) revert WithdrawalFailed();
+        emit Withdrawal(value);
+    }
+
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Raffle //////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
@@ -283,6 +358,20 @@ contract CoBotsV2 is
         return result;
     }
 
+    function _shouldDraw() internal view returns (bool) {
+        if (requestIds.length == PRIZES.length) {
+            return false;
+        }
+        if (
+            (requestIds.length == PRIZES.length - 1) &&
+            (block.timestamp < mintedOutTimestamp + PARAMETERS.grandPrizeDelay)
+        ) {
+            return false;
+        }
+        if (PRIZES[requestIds.length].checkpoint > _currentIndex) return false;
+        return true;
+    }
+
     /**
      * @notice This function can be called at any time by anyone to trigger the unlocked giveaways. It will
      *         revert if there is nothing to unlock to prevent anon from making useless tx. (Usually wallet, e.g.
@@ -290,22 +379,12 @@ contract CoBotsV2 is
      *         Giveaways that use Chainlink VRF oracle will be fulfilled automatically by Chainlink. Giveaways that
      *         require founders to unlock will be fulfilled by the founders.
      */
-    function draw() external nonReentrant {
+    function draw() public nonReentrant {
         uint256 drawCounts = requestIds.length;
         if (chainlinkSubscriptionId == 0) {
             revert ChainlinkSubscriptionNotFound();
         }
-        if (drawCounts == PRIZES.length) {
-            revert NoGiveawayToTrigger();
-        }
-        if (
-            (drawCounts == PRIZES.length - 1) &&
-            (block.timestamp < mintedOutTimestamp + PARAMETERS.grandPrizeDelay)
-        ) {
-            revert NoGiveawayToTrigger();
-        }
-        if (PRIZES[drawCounts].checkpoint > _currentIndex)
-            revert NoGiveawayToTrigger();
+        if (!_shouldDraw()) revert NoGiveawayToTrigger();
         while (PRIZES[drawCounts].checkpoint < _currentIndex + 1) {
             uint256 requestId;
             if (
