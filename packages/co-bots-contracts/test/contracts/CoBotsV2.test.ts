@@ -9,7 +9,11 @@ import {
 } from "hardhat";
 import { BigNumber } from "ethers";
 import { solidity } from "ethereum-waffle";
-import { PRIZES as PRIZES_INPUT, TAGS } from "../../utils/constants";
+import {
+  MYSTERY_CHALLENGE,
+  PRIZES as PRIZES_INPUT,
+  TAGS,
+} from "../../utils/constants";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { CoBotsParameters, Prize } from "../../utils/types";
 import {
@@ -36,6 +40,7 @@ const setup = async () => {
       "VRFCoordinatorV2TestHelper"
     )) as VRFCoordinatorV2TestHelper,
   };
+
   const constants = {
     MINT_BATCH_LIMIT: await contracts.CoBotsV2.MINT_BATCH_LIMIT(),
     MINT_FOUNDERS: await contracts.CoBotsV2.MINT_FOUNDERS(),
@@ -55,6 +60,18 @@ const setup = async () => {
     ),
     contracts
   );
+
+  await network.provider.request({
+    method: "hardhat_impersonateAccount",
+    params: [contracts.VRFCoordinator.address],
+  });
+  await (
+    await ethers.getSigner(users[0].address)
+  ).sendTransaction({
+    to: contracts.VRFCoordinator.address,
+    value: ethers.utils.parseEther("100"),
+  });
+
   return {
     ...contracts,
     users,
@@ -387,6 +404,138 @@ describe("CoBotsV2", function () {
       const tx = await users[0].CoBotsV2.draw();
       const receipt = await tx.wait();
       expect(receipt.events?.length).to.eq(PRIZES_INPUT.length * 2); // 2 events per prize, minus 1 for mystery challenge + 1 for final draw
+    });
+  });
+  describe("fulfillContest", async function () {
+    it("should revert when caller is not owner", async () => {
+      const { users } = await publicSaleFixture();
+      await expect(
+        users[0].CoBotsV2.fulfillContest(0, users[0].address, 0)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("should revert when prize is not a contest", async () => {
+      const { users, deployer } = await publicSaleFixture();
+      await expect(
+        deployer.CoBotsV2.fulfillContest(0, users[0].address, 0)
+      ).to.be.revertedWith("FulfillRequestForNonExistentContest");
+    });
+    it("should revert when giveaway is locked", async () => {
+      const { users, deployer, PRIZES } = await publicSaleFixture();
+      await expect(
+        deployer.CoBotsV2.fulfillContest(
+          PRIZES.findIndex((p) => p.isContest),
+          users[0].address,
+          0
+        )
+      ).to.be.revertedWith("FulfillRequestForNonExistentContest");
+    });
+    it("should revert when winner does not own selected token", async () => {
+      const { users, deployer, PRIZES } = await mintedOutFixture();
+      await users[0].CoBotsV2.draw();
+      await expect(
+        deployer.CoBotsV2.fulfillContest(
+          PRIZES.findIndex((p) => p.isContest),
+          users[1].address,
+          0
+        )
+      ).to.be.revertedWith("FulfillRequestWithTokenNotOwnedByWinner");
+    });
+    it("should send money to winner and revert other attempts", async () => {
+      const { users, deployer, PRIZES } = await mintedOutFixture();
+      await users[0].CoBotsV2.draw();
+      for (const [i, prize] of PRIZES.entries()) {
+        if (!prize.isContest) {
+          continue;
+        }
+        const balancePrev = await ethers.provider.getBalance(users[0].address);
+        await deployer.CoBotsV2.fulfillContest(i, users[0].address, 0);
+        await expect(
+          deployer.CoBotsV2.fulfillContest(i, users[0].address, 0)
+        ).to.be.revertedWith("FulfillmentAlreadyFulfilled");
+        const balanceNext = await ethers.provider.getBalance(users[0].address);
+        expect(balanceNext.sub(balancePrev)).to.eq(prize.amount);
+      }
+    });
+  });
+  describe("TheAnswer", async function () {
+    it("should revert when caller does not own the ENS", async () => {
+      const { users } = await publicSaleFixture();
+      await expect(users[0].CoBotsV2.TheAnswer(42, 0)).to.be.revertedWith(
+        "MysteryChallengeSenderDoesNotOwnENS"
+      );
+    });
+    it("should revert when prize is not unlocked", async () => {
+      const { deployer } = await publicSaleFixture();
+      await expect(deployer.CoBotsV2.TheAnswer(42, 0)).to.be.revertedWith(
+        "FulfillRequestForNonExistentContest"
+      );
+    });
+    it("should revert when answer is incorrect", async () => {
+      const { deployer } = await mintedOutFixture();
+      await deployer.CoBotsV2.draw();
+      await expect(deployer.CoBotsV2.TheAnswer(0, 0)).to.be.revertedWith(
+        "MysteryChallengeValueDoesNotMatch"
+      );
+    });
+    it("should revert when caller does not own selected token", async () => {
+      const { deployer, MINT_BATCH_LIMIT } = await mintedOutFixture();
+      await deployer.CoBotsV2.draw();
+      await expect(
+        deployer.CoBotsV2.TheAnswer(42, MINT_BATCH_LIMIT + 1)
+      ).to.be.revertedWith("FulfillRequestWithTokenNotOwnedByWinner");
+    });
+    it("should send money to winner and revert other attempts", async () => {
+      const { deployer, users, PRIZES } = await mintedOutFixture();
+      await deployer.CoBotsV2.draw();
+      await users[0].CoBotsV2["safeTransferFrom(address,address,uint256)"](
+        users[0].address,
+        deployer.address,
+        0
+      );
+      const balancePrev = await ethers.provider.getBalance(deployer.address);
+      const tx = await deployer.CoBotsV2.TheAnswer(42, 0);
+      const receipt = await tx.wait();
+      const paidFees = receipt.cumulativeGasUsed.mul(receipt.effectiveGasPrice);
+      const balanceNext = await ethers.provider.getBalance(deployer.address);
+      expect(balanceNext.add(paidFees).sub(balancePrev)).to.eq(
+        PRIZES[MYSTERY_CHALLENGE.prizeIndex].amount
+      );
+      await expect(deployer.CoBotsV2.TheAnswer(42, 0)).to.be.revertedWith(
+        "FulfillmentAlreadyFulfilled"
+      );
+    });
+  });
+  describe("fulfillRandomWords", async function () {
+    it("should send money to owner of selected token", async () => {
+      const { deployer, users, vrfCoordinator } = await mintedOutFixture();
+      const tx = await deployer.CoBotsV2.draw();
+      const receipt = await tx.wait();
+      const requests =
+        receipt.events
+          ?.filter((e) => e.event === "CheckpointDrawn")
+          .filter((e) => !e.args?.prize?.isContest) || [];
+      for (const request of requests) {
+        const balancePrev = await ethers.provider.getBalance(users[0].address);
+        await vrfCoordinator.CoBotsV2.rawFulfillRandomWords(
+          request.args?.requestId,
+          [0]
+        );
+        const balanceNext = await ethers.provider.getBalance(users[0].address);
+        expect(balanceNext.sub(balancePrev)).to.eq(request.args?.prize.amount);
+      }
+    });
+  });
+  describe("getOrderedFulfillments", async function () {
+    it("should return ordered prizes list", async () => {
+      const { users, CoBotsV2, PRIZES, PARAMETERS } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.grandPrizeDelay + 1,
+      ]);
+      await users[0].CoBotsV2.draw();
+      const fulfillments = await CoBotsV2.getOrderedFulfillments();
+      expect(fulfillments.map((fulfillment) => fulfillment.prize)).to.deep.eq(
+        PRIZES
+      );
     });
   });
 });

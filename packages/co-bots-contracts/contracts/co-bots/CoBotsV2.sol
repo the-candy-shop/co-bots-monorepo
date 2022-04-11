@@ -20,9 +20,9 @@ error ChainlinkSubscriptionNotFound();
 error TransferFailed();
 error MysteryChallengeSenderDoesNotOwnENS();
 error MysteryChallengeValueDoesNotMatch();
-error MysteryChallengeSenderDoesNotOwnToken();
 error FulfillmentAlreadyFulfilled();
 error FulfillRequestForNonExistentContest();
+error FulfillRequestWithTokenNotOwnedByWinner();
 error RedeemTokenNotOwner();
 error RedeemTokenAlreadyRedeemed();
 error NoGiveawayToTrigger();
@@ -236,21 +236,6 @@ contract CoBotsV2 is
     bytes32 gasKeyHash;
     uint64 public chainlinkSubscriptionId;
 
-    struct Winner {
-        address winner;
-        uint16 tokenId;
-    }
-
-    struct Fulfillment {
-        Prize prize;
-        bool fulfilled;
-    }
-
-    mapping(uint256 => Fulfillment) public fulfillments;
-    Winner[] public winners;
-    uint8 drawCounts;
-    uint256 public drawnAmount;
-
     function createSubscriptionAndFund(uint96 amount) external nonReentrant {
         if (chainlinkSubscriptionId == 0) {
             chainlinkSubscriptionId = COORDINATOR.createSubscription();
@@ -268,6 +253,36 @@ contract CoBotsV2 is
         chainlinkSubscriptionId = 0;
     }
 
+    struct Winner {
+        address winner;
+        uint16 tokenId;
+    }
+
+    struct Fulfillment {
+        Prize prize;
+        bool fulfilled;
+        Winner winner;
+    }
+
+    mapping(uint256 => Fulfillment) public fulfillments;
+    uint256[] public requestIds;
+    uint256 public drawnAmount;
+
+    /** @notice Use this to retrieve the ordered list of winners with their corresponding prizes and token Id.
+     *          Pending fulfillments are included (no winner drawn yet, probably waiting for Chainlink to fulfill).
+     */
+    function getOrderedFulfillments()
+        external
+        view
+        returns (Fulfillment[] memory)
+    {
+        Fulfillment[] memory result = new Fulfillment[](requestIds.length);
+        for (uint256 i = 0; i < requestIds.length; i++) {
+            result[i] = fulfillments[requestIds[i]];
+        }
+        return result;
+    }
+
     /**
      * @notice This function can be called at any time by anyone to trigger the unlocked giveaways. It will
      *         revert if there is nothing to unlock to prevent anon from making useless tx. (Usually wallet, e.g.
@@ -276,6 +291,7 @@ contract CoBotsV2 is
      *         require founders to unlock will be fulfilled by the founders.
      */
     function draw() external nonReentrant {
+        uint256 drawCounts = requestIds.length;
         if (chainlinkSubscriptionId == 0) {
             revert ChainlinkSubscriptionNotFound();
         }
@@ -309,9 +325,14 @@ contract CoBotsV2 is
                 );
             }
             drawnAmount += PRIZES[drawCounts].amount;
-            fulfillments[requestId] = Fulfillment(PRIZES[drawCounts], false);
+            fulfillments[requestId] = Fulfillment(
+                PRIZES[drawCounts],
+                false,
+                Winner(address(0), 0)
+            );
             emit CheckpointDrawn(requestId, PRIZES[drawCounts]);
             drawCounts++;
+            requestIds.push(requestId);
             if (
                 (drawCounts == PRIZES.length - 1) &&
                 (block.timestamp <
@@ -335,15 +356,18 @@ contract CoBotsV2 is
         uint256 requestId,
         address winnerAddress,
         uint256 selectedToken
-    ) internal nonReentrant {
+    ) internal {
         if (fulfillments[requestId].fulfilled) {
             revert FulfillmentAlreadyFulfilled();
         }
         if (fulfillments[requestId].prize.amount == 0)
             revert FulfillRequestForNonExistentContest();
+        if (ERC721A.ownerOf(selectedToken) != winnerAddress) {
+            revert FulfillRequestWithTokenNotOwnedByWinner();
+        }
         fulfillments[requestId].fulfilled = true;
         Winner memory winner = Winner(winnerAddress, uint16(selectedToken));
-        winners.push(winner);
+        fulfillments[requestId].winner = winner;
         (bool success, ) = winnerAddress.call{
             value: fulfillments[requestId].prize.amount
         }("");
@@ -393,9 +417,6 @@ contract CoBotsV2 is
         }
         if (value != MYSTERY_CHALLENGE.value) {
             revert MysteryChallengeValueDoesNotMatch();
-        }
-        if (ERC721A.ownerOf(tokenId) != _msgSender()) {
-            revert MysteryChallengeSenderDoesNotOwnToken();
         }
         _fulfill(
             _computeRequestId(MYSTERY_CHALLENGE.prizeIndex),
