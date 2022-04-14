@@ -9,7 +9,7 @@
     <div class="flex-row flex justify-between items-center md:px-9 sm:py-4 w-full pb-2">
       <div class="flex-row flex w-3/12 text-cobots-silver-2">
         <Logo class="hidden sm:block fill-white" />
-        <div class="flex-row flex space-x-4 pl-8">
+        <div class="flex-row flex space-x-4 pl-8 font-extrabold">
           <div>MY BOTS</div>
           <div>FAQ</div>
           <div>RULES</div>
@@ -19,9 +19,9 @@
       <div
         class="flex-row flex items-center justify-center text-[16px] lg:divide-x divide-cobots-silver-2"
       >
-        <div class="items-center px-2 hidden lg:flex">
+        <div class="items-center px-2 hidden lg:flex font-extrabold">
           <p class="text-cobots-silver-2 mr-1">MINTED:</p>
-          <p class="text-cobots-green-2 font-extrabold">
+          <p class="text-cobots-green-2">
             {{ totalString }}/{{ maxString }}
           </p>
         </div>
