@@ -50,7 +50,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters("mint", ["mintLimit", "mintInProgress", "mintSuccessful"]),
+    ...mapGetters("mint", ["mintLimit", "mintInProgress", "mintSuccessful", "mintPrice"]),
     ...mapGetters("layout", ["panelHeightClass", "headerHeight"]),
     ...mapGetters("contractState", ["canMint"]),
     ...mapGetters("bots", ["numMinted"]),
@@ -74,7 +74,9 @@ export default {
     mintBtnText() {
       if (this.mintedLimit) return "You hit your limit";
       else if (this.mintInProgress) return "Minting...";
-      return "Mint";
+
+      const mintPrice = (this.numToMint * this.mintPrice).toFixed(2); 
+      return "Mint: " + mintPrice + " eth";
     },
   },
   watch: {
