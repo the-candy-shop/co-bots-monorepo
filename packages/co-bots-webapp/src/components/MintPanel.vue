@@ -23,8 +23,8 @@
       <text v-else>{{ mintBtnText }}</text>
     </cb-button>
 
-    <scroll-label v-if="mintSuccessful" class="text-cobots-green">
-      mint comlete! it may take a <br />minute to show up in your wallet
+    <scroll-label v-if="mintSuccessful" class="text-cobots-green mt-8">
+      mint complete!
     </scroll-label>
   </div>
 </template>
