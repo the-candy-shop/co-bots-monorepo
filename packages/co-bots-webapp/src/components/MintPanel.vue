@@ -1,13 +1,13 @@
 <template>
   <div class="flex flex-col items-center justify-center flex-grow">
-    <div class="flex items-center space-x-6">
+    <div class="flex items-center space-x-6 bg-white rounded-2xl w-full justify-between px-4 mb-4 mt-4">
       <counter-button :disabled="atMin || mintInProgress" @click="decrement">
         <img class="w-4 h-4" src="../images/minus-icon.svg" />
       </counter-button>
 
-      <div class="text-9xl leading-[144px] font-black flex">
-        <div class="w-24 mr-1 text-center">{{ firstDigit }}</div>
-        <div class="w-24 text-center">{{ secondDigit }}</div>
+      <div class="font-['CheeseButterCream'] text-7xl leading-[70px] font-black flex">
+        <div class="w-10 mr-1 text-center pt-4">{{ firstDigit }}</div>
+        <div class="w-10 text-center pt-4">{{ secondDigit }}</div>
       </div>
 
       <counter-button :disabled="atMax || mintInProgress" @click="increment">
@@ -17,7 +17,6 @@
 
     <cb-button
       @click="localMint"
-      class="mb-4"
       :disabled="mintInProgress || mintedLimit || !canMint"
     >
       <loading-animation v-if="mintInProgress" />
@@ -26,10 +25,6 @@
 
     <scroll-label v-if="mintSuccessful" class="text-cobots-green">
       mint comlete! it may take a <br />minute to show up in your wallet
-    </scroll-label>
-    <scroll-label v-else class="text-cobots-silver-2">
-      scroll down for info -<br />
-      please read before minting.
     </scroll-label>
   </div>
 </template>
