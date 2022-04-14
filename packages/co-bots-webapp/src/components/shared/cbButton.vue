@@ -1,6 +1,6 @@
 <template>
   <button
-    class="rounded-xl bg-sky-400 text-white font-black w-[320px] h-[64px] text-[20px] leading-5 pt-6 pb-5 uppercase"
+    class="rounded-xl bg-black text-cobots-green font-black w-full text-[20px] leading-5 pt-6 pb-5 uppercase"
     :class="{ 'opacity-50': disabled, 'cursor-not-allowed': disabled }"
     @click="localClick"
   >

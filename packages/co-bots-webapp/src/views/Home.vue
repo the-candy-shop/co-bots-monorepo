@@ -12,22 +12,25 @@
       <div class="w-[675px] text-cobots-silver-3 text-xl px-6">It's simple: at each mint checkpoint, a Co-Bot wins a prize. The earlier you mint, the more chances you have to win. Good luck!</div>
     </div>
     <div
-      class="flex flex-col justify-center items-center mt-12"
+      class="flex flex-col justify-center items-center my-12"
       :class="{
         '':
           canFlip || canMint || mintFailed || refundEnabled,
       }"
     >
-      <connect-wallet-panel
-        v-if="!walletConnected && !canFlip && (canMint || refundEnabled)"
-      />
-      <mint-panel v-else-if="canMint" />
-      <div class="flex-grow" v-else-if="mintFailed"></div>
-      <bonus-challenge-panel
-        v-else-if="canFlip"
-        @moreDetailsClick="scrollToBonusPrizes"
-      />
-      <raffle v-else />
+      <div class="w-96 bg-cobots-silver rounded-3xl p-4 flex flex-col h-[248px]">
+        <div class="text-2xl text-center font-extrabold text-cobots-silver-3">MINT CO-BOTS</div>
+        <connect-wallet-panel
+          v-if="!walletConnected && !canFlip && (canMint || refundEnabled)"
+        />
+        <mint-panel v-else-if="canMint" />
+        <div class="flex-grow" v-else-if="mintFailed"></div>
+        <bonus-challenge-panel
+          v-else-if="canFlip"
+          @moreDetailsClick="scrollToBonusPrizes"
+        />
+        <raffle v-else />
+      </div>
     </div>
 
     <div class="bg-black text-white flex flex-col items-center">
