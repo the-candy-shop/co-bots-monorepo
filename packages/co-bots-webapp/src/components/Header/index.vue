@@ -3,16 +3,15 @@
     class="bg-black h-[72px] flex flex-col justify-center fixed w-full border-b-2 border-white z-50"
   >
     <div class="flex py-2 pl-2 justify-between h-12 sm:hidden">
-      <Logo class="w-[96px] fill-white" />
+      <router-link to="/"><Logo class="w-[96px] fill-white" /></router-link>
       <social-media-buttons class="w-24" />
     </div>
     <div class="flex-row flex justify-between items-center md:px-9 sm:py-4 w-full pb-2">
       <div class="flex-row flex w-3/12 text-cobots-silver-2">
-        <Logo class="hidden sm:block fill-white" />
+        <router-link to="/"><Logo class="hidden sm:block fill-white" /></router-link>
         <div class="flex-row flex space-x-4 pl-8 font-extrabold">
           <div>MY BOTS</div>
-          <div>FAQ</div>
-          <div>RULES</div>
+          <div><router-link to="/faq">FAQ</router-link></div>
         </div>
       </div>
 
