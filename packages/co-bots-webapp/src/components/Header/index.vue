@@ -10,7 +10,7 @@
       <div class="flex-row flex w-3/12 text-cobots-silver-2">
         <router-link to="/"><Logo class="hidden sm:block fill-white" /></router-link>
         <div class="flex-row flex space-x-4 pl-8 font-extrabold">
-          <div>MY BOTS</div>
+          <div><router-link to="/my-bots" v-if="showBots">MY BOTS</router-link></div>
           <div><router-link to="/faq">FAQ</router-link></div>
         </div>
       </div>
@@ -48,7 +48,16 @@ export default {
   }),
   computed: {
     ...mapGetters("mint", ["totalSupply", "mintPrice", "mintLimit"]),
-    ...mapGetters("contractState", ["canMint", "maxSupply", "now"]),
+    ...mapGetters("contractState", ["canMint", "maxSupply", "now", "canFlip"]),
+    ...mapGetters("eth", ["walletConnected", "walletAddress"]),
+    ...mapGetters("bots", ["hasBots"]),
+    showBots() {
+      if (this.refundEnabled && !this.walletConnected) return false;
+      if (this.hasBots && this.walletConnected) return true;
+      if (!this.walletConnected && this.canFlip) return true;
+      if (!this.walletConnected && !this.canFlip && !this.canMint) return true;
+      return false;
+    },
     totalString() {
       if (this.totalSupply) return this.totalSupply.toLocaleString("en-US");
       return "";
