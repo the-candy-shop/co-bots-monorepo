@@ -33,7 +33,7 @@
       </div>
     </div>
 
-    <div class="bg-black text-white flex flex-col items-center">
+    <div class="bg-black text-white flex flex-col items-center pb-32">
       <div class="flex flex-col mt-32 text-[80px] leading-[80px] font-['CheeseButterCream'] items-center">
         <div>MINT</div>
         <div>PROGRESS</div>
@@ -75,17 +75,11 @@
         <gauge-stack percentage=10k eth=24 />
         <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-4 border-b-4"></div>
       </div>
-      <my-bots-section ref="my-bots" v-if="showBots" />
-      <hr
-        v-if="canFlip || hasBots"
-        class="border-cobots-silver-3 w-full border"
-      />
     </div>
   </div>
 </template>
 
 <script>
-import MyBotsSection from "@/components/MyBots/index.vue";
 import ConnectWalletPanel from "@/components/ConnectWalletPanel.vue";
 import MintPanel from "@/components/MintPanel.vue";
 import BonusChallengePanel from "@/components/BonusChallenge/index.vue";
@@ -98,7 +92,6 @@ import GaugeSeparator from "@/components/GaugeSeparator.vue";
 export default {
   name: "Home",
   components: {
-    MyBotsSection,
     ConnectWalletPanel,
     MintPanel,
     BonusChallengePanel,
@@ -113,16 +106,8 @@ export default {
   }),
   computed: {
     ...mapGetters("eth", ["walletConnected", "walletAddress"]),
-    ...mapGetters("bots", ["hasBots"]),
     ...mapGetters("contractState", ["canMint", "canFlip", "mintFailed"]),
     ...mapGetters("mint", ["mintSuccessful"]),
-    showBots() {
-      if (this.refundEnabled && !this.walletConnected) return false;
-      if (this.hasBots && this.walletConnected) return true;
-      if (!this.walletConnected && this.canFlip) return true;
-      if (!this.walletConnected && !this.canFlip && !this.canMint) return true;
-      return false;
-    },
   },
   methods: {
     ...mapActions("contractState", [
@@ -137,10 +122,6 @@ export default {
     scrollToBonusPrizes() {
       const el = this.$refs["info-section"].$refs["bonus-prizes-info"].$el;
       this.$scrollTo(el, 600, { offset: -50 });
-    },
-    scrollToMyBots() {
-      const el = this.$refs["my-bots"].$el;
-      this.$scrollTo(el, 600, { offset: -40 });
     },
   },
   watch: {

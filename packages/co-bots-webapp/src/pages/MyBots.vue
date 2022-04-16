@@ -1,14 +1,16 @@
 <template>
-  <info-section ref="info-section" />
+  <div class="flex bg-black justify-center">
+    <my-bots-section ref="my-bots" class="w-8/12 mt-[80px]" />
+  </div>
 </template>
 
 <script>
-import InfoSection from "@/components/InfoSection.vue";
+import MyBotsSection from "@/components/MyBots/index.vue";
 import { mapActions } from "vuex";
 export default {
-  name: "Faq",
+  name: "MyBots",
   components: {
-    InfoSection,
+    MyBotsSection,
   },
   methods: {
     ...mapActions("contractState", [

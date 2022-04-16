@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col justify-center items-center pt-16 pb-20">
-    <div class="uppercase text-5xl text-white font-black mb-10">my bots</div>
+    <div class="uppercase text-5xl text-white font-black mb-10 font-['CheeseButterCream']">my bots</div>
     <cb-button
       v-if="!walletConnected"
       :disabled="connecting"
