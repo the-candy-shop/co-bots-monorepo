@@ -80,13 +80,11 @@
         v-if="canFlip || hasBots"
         class="border-cobots-silver-3 w-full border"
       />
-      <info-section ref="info-section" />
     </div>
   </div>
 </template>
 
 <script>
-import InfoSection from "@/components/InfoSection.vue";
 import MyBotsSection from "@/components/MyBots/index.vue";
 import ConnectWalletPanel from "@/components/ConnectWalletPanel.vue";
 import MintPanel from "@/components/MintPanel.vue";
@@ -100,7 +98,6 @@ import GaugeSeparator from "@/components/GaugeSeparator.vue";
 export default {
   name: "Home",
   components: {
-    InfoSection,
     MyBotsSection,
     ConnectWalletPanel,
     MintPanel,

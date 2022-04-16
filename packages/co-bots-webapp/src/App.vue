@@ -7,7 +7,7 @@
     <div v-else>
       <header-vue />
       <main>
-        <home />
+        <router-view></router-view>
       </main>
     </div>
   </div>
