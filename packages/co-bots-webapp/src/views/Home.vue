@@ -38,7 +38,7 @@
         <div>MINT</div>
         <div>PROGRESS</div>
       </div>
-      <div class="flex flex-col mt-20">
+      <div class="flex flex-col mt-20 ml-[25%]">
         <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-4 border-t-4"></div>
         <gauge-stack percentage=100 eth=1 />
         <gauge-separator small />
