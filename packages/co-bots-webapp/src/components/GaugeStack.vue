@@ -21,7 +21,7 @@
         <div class="flex flex-col justify-center items-center grow">
           <div class="font-extrabold text-base text-cobots-silver-2">RANDOM DRAW</div>
           <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-2 flex flex-row">
-            <div class="mr-3 text-[60px] leading-[60px]">{{ eth }}</div>
+            <div class="mr-3 text-[60px] leading-[60px]">{{ configuration[percentage].price }}</div>
             <div>ETH</div>
           </div>
         </div>
@@ -32,11 +32,11 @@
 
 <script>
 import { mapGetters } from "vuex";
+import prizeConfiguration from "@/services/prizeConfiguration";
 export default {
    name: 'GaugeStack',
    props: {
     percentage: String,
-    eth: String,
     bots: Boolean
   },
   data() {
@@ -44,6 +44,7 @@ export default {
       imgUrl: null,
       canvas: document.createElement("canvas"),
       context: null,
+      configuration: prizeConfiguration
     };
   },
   computed: {
