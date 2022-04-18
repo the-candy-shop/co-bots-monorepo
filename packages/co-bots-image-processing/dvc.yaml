@@ -4,7 +4,6 @@ stages:
     deps:
     - data/traits
     - image_processing/parse_svg.py
-    - image_processing/constants.py
     outs:
     - data/traits_computed
     - data/palettes.json
