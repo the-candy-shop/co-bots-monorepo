@@ -39,7 +39,13 @@
         <div>PROGRESS</div>
       </div>
       <div class="flex flex-col mt-20 ml-[25%]">
-        <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-4 border-t-4"></div>
+        <div class="relative">
+          <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-t-[6px]"
+          ></div>
+          <div class="absolute left-0 top-0 rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-green border-cobots-green-3 border-x-[6px] border-t-[6px]"
+            :style="{height:mintCompletion(50) + '%'}"
+          ></div>
+        </div>
         <gauge-stack percentage=100 />
         <gauge-separator small />
         <gauge-stack percentage=200 />
@@ -73,7 +79,12 @@
         <gauge-stack percentage=9000 />
         <gauge-separator xlarge />
         <gauge-stack percentage=10k />
-        <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-4 border-b-4"></div>
+        <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"
+            :class="{
+              'bg-cobots-silver-4 border-cobots-silver-2': minted === 0,
+              'bg-cobots-green border-cobots-green-3': minted !== 0,
+            }"
+        ></div>
       </div>
     </div>
   </div>
@@ -103,6 +114,7 @@ export default {
   data: () => ({
     interval: null,
     refundEnabled: false,
+    minted: 50,
   }),
   computed: {
     ...mapGetters("eth", ["walletConnected", "walletAddress"]),
@@ -123,6 +135,17 @@ export default {
       const el = this.$refs["info-section"].$refs["bonus-prizes-info"].$el;
       this.$scrollTo(el, 600, { offset: -50 });
     },
+    mintCompletion(step) {
+      // 15 is the first value where the round doesn't look like shit
+      if (this.minted <= 25) {
+        return 50;
+      }
+      if (this.minted >= step) {
+        return 100;
+      }
+
+      return ((this.minted) / step) * 100;
+    }
   },
   watch: {
     walletAddress() {
