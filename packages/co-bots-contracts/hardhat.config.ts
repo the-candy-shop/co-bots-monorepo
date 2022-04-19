@@ -13,6 +13,7 @@ import "solidity-coverage";
 import "hardhat-spdx-license-identifier";
 import { removeConsoleLog } from "hardhat-preprocessor";
 import "./tasks";
+import "@clemlaflemme.eth/contracts/tasks";
 import { accounts, node_url } from "./utils/network";
 
 dotenv.config();
