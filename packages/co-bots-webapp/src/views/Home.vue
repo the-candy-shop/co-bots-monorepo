@@ -40,39 +40,39 @@
       </div>
       <div class="flex flex-col mt-20 ml-[25%]">
         <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-4 border-t-4"></div>
-        <gauge-stack percentage=100 eth=1 />
+        <gauge-stack percentage=100 />
         <gauge-separator small />
-        <gauge-stack percentage=200 eth=2 />
+        <gauge-stack percentage=200 />
         <gauge-separator small />
-        <gauge-stack percentage=300 eth=3 />
+        <gauge-stack percentage=300 />
         <gauge-separator small />
-        <gauge-stack percentage=400 eth=4 />
+        <gauge-stack percentage=400 />
         <gauge-separator small />
-        <gauge-stack percentage=500 eth=5 />
+        <gauge-stack percentage=500 />
         <gauge-separator medium />
-        <gauge-stack percentage=750 eth=6 />
+        <gauge-stack percentage=750 />
         <gauge-separator medium />
-        <gauge-stack percentage=1000 eth=7 />
+        <gauge-stack percentage=1000 />
         <gauge-separator large />
-        <gauge-stack percentage=1500 eth=8 />
+        <gauge-stack percentage=1500 />
         <gauge-separator large />
-        <gauge-stack percentage=2000 eth=9 />
+        <gauge-stack percentage=2000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=3000 eth=10 />
+        <gauge-stack percentage=3000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=4000 eth=12 />
+        <gauge-stack percentage=4000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=5000 eth=14 />
+        <gauge-stack percentage=5000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=6000 eth=16 />
+        <gauge-stack percentage=6000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=7000 eth=18 />
+        <gauge-stack percentage=7000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=8000 eth=20 />
+        <gauge-stack percentage=8000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=9000 eth=22 />
+        <gauge-stack percentage=9000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=10k eth=24 />
+        <gauge-stack percentage=10k />
         <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-4 border-b-4"></div>
       </div>
     </div>
