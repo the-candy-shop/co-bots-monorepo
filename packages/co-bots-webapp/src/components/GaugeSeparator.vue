@@ -6,6 +6,7 @@
             'h-4': small,
             'h-12': medium,
             'h-24': large,
+            'h-[120px]': mlarge,
             'h-48': xlarge,
           }"
       >
@@ -21,6 +22,7 @@ export default {
       small: Boolean,
       medium: Boolean,
       large: Boolean,
+      mlarge: Boolean,
       xlarge: Boolean,
     },
   }

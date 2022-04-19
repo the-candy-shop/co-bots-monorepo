@@ -1,28 +1,51 @@
 <template>
   <div>
     <div class="flex flex-row">
-      <div class="flex flex-col justify-center w-24 h-36 bg-cobots-silver-4 border-cobots-silver-2 border-x-4">
+      <div class="flex flex-col justify-center w-24 h-36 bg-cobots-silver-4 border-cobots-silver-2 border-x-4"
+          :class="{
+            'h-36': configuration[percentage].contests.length === 1,
+            'h-[304px]': configuration[percentage].contests.length === 2
+          }"
+      >
         <div class="h-1 bg-cobots-silver-6 text-cobots-silver-5 relative text-center">
           <div class="mt-[-13px] font-extrabold text-2xl">{{ percentage }}</div>
         </div>
       </div>
-      <div class="w-[344px] h-[144px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row opacity-50">
-        <div class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
-          <img
-            v-if="tokenURI"
-            :src="tokenURI"
-            class="rounded-2xl bg-white"
-            @load="onImageLoad"
-          />
-          <div class="font-['CheeseButterCream'] text-[24px] leading-[24px]" v-else>
-            ???
+      <div class="flex flex-col">
+        <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] h-[144px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row opacity-50"
+          :class="{
+            'first:mb-4': configuration[percentage].contests.length === 2,
+          }"
+        >
+          <div class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
+            <img
+              v-if="tokenURI"
+              :src="tokenURI"
+              class="rounded-2xl bg-white"
+              @load="onImageLoad"
+            />
+            <div class="font-['CheeseButterCream'] text-[24px] leading-[24px]" v-else>
+              ???
+            </div>
           </div>
-        </div>
-        <div class="flex flex-col justify-center items-center grow">
-          <div class="font-extrabold text-base text-cobots-silver-2">RANDOM DRAW</div>
-          <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-2 flex flex-row">
-            <div class="mr-3 text-[60px] leading-[60px]">{{ configuration[percentage].price }}</div>
-            <div>ETH</div>
+          <div class="flex flex-col justify-center items-center grow">
+            <div class="font-extrabold text-base text-cobots-silver-2"
+                :class="{
+                  'text-gold': contest.highlight !== false,
+                }"
+            >{{ contest.contest }}</div>
+            <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-2 flex flex-row">
+              <div class="mr-3 text-[60px] leading-[60px]"
+                  :class="{
+                  'text-cobots-green': contest.highlight == contestHighlights.GREEN,
+                  'text-cobots-red': contest.highlight == contestHighlights.RED,
+                }"
+              >{{ contest.price }}</div>
+              <div :class="{
+                  'text-cobots-green': contest.highlight == contestHighlights.GREEN,
+                  'text-cobots-red': contest.highlight == contestHighlights.RED,
+                }">ETH</div>
+            </div>
           </div>
         </div>
       </div>
@@ -32,7 +55,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-import prizeConfiguration from "@/services/prizeConfiguration";
+import { prizeConfiguration, contestHighlights } from "@/services/prizeConfiguration";
 export default {
    name: 'GaugeStack',
    props: {
@@ -44,7 +67,8 @@ export default {
       imgUrl: null,
       canvas: document.createElement("canvas"),
       context: null,
-      configuration: prizeConfiguration
+      configuration: prizeConfiguration,
+      contestHighlights
     };
   },
   computed: {

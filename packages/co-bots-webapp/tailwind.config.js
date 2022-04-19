@@ -23,6 +23,7 @@ module.exports = {
         "cobots-silver-6": "#6f7072",
         "cobots-silver-7": "#293033",
         "sky-400": "#00BFFF",
+        "gold": "#FFDD33",
       },
     },
   },
