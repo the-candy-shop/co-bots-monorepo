@@ -61,9 +61,9 @@
         <gauge-stack percentage=3000 />
         <gauge-separator xlarge />
         <gauge-stack percentage=4000 />
-        <gauge-separator xlarge />
+        <gauge-separator mlarge />
         <gauge-stack percentage=5000 />
-        <gauge-separator xlarge />
+        <gauge-separator mlarge />
         <gauge-stack percentage=6000 />
         <gauge-separator xlarge />
         <gauge-stack percentage=7000 />
