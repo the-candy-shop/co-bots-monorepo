@@ -1,14 +1,26 @@
 <template>
   <div>
     <div class="flex flex-row">
-      <div class="flex flex-col justify-center w-24 h-36 bg-cobots-silver-4 border-cobots-silver-2 border-x-4"
+      <div class="flex flex-col justify-center w-24 h-36 border-x-[6px]"
           :class="{
             'h-36': configuration[percentage].contests.length === 1,
-            'h-[304px]': configuration[percentage].contests.length === 2
+            'h-[304px]': configuration[percentage].contests.length === 2,
+            'bg-cobots-silver-4 border-cobots-silver-2': filled === 0,
+            'bg-cobots-green border-cobots-green-3': filled !== 0,
           }"
       >
-        <div class="h-1 bg-cobots-silver-6 text-cobots-silver-5 relative text-center">
-          <div class="mt-[-13px] font-extrabold text-2xl">{{ percentage }}</div>
+        <div class="h-1 relative text-center"
+            :class="{
+                'bg-cobots-silver-6': filled === 0,
+                'bg-cobots-green': filled !== 0,
+              }"
+        >
+          <div class="mt-[-13px] font-extrabold text-2xl"
+              :class="{
+                'text-cobots-silver-5': filled === 0,
+                'text-white': filled !== 0,
+              }"
+          >{{ percentage }}</div>
         </div>
       </div>
       <div class="flex flex-col">
@@ -68,7 +80,8 @@ export default {
       canvas: document.createElement("canvas"),
       context: null,
       configuration: prizeConfiguration,
-      contestHighlights
+      contestHighlights,
+      filled: 0,
     };
   },
   computed: {
