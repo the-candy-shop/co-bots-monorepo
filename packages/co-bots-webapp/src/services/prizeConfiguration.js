@@ -161,7 +161,7 @@ export const prizeConfiguration = {
       },
     ]    
   },
-  "10k": {
+  10000: {
     contests: [
       {
         price: 24,

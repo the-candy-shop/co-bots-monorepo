@@ -1,28 +1,32 @@
 <template>
   <div>
-    <div class="flex flex-row">
-      <div class="flex flex-col justify-center w-24 h-36 border-x-[6px]"
+    <div class="flex flex-row relative">
+      <div class="flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-silver-4 border-cobots-silver-2"
           :class="{
             'h-36': configuration[percentage].contests.length === 1,
             'h-[304px]': configuration[percentage].contests.length === 2,
-            'bg-cobots-silver-4 border-cobots-silver-2': filled === 0,
-            'bg-cobots-green border-cobots-green-3': filled !== 0,
           }"
       >
-        <div class="h-1 relative text-center"
-            :class="{
-                'bg-cobots-silver-6': filled === 0,
-                'bg-cobots-green': filled !== 0,
-              }"
-        >
-          <div class="mt-[-13px] font-extrabold text-2xl"
-              :class="{
-                'text-cobots-silver-5': filled === 0,
-                'text-white': filled !== 0,
-              }"
-          >{{ percentage }}</div>
+        <div class="h-1 relative text-center bg-cobots-silver-6">
+          <div class="mt-[-13px] font-extrabold text-2xl text-cobots-silver-5">{{ percentage }}</div>
         </div>
       </div>
+      <div class="absolute left-0 top-0 flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-green border-cobots-green-3"
+          :class="{
+            'h-36': configuration[percentage].contests.length === 1,
+            'h-[304px]': configuration[percentage].contests.length === 2,
+          }"
+          :style="{height:getCompletionState(parseInt(percentage) - percentageToSpace[percentage][0], parseInt(percentage) + percentageToSpace[percentage][1], totalSupply) + '%'}"
+      >
+      </div>
+      <div class="absolute inset-y-1/2 h-1 w-24 text-center"
+          :class="{
+            'bg-cobots-green-3': false
+          }"
+      >
+        <div class="mt-[-13px] font-extrabold text-2xl text-white">{{ percentage }}</div>
+      </div>
+
       <div class="flex flex-col">
         <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] h-[144px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row opacity-50"
           :class="{
@@ -68,6 +72,8 @@
 <script>
 import { mapGetters } from "vuex";
 import { prizeConfiguration, contestHighlights } from "@/services/prizeConfiguration";
+import { getCompletionState } from "@/services/mintCompletion.service";
+
 export default {
    name: 'GaugeStack',
    props: {
@@ -81,14 +87,36 @@ export default {
       context: null,
       configuration: prizeConfiguration,
       contestHighlights,
-      filled: 0,
+      percentageToSpace: {
+        100: [50, 50],
+        200: [50, 50],
+        300: [50, 50],
+        400: [50, 50],
+        500: [50, 50],
+        750: [50, 50],
+        1000: [50, 50],
+        1500: [50, 50],
+        2000: [50, 50],
+        3000: [50, 50],
+        4000: [50, 50],
+        5000: [50, 50],
+        6000: [50, 50],
+        7000: [50, 50],
+        8000: [50, 50],
+        9000: [50, 50],
+        10000: [50, 0],
+      }
     };
   },
   computed: {
     ...mapGetters("bots", ["imageByIndex", "colorByIndex", "flipInProgress"]),
+    ...mapGetters("mint", ["totalSupply"]),
     tokenURI() {
       return this.imageByIndex(1);
     },
-  }
+  },
+  methods: {
+    getCompletionState
+  },
 }
 </script>

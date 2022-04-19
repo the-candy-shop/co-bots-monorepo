@@ -46,7 +46,7 @@
           <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-t-[6px]"
           ></div>
           <div class="absolute left-0 top-0 rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-green border-cobots-green-3 border-x-[6px] border-t-[6px]"
-            :style="{height:mintCompletion(50) + '%'}"
+            :style="{height:getCompletionState(0, 50, totalSupply) + '%'}"
           ></div>
         </div>
         <gauge-stack percentage=100 />
@@ -81,13 +81,8 @@
         <gauge-separator xlarge />
         <gauge-stack percentage=9000 />
         <gauge-separator xlarge />
-        <gauge-stack percentage=10k />
-        <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"
-            :class="{
-              'bg-cobots-silver-4 border-cobots-silver-2': true,
-              'bg-cobots-green border-cobots-green-3': false,
-            }"
-        ></div>
+        <gauge-stack percentage=10000 />
+        <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"></div>
       </div>
     </div>
   </div>
@@ -103,6 +98,7 @@ import Refund from "@/components/Refund.vue";
 import GaugeStack from "@/components/GaugeStack.vue";
 import GaugeSeparator from "@/components/GaugeSeparator.vue";
 import Wave from "@/components/wave.vue";
+import { getCompletionState } from "@/services/mintCompletion.service";
 
 export default {
   name: "Home",
@@ -124,7 +120,7 @@ export default {
   computed: {
     ...mapGetters("eth", ["walletConnected", "walletAddress"]),
     ...mapGetters("contractState", ["canMint", "canFlip", "mintFailed"]),
-    ...mapGetters("mint", ["mintSuccessful"]),
+    ...mapGetters("mint", ["mintSuccessful", "totalSupply"]),
   },
   methods: {
     ...mapActions("contractState", [
@@ -140,17 +136,7 @@ export default {
       const el = this.$refs["info-section"].$refs["bonus-prizes-info"].$el;
       this.$scrollTo(el, 600, { offset: -50 });
     },
-    mintCompletion(step) {
-      // 15 is the first value where the round doesn't look like shit
-      if (this.minted <= 25) {
-        return 50;
-      }
-      if (this.minted >= step) {
-        return 100;
-      }
-
-      return ((this.minted) / step) * 100;
-    }
+    getCompletionState
   },
   watch: {
     walletAddress() {
