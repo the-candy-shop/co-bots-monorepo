@@ -5,6 +5,6 @@ task("open-mint", "Open public sale").setAction(
     const { deployer } = await getNamedAccounts();
     const { execute } = deployments;
 
-    await execute("CoBots", { from: deployer, log: true }, "openPublicSale");
+    await execute("CoBotsV2", { from: deployer, log: true }, "openPublicSale");
   }
 );

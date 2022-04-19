@@ -13,8 +13,18 @@ import { BigNumber } from "ethers";
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network, ethers } = hre;
   const { deploy, get } = deployments;
-  const { deployer, integers, linkToken, ens, coBotsV1 } =
-    await getNamedAccounts();
+  const {
+    deployer,
+    linkToken,
+    ens,
+    coBotsV1,
+    coBotsRendererV1,
+    rendererCommons,
+    rectEncoder,
+    rectRenderer,
+    array,
+    integers,
+  } = await getNamedAccounts();
   let { vrfCoordinator } = await getNamedAccounts();
   if (network.tags.local) {
     vrfCoordinator = (await get("VRFCoordinatorV2TestHelper")).address;
@@ -33,8 +43,14 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const rendererTx = await deploy("CoBotsRendererV2", {
     from: deployer,
     log: true,
-    args: [],
-    libraries: { Integers: integers },
+    args: [coBotsRendererV1],
+    libraries: {
+      RendererCommons: rendererCommons,
+      RectRenderer: rectRenderer,
+      RectEncoder: rectEncoder,
+      Array: array,
+      Integers: integers,
+    },
   });
 
   // Deploy token

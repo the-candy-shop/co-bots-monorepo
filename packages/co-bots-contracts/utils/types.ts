@@ -1,28 +1,9 @@
 import { BigNumberish } from "ethers";
-
-export type Rect = {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  fill: number;
-};
-
-export type Trait = Rect[];
+import { Collection } from "@clemlaflemme.eth/contracts/utils/types";
 
 export type Palettes = {
-  fill: string[];
-  trait: Record<string, Rect[]>;
-  layer: string[];
-  layerIndexes: number[];
-  item: string[];
-};
-
-export type PalettesStorage = {
-  fillBytes: string;
-  traitBytes: string;
-  traitBytesIndexes: string;
-  layerIndexes: string;
+  palette: Array<string>;
+  collection: Collection;
 };
 
 export type Prize = {

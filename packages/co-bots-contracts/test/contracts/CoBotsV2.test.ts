@@ -22,13 +22,19 @@ import {
   CoBotsV2,
   VRFCoordinatorV2TestHelper,
 } from "../../typechain";
+import * as path from "path";
+import fs from "fs";
 
 chai.use(jestSnapshotPlugin());
 chai.use(solidity);
 const { expect } = chai;
 
 const setup = async () => {
-  await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_SUBSCRIPTION]);
+  await deployments.fixture([
+    TAGS.CO_BOTS,
+    TAGS.CO_BOTS_SUBSCRIPTION,
+    TAGS.CO_BOTS_PALETTES,
+  ]);
   const { deployer, coBotsV1 } = await getNamedAccounts();
   const contracts = {
     CoBotsV1: (await ethers.getContractAt(
@@ -646,6 +652,27 @@ describe("CoBotsV2", function () {
           )
         )
       );
+    });
+  });
+  describe.only("tokenURI", () => {
+    [...Array(10_000).keys()].map((tokenId) => {
+      it(`Token ${tokenId} should match snapshot`, async function () {
+        const { CoBotsV2 } = await mintedOutFixture();
+        const res = await CoBotsV2.tokenURI(tokenId);
+        let outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.json`;
+        fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+        fs.writeFileSync(outputFile, res.split(",").slice(1).join(","));
+        outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.svg`;
+        fs.writeFileSync(
+          outputFile,
+          decodeURI(
+            JSON.parse(res.split(",").slice(1).join(","))
+              ["image"].split(",")[1]
+              .replace(/%23/g, "#")
+          )
+        );
+        expect(res).to.matchSnapshot();
+      });
     });
   });
 });
