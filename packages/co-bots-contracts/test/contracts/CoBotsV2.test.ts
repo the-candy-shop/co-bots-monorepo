@@ -654,7 +654,7 @@ describe("CoBotsV2", function () {
       );
     });
   });
-  describe.only("tokenURI", () => {
+  describe("tokenURI", () => {
     [...Array(10_000).keys()].map((tokenId) => {
       it(`Token ${tokenId} should match snapshot`, async function () {
         const { CoBotsV2 } = await mintedOutFixture();

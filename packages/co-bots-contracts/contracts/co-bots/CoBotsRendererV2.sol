@@ -55,15 +55,14 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
         view
         returns (uint256[10] memory)
     {
-        // Characteristics are stored in alphabetical order:
-        uint256 eyesIndex;
-        uint256 mouthIndex;
-        uint256 antennaIndex;
-        uint256 feetIndex;
-        uint256 statusIndex = seed % 2;
-        (eyesIndex, mouthIndex, antennaIndex, feetIndex) = coBotsRenderer
-            .getRandomItems(tokenId, seed);
+        (
+            uint256 eyesIndex,
+            uint256 mouthIndex,
+            uint256 antennaIndex,
+            uint256 feetIndex
+        ) = coBotsRenderer.getRandomItems(tokenId, seed);
 
+        // Characteristics are stored in alphabetical order:
         uint256[10] memory items;
         items[0] = antennaIndex;
         items[1] = 0; // always Black for the Extravagainza
@@ -73,8 +72,8 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
         items[5] = tokenId % 10;
         items[6] = eyesIndex;
         items[7] = feetIndex;
-        items[8] = mouthIndex;
-        items[9] = statusIndex;
+        items[8] = 2 * (seed % 2); // Metta "Offline" disabled for the Extravagainza
+        items[9] = mouthIndex;
         return items;
     }
 
@@ -92,12 +91,10 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
                 RectRenderer.getTraitBytes(collectionPointer, 4, items[4]), // 4. Digit 3
                 RectRenderer.getTraitBytes(collectionPointer, 5, items[5]), // 5. Digit 4
                 RectRenderer.getTraitBytes(collectionPointer, 6, items[6]), // 6. Eyes
-                RectRenderer.getTraitBytes(collectionPointer, 8, items[8]), // 8. Mouth
+                RectRenderer.getTraitBytes(collectionPointer, 9, items[9]), // 9. Mouth
                 RectRenderer.getTraitBytes(collectionPointer, 0, items[0]), // 0. Antenna
                 RectRenderer.getTraitBytes(collectionPointer, 7, items[7]), // 7. Feet
-                items[9] == 1
-                    ? RectRenderer.getTraitBytes(collectionPointer, 9, 0)
-                    : new bytes(4) // 9. Status
+                RectRenderer.getTraitBytes(collectionPointer, 8, items[8]) // 8. Metta
             );
     }
 

@@ -2,8 +2,6 @@ import fs from "fs";
 import { CoBotsParameters, MysteryChallenge, Palettes, Prize } from "./types";
 import { ethers } from "ethers";
 
-export const MAX_CONTRACT_SIZE = 24_000;
-
 // Rendering constants
 export const PALETTES_FILE =
   "../../packages/co-bots-image-processing/data/palettes.json";
@@ -59,7 +57,27 @@ export const PRIZES: Prize[] = [
   },
   {
     checkpoint: 500,
-    amount: 5,
+    amount: 1,
+    isContest: true,
+  },
+  {
+    checkpoint: 500,
+    amount: 1,
+    isContest: true,
+  },
+  {
+    checkpoint: 500,
+    amount: 1,
+    isContest: true,
+  },
+  {
+    checkpoint: 500,
+    amount: 1,
+    isContest: true,
+  },
+  {
+    checkpoint: 500,
+    amount: 1,
     isContest: true,
   },
   {
@@ -84,7 +102,27 @@ export const PRIZES: Prize[] = [
   },
   {
     checkpoint: 3000,
-    amount: 10,
+    amount: 2,
+    isContest: true,
+  },
+  {
+    checkpoint: 3000,
+    amount: 2,
+    isContest: true,
+  },
+  {
+    checkpoint: 3000,
+    amount: 2,
+    isContest: true,
+  },
+  {
+    checkpoint: 3000,
+    amount: 2,
+    isContest: true,
+  },
+  {
+    checkpoint: 3000,
+    amount: 2,
     isContest: true,
   },
   {
@@ -114,7 +152,27 @@ export const PRIZES: Prize[] = [
   },
   {
     checkpoint: 8000,
-    amount: 20,
+    amount: 4,
+    isContest: true,
+  },
+  {
+    checkpoint: 8000,
+    amount: 4,
+    isContest: true,
+  },
+  {
+    checkpoint: 8000,
+    amount: 4,
+    isContest: true,
+  },
+  {
+    checkpoint: 8000,
+    amount: 4,
+    isContest: true,
+  },
+  {
+    checkpoint: 8000,
+    amount: 4,
     isContest: true,
   },
   {
@@ -139,5 +197,5 @@ export const MYSTERY_CHALLENGE: MysteryChallenge = {
     "50339762084112735281647694152894396699789156759838299774246919152996091353870"
   ),
   value: 42,
-  prizeIndex: 12,
+  prizeIndex: 20,
 };
