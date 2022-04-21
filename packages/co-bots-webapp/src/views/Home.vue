@@ -81,8 +81,8 @@
         <gauge-stack percentage=10k />
         <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"
             :class="{
-              'bg-cobots-silver-4 border-cobots-silver-2': minted === 0,
-              'bg-cobots-green border-cobots-green-3': minted !== 0,
+              'bg-cobots-silver-4 border-cobots-silver-2': true,
+              'bg-cobots-green border-cobots-green-3': false,
             }"
         ></div>
       </div>
