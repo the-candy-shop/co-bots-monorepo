@@ -4,15 +4,15 @@ stages:
     cmd: python image_processing/parse_svg.py
     deps:
     - path: data/traits
-      md5: 7b722adbe365d1571d0c7a45bccec3cc.dir
+      md5: 1ef8858a7141ace5fc2272c37bcacfb3.dir
       size: 85682
       nfiles: 98
     - path: image_processing/parse_svg.py
-      md5: 0ab37a5a4cbfb5d00a18d78d3a22de56
-      size: 3733
+      md5: 030751306af3db14a3bdc0b1e3a26219
+      size: 4279
     outs:
     - path: data/palettes.json
-      md5: 4ed811e2ee39a70e8001fc11ed21a98f
+      md5: 3fe154da3a1b3393826896e27a873383
       size: 111855
     - path: data/traits_computed
       md5: d77c911c9106a95f2d499587c0c896f6.dir

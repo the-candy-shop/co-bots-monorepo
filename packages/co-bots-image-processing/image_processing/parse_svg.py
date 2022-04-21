@@ -5,7 +5,13 @@ from xml.dom.minidom import parse
 
 import numpy as np
 import pandas as pd
-from image_processing.constants import PALETTES_FILE, TRAITS_COMPUTED_DIR, TRAITS_DIR
+from image_processing.constants import (
+    CHARACTERISTICS_ORDERED,
+    PALETTES_FILE,
+    TRAITS_COMPUTED_DIR,
+    TRAITS_DIR,
+    TRAITS_ORDERED,
+)
 from image_processing.svg_to_path_ordered import dom2dict
 
 #%% Define constants
@@ -84,12 +90,26 @@ characteristics = (
     .rename(columns={"rect": "rects"})
     .assign(
         characteristic=lambda df: pd.Categorical(
-            df.file.str.split("/", expand=True)[2]
+            df.file.str.split("/", expand=True)[2], categories=CHARACTERISTICS_ORDERED
         ),
         name=lambda df: df.file.str.split("/", expand=True)[3].str.replace(
             ".svg", "", regex=False
         ),
     )
+    .sort_values(["characteristic"])
+    .groupby("characteristic")
+    .apply(
+        lambda group: group.assign(
+            name_cat=lambda df: pd.Categorical(
+                df.name,
+                categories=TRAITS_ORDERED[group.name],
+            ),
+            name=lambda df: df.name_cat.astype("string").fillna(df.name),
+        )
+        .sort_values("name_cat")
+        .drop("name_cat", axis=1)
+    )
+    .reset_index(drop=True)
     .assign(trait=lambda df: df[["name", "rects"]].to_dict("records"))
     .groupby("characteristic")
     .agg({"trait": list})
