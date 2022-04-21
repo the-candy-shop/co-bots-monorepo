@@ -34,6 +34,8 @@ export const PARAMETERS: CoBotsParameters = {
 };
 
 // Prizes constants
+export const TEST_NET_PRICE_SCALING = 1_000;
+
 export const PRIZES: Prize[] = [
   {
     checkpoint: 100,

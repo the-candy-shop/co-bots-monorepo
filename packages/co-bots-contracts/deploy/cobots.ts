@@ -7,6 +7,7 @@ import {
   PARAMETERS,
   PRIZES,
   TAGS,
+  TEST_NET_PRICE_SCALING,
 } from "../utils/constants";
 import { BigNumber } from "ethers";
 
@@ -31,12 +32,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   let gasKeyHash;
+  let priceDivider: number;
   if (network.tags.mainnet) {
     gasKeyHash =
       "0x9fe0eebf5e446e3c998ec9bb19951541aee00bb90ea201ae456421a2ded86805";
+    priceDivider = 1;
   } else {
     gasKeyHash =
       "0xd89b2bf150e3b9e13446986e571fb9cab24b13cea0a43ea20a6049a85cc807cc";
+    priceDivider = TEST_NET_PRICE_SCALING;
   }
 
   // Deploy renderer
@@ -75,10 +79,15 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       vrfCoordinator,
       linkToken,
       gasKeyHash,
-      PARAMETERS,
+      {
+        ...PARAMETERS,
+        mintPublicPrice: PARAMETERS.mintPublicPrice.div(priceDivider),
+      },
       PRIZES.map((prize) => ({
         ...prize,
-        amount: ethers.utils.parseEther(prize.amount.toString()),
+        amount: ethers.utils
+          .parseEther(prize.amount.toString())
+          .div(priceDivider),
       })),
       ens,
       coBotsV1,

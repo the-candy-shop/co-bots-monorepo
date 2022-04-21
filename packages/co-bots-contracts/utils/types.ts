@@ -1,4 +1,4 @@
-import { BigNumberish } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { Collection } from "@clemlaflemme.eth/contracts/utils/types";
 
 export type Palettes = {
@@ -24,5 +24,5 @@ export type CoBotsParameters = {
   grandPrizeDelay: number;
   maxCobots: number;
   contestDuration: number;
-  mintPublicPrice: BigNumberish;
+  mintPublicPrice: BigNumber;
 };

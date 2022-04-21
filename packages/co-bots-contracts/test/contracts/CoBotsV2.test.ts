@@ -13,6 +13,7 @@ import {
   MYSTERY_CHALLENGE,
   PRIZES as PRIZES_INPUT,
   TAGS,
+  TEST_NET_PRICE_SCALING,
 } from "../../utils/constants";
 import { jestSnapshotPlugin } from "mocha-chai-jest-snapshot";
 import { CoBotsParameters, Prize } from "../../utils/types";
@@ -134,7 +135,9 @@ describe("CoBotsV2", function () {
       ).to.deep.eq(
         PRIZES_INPUT.map((prize) => ({
           ...prize,
-          amount: ethers.utils.parseEther(prize.amount.toString()),
+          amount: ethers.utils
+            .parseEther(prize.amount.toString())
+            .div(TEST_NET_PRICE_SCALING),
         }))
       );
     });

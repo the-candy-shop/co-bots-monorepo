@@ -81,14 +81,14 @@ const config: HardhatUserConfig = {
       mainnet: "0xe5d03576716d2D66Becf01a3F3BC7B80eb05952E",
       default: "0xFD60cDD345feB6011fDeb4Dc3d69aD2319f8508C",
     },
-    rectRenderer: {
-      default: "0xF95E41C14C45798A8A60b20E8C92495C12416e66",
-    },
     rectEncoder: {
-      default: "0xd753E89a83FCC1D72f4353946E8ca96644D6ec54",
+      default: "0xc8AD48942deb7BAa9B15665aa72656A259277eaF",
+    },
+    rectRenderer: {
+      default: "0x9D7FeA76a906A67DE351b657CD73E6bf8F04b840",
     },
     rendererCommons: {
-      default: "0xA040dB259B37219C3C18e987BE9Bc871C7340801",
+      default: "0x91F59E8d53061DD2F7C4a405984D9a4297C54A0C",
     },
   },
   networks: {

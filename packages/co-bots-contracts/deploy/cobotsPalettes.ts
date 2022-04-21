@@ -50,7 +50,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       log: true,
     },
     "storeCollection",
-    collectionEncoded
+    collectionEncoded.traits
   );
 };
 
