@@ -51,10 +51,6 @@ export default {
       );
       commit("SET_BOT_IMAGES_BY_INDEX", { image: image_data, index });
     },
-    async getBotColor({ commit }, index) {
-      const isBlue = await contract.coBotsColors(index);
-      commit("SET_BOT_COLORS", { index, color: isBlue ? "blue" : "red" });
-    },
     async toggleBotColor({ commit, state, dispatch }, index) {
       try {
         if (state.flipInProgress) return;

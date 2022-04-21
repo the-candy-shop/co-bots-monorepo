@@ -106,7 +106,6 @@ export default {
     this.canvas.height = 450;
     this.context = this.canvas.getContext("2d");
     this.getImageForIndex(this.index);
-    this.getBotColor(this.index);
   },
 };
 </script>

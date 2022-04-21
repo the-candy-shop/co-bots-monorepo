@@ -24,9 +24,6 @@ export default {
     SET_PUBLIC_SALE_START_TIMESTAMP(state, ts) {
       state.publicSaleStartTimestamp = ts;
     },
-    SET_MINT_DURATION(state, duration) {
-      state.mintDuration = duration;
-    },
     SET_MINT_RAFFLE_DELAY(state, delay) {
       state.mintRaffleDelay = delay;
     },
@@ -51,8 +48,8 @@ export default {
       commit("SET_NOW", now);
     },
     async getIsPublicSaleOpen({ commit }) {
-      let maxSupply = await contract.MAX_COBOTS();
-      commit("SET_MAX_SUPPLY", maxSupply);
+      let parameters = await contract.PARAMETERS();
+      commit("SET_MAX_SUPPLY", parameters.maxCobots);
       let isOpen = await contract.isPublicSaleOpen();
       commit("SET_IS_PUBLIC_SALE_OPEN", isOpen);
       if (isOpen) {
@@ -61,9 +58,6 @@ export default {
           "SET_PUBLIC_SALE_START_TIMESTAMP",
           startTimestamp.toNumber() * 1000
         );
-
-        let mintDuration = await contract.COBOTS_MINT_DURATION();
-        commit("SET_MINT_DURATION", mintDuration.toNumber() * 1000);
       }
     },
     async getIsMintedOut({ commit }) {
@@ -99,15 +93,11 @@ export default {
     now(state) {
       return state.now;
     },
-    mintEndDate(state) {
-      return state.publicSaleStartTimestamp + state.mintDuration;
-    },
     flipEndDate(state) {
       return state.mintedOutTimestamp + state.mintRaffleDelay;
     },
     canMint(state) {
-      let endDate = state.publicSaleStartTimestamp + state.mintDuration;
-      return state.isPublicSaleOpen && state.now < endDate;
+      return state.isPublicSaleOpen;
       // return false;
     },
     canFlip(state, getters) {

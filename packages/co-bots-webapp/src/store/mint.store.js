@@ -32,15 +32,14 @@ export default {
    },
   actions: {
     async getMintInfo({commit}) {
-      let mintPrice = await contract.MINT_PUBLIC_PRICE()
+      let parameters = await contract.PARAMETERS()
+      let mintPrice = parameters.mintPublicPrice
+
       let formatted = utils.formatEther(mintPrice);
       commit('SET_MINT_PRICE', formatted)
 
-      let maxPerAddress = await contract.MAX_MINT_PER_ADDRESS()
-      commit('SET_MAX_MINT_PER_ADDRESS', maxPerAddress)
-
-      let mintLimit = await contract.MAX_COBOTS()
-      commit('SET_MINT_LIMIT', mintLimit)
+      commit('SET_MAX_MINT_PER_ADDRESS', parameters.maxCobots)
+      commit('SET_MINT_LIMIT', parameters.maxCobots)
     },
     async getTotalSupply({ commit }) {
       const totalSupply = await contract.totalSupply()
@@ -52,7 +51,8 @@ export default {
       let cost = (numToMint * state.mintPrice).toPrecision(2)
       try {
         const transaction = await contract.mintPublicSale(
-          numToMint, 
+          numToMint,
+          [],
           { value: utils.parseEther(`${cost}`) 
         })
         await transaction.wait()
