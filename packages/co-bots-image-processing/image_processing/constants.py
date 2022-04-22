@@ -69,9 +69,6 @@ TRAITS_ORDERED = {
         "Western",
         "Royal",
         "Hacky",
-        "!croak",
-        "⌐◨-◨",
-        "Wizard",
     ],
     "Metta": ["Off", "On", "Offline"],
     "Feet": [

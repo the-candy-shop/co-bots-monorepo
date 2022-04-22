@@ -7,6 +7,9 @@ stages:
       md5: 1ef8858a7141ace5fc2272c37bcacfb3.dir
       size: 85682
       nfiles: 98
+    - path: image_processing/constants.py
+      md5: 3088cbd72b0ea706e56b6cb526e21f0d
+      size: 1576
     - path: image_processing/parse_svg.py
       md5: 030751306af3db14a3bdc0b1e3a26219
       size: 4279

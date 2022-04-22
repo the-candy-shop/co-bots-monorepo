@@ -96,59 +96,59 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
         // Inlined instead of using the encoded names from the RectRenderer because not all the characteristics are
         // used in the Extravagainza, so saving gas with this.
         string[12] memory antenna = [
-            "Angelic",
-            "Buggy",
-            "Buzzed",
             "Classic",
-            "Hacky",
-            "Humbled",
-            "Impish",
-            "Jumpy",
-            "Punk",
-            "Royal",
             "Serious",
-            "Western"
+            "Jumpy",
+            "Buzzed",
+            "Buggy",
+            "Punk",
+            "Angelic",
+            "Impish",
+            "Humbled",
+            "Western",
+            "Royal",
+            "Hacky"
         ];
         string[12] memory eyes = [
-            "Awoken",
             "Classic",
             "Cyclops",
+            "Awoken",
             "Flirty",
-            "Hacky",
-            "Nounish",
-            "Optimistic",
+            "Zen",
             "Sadhappy",
-            "Smitten",
-            "Super",
             "Unaligned",
-            "Zen"
+            "Smitten",
+            "Optimistic",
+            "Hacky",
+            "Super",
+            "Nounish"
         ];
         string[11] memory feet = [
             "Classic",
-            "Energetic",
-            "Firey",
-            "Ghostly",
             "Heavy Duty",
-            "Hobbled",
-            "Little Energetic",
+            "Firey",
             "Little Firey",
+            "Roller",
             "Little Roller",
-            "Pushy",
-            "Roller"
+            "Energetic",
+            "Little Energetic",
+            "Hobbled",
+            "Ghostly",
+            "Pushy"
         ];
         string[2] memory metta = ["Off", "On"];
         string[11] memory mouth = [
-            "Bigsad",
             "Classic",
-            "Happy",
+            "Worried",
             "Knightly",
-            "Shady",
             "Shy",
+            "Happy",
+            "Bigsad",
             "Smug",
+            "Wowed",
             "Thirsty",
             "Villainous",
-            "Worried",
-            "Wowed"
+            "Shady"
         ];
 
         return
