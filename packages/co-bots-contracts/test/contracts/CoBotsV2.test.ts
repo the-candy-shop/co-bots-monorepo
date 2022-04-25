@@ -680,7 +680,6 @@ describe("CoBotsV2", function () {
         "InsufficientFunds"
       );
       withdrawnAmounts.push("0");
-      expect(withdrawnAmounts).toMatchSnapshot();
       const mintOutRevenue = BigNumber.from(PARAMETERS.mintPublicPrice).mul(
         PARAMETERS.maxCobots
       );
@@ -698,25 +697,82 @@ describe("CoBotsV2", function () {
       );
     });
   });
-  describe("tokenURI", () => {
-    [...Array(10_000).keys()].map((tokenId) => {
-      it(`Token ${tokenId} should match snapshot`, async function () {
-        const { CoBotsV2 } = await mintedOutFixture();
-        const res = await CoBotsV2.tokenURI(tokenId);
-        let outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.json`;
-        fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-        fs.writeFileSync(outputFile, res.split(",").slice(1).join(","));
-        outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.svg`;
-        fs.writeFileSync(
-          outputFile,
-          decodeURI(
-            JSON.parse(res.split(",").slice(1).join(","))
-              ["image"].split(",")[1]
-              .replace(/%23/g, "#")
-          )
-        );
-        expect(res).to.matchSnapshot();
+  describe("failsafeWithdraw", async function () {
+    it("should revert when collection is not minted out", async () => {
+      const { deployer, PARAMETERS } = await publicSaleFixture();
+      await deployer.CoBotsV2.mintPublicSale(1, [], {
+        value: PARAMETERS.mintPublicPrice,
       });
+      await expect(deployer.CoBotsV2.failsafeWithdraw()).to.be.revertedWith(
+        "TokenNotMintedOut"
+      );
     });
+    it("should revert when delay is not passed", async () => {
+      const { deployer } = await mintedOutFixture();
+      await expect(deployer.CoBotsV2.failsafeWithdraw()).to.be.revertedWith(
+        "FailSafeWithdrawalNotEnabled"
+      );
+    });
+    it("should revert when caller is not the owner", async () => {
+      const { users, PARAMETERS } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.mintOutFoundersWithdrawalDelay + 1,
+      ]);
+      await expect(users[0].CoBotsV2.failsafeWithdraw()).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+    });
+    it("should withdraw all funds to deployer", async () => {
+      const { deployer, PARAMETERS } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.mintOutFoundersWithdrawalDelay + 1,
+      ]);
+      const balancePrev = await ethers.provider.getBalance(deployer.address);
+      const tx = await deployer.CoBotsV2.failsafeWithdraw();
+      const receipt = await tx.wait();
+      const paidFees = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+      const balanceNext = await ethers.provider.getBalance(deployer.address);
+      expect(balanceNext.sub(balancePrev).add(paidFees).toString()).to.eq(
+        PARAMETERS.mintPublicPrice.mul(PARAMETERS.maxCobots).toString()
+      );
+    });
+    it("should withdraw all funds to deployer including drawn but no fulfilled prizes", async () => {
+      const { deployer, PARAMETERS } = await mintedOutFixture();
+      await network.provider.send("evm_increaseTime", [
+        PARAMETERS.mintOutFoundersWithdrawalDelay + 1,
+      ]);
+      await deployer.CoBotsV2.draw();
+      const balancePrev = await ethers.provider.getBalance(deployer.address);
+      const tx = await deployer.CoBotsV2.failsafeWithdraw();
+      const receipt = await tx.wait();
+      const paidFees = receipt.gasUsed.mul(receipt.effectiveGasPrice);
+      const balanceNext = await ethers.provider.getBalance(deployer.address);
+      expect(balanceNext.sub(balancePrev).add(paidFees).toString()).to.eq(
+        PARAMETERS.mintPublicPrice.mul(PARAMETERS.maxCobots).toString()
+      );
+    });
+  });
+  describe.skip("tokenURI", async () => {
+    await Promise.all(
+      [...Array(10_000).keys()].map((tokenId) => {
+        it(`Token ${tokenId} should match snapshot`, async function () {
+          const { CoBotsV2 } = await mintedOutFixture();
+          const res = await CoBotsV2.tokenURI(tokenId);
+          let outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.json`;
+          fs.mkdirSync(path.dirname(outputFile), { recursive: true });
+          fs.writeFileSync(outputFile, res.split(",").slice(1).join(","));
+          outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.svg`;
+          fs.writeFileSync(
+            outputFile,
+            decodeURI(
+              JSON.parse(res.split(",").slice(1).join(","))
+                ["image"].split(",")[1]
+                .replace(/%23/g, "#")
+            )
+          );
+          expect(res).to.matchSnapshot();
+        });
+      })
+    );
   });
 });

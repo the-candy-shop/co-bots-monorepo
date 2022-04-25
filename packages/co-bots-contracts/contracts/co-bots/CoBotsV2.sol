@@ -29,6 +29,7 @@ error RedeemTokenAlreadyRedeemed();
 error NoGiveawayToTrigger();
 error InsufficientFunds();
 error WithdrawalFailed();
+error FailSafeWithdrawalNotEnabled();
 
 contract CoBotsV2 is
     ERC721A,
@@ -299,6 +300,22 @@ contract CoBotsV2 is
             previousCheckpoint = PRIZES[i].checkpoint;
         }
 
+        (bool success, ) = _msgSender().call{value: value}("");
+        if (!success) revert WithdrawalFailed();
+        emit Withdrawal(value);
+    }
+
+    /** @notice A very basic function to act as a failsafe if the contract has a bug somewhere in the fulfill functions.
+     */
+    function failsafeWithdraw() public onlyOwner whenMintedOut {
+        if (
+            block.timestamp <
+            (mintedOutTimestamp + PARAMETERS.mintOutFoundersWithdrawalDelay)
+        ) {
+            revert FailSafeWithdrawalNotEnabled();
+        }
+
+        uint256 value = address(this).balance;
         (bool success, ) = _msgSender().call{value: value}("");
         if (!success) revert WithdrawalFailed();
         emit Withdrawal(value);
