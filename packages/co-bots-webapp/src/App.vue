@@ -4,16 +4,20 @@
       v-if="siteClosed"
       class="w-screen h-screen flex flex-col justify-center items-center"
     ></div>
-    <div v-else>
+    <div class="pb-6" v-else>
       <header-vue />
-      <main>
+      <main class='min-h-[calc(100vh-70px)]'>
         <router-view></router-view>
       </main>
+      <div class="flex text-white justify-center">
+        <div><Logo class="fill-cobots-silver-2 w-[96px]" /></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Logo from "@/components/logo.vue";
 import HeaderVue from "@/components/Header/index.vue";
 import Home from "./views/Home.vue";
 const { VITE_SITE_CLOSED } = import.meta.env;
@@ -22,6 +26,7 @@ export default {
   components: {
     HeaderVue,
     Home,
+    Logo
   },
   data: () => ({
     closed: VITE_SITE_CLOSED,

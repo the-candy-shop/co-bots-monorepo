@@ -6,11 +6,13 @@ import store from './store'
 import VueScrollTo from "vue-scrollto"
 import Home from './views/Home.vue' 
 import Faq from './pages/Faq.vue'
+import Rules from './pages/Rules.vue'
 import MyBots from './pages/MyBots.vue'
 
 const routes = [
   { path: '/', component: Home },
   { path: '/faq', component: Faq },
+  { path: '/rules', component: Rules },
   { path: '/my-bots', component: MyBots },
 ]
 

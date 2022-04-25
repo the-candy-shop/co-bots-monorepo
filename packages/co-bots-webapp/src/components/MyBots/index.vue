@@ -1,40 +1,39 @@
 <template>
   <div class="flex flex-col justify-center items-center pt-16 pb-20">
-    <div class="uppercase text-5xl text-white font-black mb-10 font-['CheeseButterCream']">my bots</div>
+    <div class="uppercase text-[80px] text-white font-black mb-6 font-['CheeseButterCream']">my bots</div>
+
     <cb-button
       v-if="!walletConnected"
       :disabled="connecting"
       @click="openModal"
+      class="bg-zinc-300 text-black w-[368px]"
     >
       {{ buttonText }}
     </cb-button>
-    <div class="flex flex-col space-y-4 pb-5" v-else-if="canFlip && hasBots">
-      <button
-        class="w-[320px] h-[65px] rounded-lg uppercase font-black text-[20px] leading-[20px] pt-[24px] pb-[20px] bg-sky-400"
-        :class="{
-          'opacity-50': allBlue || flipInProgress,
-          'cursor-not-allowed': allBlue || flipInProgress,
-        }"
-        @click="flipBlue"
-      >
-        Flip All to blue
-      </button>
 
-      <button
-        class="w-[320px] h-[65px] rounded-lg uppercase font-black text-[20px] leading-[20px] pt-[24px] pb-[20px] bg-cobots-red"
-        :class="{
-          'opacity-50': allRed || flipInProgress,
-          'cursor-not-allowed': allRed || flipInProgress,
-        }"
-        @click="flipRed"
-      >
-        Flip All to Red
-      </button>
+    <div v-if="hasBots && totalSupply < 500" class="text-center">
+      <div class="uppercase text-[32px] leading-[28px] text-cobots-green font-extrabold mb-6">🚨 5 ETH BONUS CONTEST 🚨</div>
+      <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-0">Enter the Twitter Raid for a chance to win one of five prizes of 1 ETH!</div>
+      <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-10">Learn more on <a class="text-cobots-green" href="https://twitter.com/thecobots">Twitter</a>.</div>
     </div>
+
+    <div v-if="hasBots && totalSupply >= 500 && totalSupply < 3000" class="text-center">
+      <div class="uppercase text-[32px] leading-[28px] text-cobots-green font-extrabold mb-6">🚨 10 ETH BONUS CONTEST 🚨</div>
+      <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-0">Enter the first Meme Contest for a chance to win one of five prizes of 2 ETH!</div>
+      <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-10">Learn more on <a class="text-cobots-green" href="https://twitter.com/thecobots">Twitter</a>.</div>
+    </div>
+
+    <div v-if="hasBots && totalSupply >= 3000 && totalSupply < 8000" class="text-center">
+      <div class="uppercase text-[32px] leading-[28px] text-cobots-green font-extrabold mb-6">🚨 20 ETH BONUS CONTEST 🚨</div>
+      <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-0">Enter the second Meme Contest for a chance to win one of five prizes of 4 ETH!</div>
+      <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-10">Learn more on <a class="text-cobots-green" href="https://twitter.com/thecobots">Twitter</a>.</div>
+    </div>
+
     <div
-      class="flex justify-center flex-wrap px-16 gap-4"
+      class="flex justify-center flex-wrap gap-4"
       v-if="walletConnected"
     >
+      <div v-if="!hasBots" class="text-[20px] leading-[28px] font-extrabold text-cobots-silver-2 mb-0">You don't have any Co-Bots yet!</div>
       <bot-card v-for="b in myBots" :key="b" :index="b" />
     </div>
     <connect-wallet-modal v-if="modalOpen" @close="closeModal" />
@@ -66,34 +65,26 @@ export default {
       "flipInProgress",
     ]),
     ...mapGetters("contractState", ["canFlip"]),
-    ...mapGetters("eth", ["walletConnected"]),
+    ...mapGetters("mint", ["totalSupply"]),
+    ...mapGetters("eth", ["walletConnected", "walletAddress"]),
     buttonText() {
       if (this.connecting) return "connecting...";
-      return "Connect";
+      return "Connect Wallet";
     },
   },
   methods: {
-    ...mapActions("bots", ["flipAllColors"]),
+    ...mapActions("bots", ["flipAllColors", "getMyBots"]),
     ...mapActions("bonus", ["getNumBlue"]),
-    async flipRed() {
-      if (this.flipInProgress) return;
-      if (!this.allRed) {
-        await this.flipAllColors("red");
-        this.getNumBlue();
-      }
-    },
-    async flipBlue() {
-      if (this.flipInProgress) return;
-      if (!this.allBlue) {
-        await this.flipAllColors("blue");
-        this.getNumBlue();
-      }
-    },
     openModal() {
       this.modalOpen = true;
     },
     closeModal() {
       this.modalOpen = false;
+    },
+  },
+  watch: {
+    walletAddress() {
+      this.getMyBots(this.walletAddress);
     },
   },
 };

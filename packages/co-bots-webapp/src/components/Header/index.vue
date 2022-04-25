@@ -10,8 +10,9 @@
       <div class="flex-row flex w-3/12 text-cobots-silver-2">
         <router-link to="/"><Logo class="hidden sm:block fill-white" /></router-link>
         <div class="flex-row flex space-x-4 pl-8 font-extrabold">
-          <div><router-link to="/my-bots" v-if="showBots">MY BOTS</router-link></div>
+          <div><router-link to="/my-bots">MY BOTS</router-link></div>
           <div><router-link to="/faq">FAQ</router-link></div>
+          <div><router-link to="/rules">RULES</router-link></div>
         </div>
       </div>
 

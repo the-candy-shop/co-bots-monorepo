@@ -46,10 +46,10 @@ export default {
     },
     async getImageForIndex({ commit }, index) {
       const tokenURI = await contract.tokenURI(index);
-      const { image_data } = JSON.parse(
+      const data = JSON.parse(
         tokenURI.split("data:application/json,")[1]
       );
-      commit("SET_BOT_IMAGES_BY_INDEX", { image: image_data, index });
+      commit("SET_BOT_IMAGES_BY_INDEX", { image: data.image, index });
     },
     async toggleBotColor({ commit, state, dispatch }, index) {
       try {
