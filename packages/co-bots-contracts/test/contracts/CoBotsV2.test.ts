@@ -587,10 +587,13 @@ describe("CoBotsV2", function () {
         "InsufficientFunds"
       );
       const withdrawnAmounts = [];
-      const prizes = PRIZES.slice(0, -1);
-      for (const prize of prizes) {
+      const steps = 10;
+      for (
+        let checkpoint = 0;
+        checkpoint <= PARAMETERS.maxCobots;
+        checkpoint += steps
+      ) {
         const currentSupply = await CoBotsV2.totalSupply();
-        const checkpoint = prize.checkpoint;
         const nUsers = Math.ceil(
           (checkpoint - currentSupply.toNumber()) / MINT_BATCH_LIMIT
         );
@@ -608,7 +611,13 @@ describe("CoBotsV2", function () {
             });
           })
         );
-        await users[0].CoBotsV2.draw();
+        try {
+          await users[0].CoBotsV2.draw();
+        } catch (e) {
+          await expect(users[0].CoBotsV2.draw()).to.be.revertedWith(
+            "NoGiveawayToTrigger"
+          );
+        }
         try {
           const balancePrev = await ethers.provider.getBalance(
             deployer.address
@@ -634,7 +643,13 @@ describe("CoBotsV2", function () {
       await network.provider.send("evm_increaseTime", [
         PARAMETERS.grandPrizeDelay + 1,
       ]);
-      await users[0].CoBotsV2.draw();
+      try {
+        await users[0].CoBotsV2.draw();
+      } catch (e) {
+        await expect(users[0].CoBotsV2.draw()).to.be.revertedWith(
+          "NoGiveawayToTrigger"
+        );
+      }
       await expect(deployer.CoBotsV2.withdraw()).to.be.revertedWith(
         "InsufficientFunds"
       );
