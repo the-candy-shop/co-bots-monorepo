@@ -449,6 +449,19 @@ describe("CoBotsV2", function () {
         )
       ).to.be.revertedWith("FulfillRequestWithTokenNotOwnedByWinner");
     });
+    it("should revert when tokenId is greater than checkpoint", async () => {
+      const { users, deployer, PRIZES, CoBotsV2 } = await mintedOutFixture();
+      await users[0].CoBotsV2.draw();
+      for (const [i, prize] of PRIZES.slice(0, -1).entries()) {
+        if (!prize.isContest) {
+          continue;
+        }
+        const user = await CoBotsV2.ownerOf(prize.checkpoint);
+        await expect(
+          deployer.CoBotsV2.fulfillContest(i, user, prize.checkpoint)
+        ).to.be.revertedWith("FulfillRequestWithTokenOutOfBounds");
+      }
+    });
     it("should send money to winner and revert other attempts", async () => {
       const { users, deployer, PRIZES } = await mintedOutFixture();
       await users[0].CoBotsV2.draw();
@@ -492,6 +505,19 @@ describe("CoBotsV2", function () {
       await expect(
         deployer.CoBotsV2.TheAnswer(42, MINT_BATCH_LIMIT + 1)
       ).to.be.revertedWith("FulfillRequestWithTokenNotOwnedByWinner");
+    });
+    it("should revert when tokenId is greater than checkpoint", async () => {
+      const { deployer, users } = await mintedOutFixture();
+      await deployer.CoBotsV2.draw();
+      const tokenId = await users[
+        users.length - 1
+      ].CoBotsV2.tokenOfOwnerByIndex(users[users.length - 1].address, 0);
+      await users[users.length - 1].CoBotsV2[
+        "safeTransferFrom(address,address,uint256)"
+      ](users[users.length - 1].address, deployer.address, tokenId);
+      await expect(deployer.CoBotsV2.TheAnswer(42, tokenId)).to.be.revertedWith(
+        "FulfillRequestWithTokenOutOfBounds"
+      );
     });
     it("should send money to winner and revert other attempts", async () => {
       const { deployer, users, PRIZES } = await mintedOutFixture();

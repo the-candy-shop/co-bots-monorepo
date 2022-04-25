@@ -23,6 +23,7 @@ error MysteryChallengeValueDoesNotMatch();
 error FulfillmentAlreadyFulfilled();
 error FulfillRequestForNonExistentContest();
 error FulfillRequestWithTokenNotOwnedByWinner();
+error FulfillRequestWithTokenOutOfBounds();
 error RedeemTokenNotOwner();
 error RedeemTokenAlreadyRedeemed();
 error NoGiveawayToTrigger();
@@ -443,6 +444,9 @@ contract CoBotsV2 is
             revert FulfillRequestForNonExistentContest();
         if (ERC721A.ownerOf(selectedToken) != winnerAddress) {
             revert FulfillRequestWithTokenNotOwnedByWinner();
+        }
+        if (selectedToken > fulfillments[requestId].prize.checkpoint - 1) {
+            revert FulfillRequestWithTokenOutOfBounds();
         }
         fulfillments[requestId].fulfilled = true;
         Winner memory winner = Winner(winnerAddress, uint16(selectedToken));
