@@ -1,14 +1,14 @@
 <template>
-  <info-section ref="info-section" />
+  <rules-section ref="info-section" />
 </template>
 
 <script>
-import InfoSection from "@/components/InfoSection.vue";
+import RulesSection from "@/components/RulesSection.vue";
 import { mapActions } from "vuex";
 export default {
   name: "Rules",
   components: {
-    InfoSection,
+    RulesSection,
   },
   methods: {
     ...mapActions("contractState", [

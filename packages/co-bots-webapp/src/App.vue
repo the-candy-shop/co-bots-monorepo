@@ -6,10 +6,10 @@
     ></div>
     <div class="pb-6" v-else>
       <header-vue />
-      <main class='min-h-[calc(100vh-70px)]'>
+      <main class='min-h-[calc(100vh-170px)]'>
         <router-view></router-view>
       </main>
-      <div class="flex text-white justify-center">
+      <div class="flex text-white justify-center mt-[100px] pb-6">
         <div><Logo class="fill-cobots-silver-2 w-[96px]" /></div>
       </div>
     </div>
