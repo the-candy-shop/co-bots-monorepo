@@ -8,7 +8,9 @@ export default {
     maxMintPerAddress: 0,
     totalSupply: 0,
     mintInProgress: false,
-    mintSuccessful: false
+    mintSuccessful: false,
+    fulfillments: [],
+    winnerImages: {},
   }),
   mutations: { 
     SET_MINT_PRICE(state, price) {
@@ -29,6 +31,12 @@ export default {
     SET_MINT_SUCCESSFUL(state, isSuccessful) {
       state.mintSuccessful = isSuccessful
     },
+    SET_FULFILLMENTS(state, fulfillments) {
+      state.fulfillments = fulfillments
+    },
+    SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX(state, { image, index }) {
+      state.winnerImages[index] = image;
+    },
    },
   actions: {
     async getMintInfo({commit}) {
@@ -45,6 +53,19 @@ export default {
       const totalSupply = await contract.totalSupply()
       commit('SET_TOTAL_SUPPLY', totalSupply)
     },
+    async getFulfillments({commit}) {
+      let fulfillments = await contract.getOrderedFulfillments()
+
+      commit('SET_FULFILLMENTS', fulfillments)
+    },
+    async getWinnerImageForFulfillmentIndex({ commit, state }, index) {
+      const tokenURI = await contract.tokenURI(state.fulfillments[index].winner.tokenId);
+      const data = JSON.parse(
+        tokenURI.split("data:application/json,")[1]
+      );
+      commit("SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX", { image: data.image, index });
+    },
+
     async mint({ commit, state, dispatch }, numToMint) {
       commit('SET_MINT_SUCCESSFUL', false)
       commit('SET_MINT_IN_PROGRESS', true)
@@ -80,6 +101,12 @@ export default {
     },
     mintSuccessful(state) {
       return state.mintSuccessful
-    }
+    },
+    orderedFulfillments(state) {
+      return state.fulfillments
+    },
+    winnerImageByFulfillmentIndex: (state) => (idx) => {
+      return state.winnerImages[idx] || null;
+    },
   }
 }

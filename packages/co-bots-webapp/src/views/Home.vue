@@ -129,7 +129,7 @@ export default {
       "getIsMintedOut",
     ]),
     ...mapActions("eth", ["setWalletAddress"]),
-    ...mapActions("mint", ["getMintInfo"]),
+    ...mapActions("mint", ["getMintInfo", "getFulfillments"]),
     ...mapActions("bots", ["getMyBots"]),
     ...mapActions("bonus", ["getBonusRaffleData"]),
     scrollToBonusPrizes() {
@@ -160,6 +160,7 @@ export default {
     this.getIsPublicSaleOpen();
     this.getIsMintedOut();
     this.getMintInfo();
+    this.getFulfillments();
     this.refundEnabled = import.meta.env.VITE_IN_REFUND == "true";
   },
   beforeUnmount() {

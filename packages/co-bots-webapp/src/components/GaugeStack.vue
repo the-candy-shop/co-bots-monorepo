@@ -28,15 +28,16 @@
       </div>
 
       <div class="flex flex-col">
-        <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] h-[144px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row opacity-50"
+        <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] h-[144px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row"
           :class="{
             'first:mb-4': configuration[percentage].contests.length === 2,
+            'opacity-50': contestFulfillment === undefined
           }"
         >
           <div class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
             <img
-              v-if="tokenURI"
-              :src="tokenURI"
+              v-if="contestFulfillment"
+              :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
               class="rounded-2xl bg-white"
               @load="onImageLoad"
             />
@@ -70,13 +71,14 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 import { prizeConfiguration, contestHighlights } from "@/services/prizeConfiguration";
 import { getCompletionState } from "@/services/mintCompletion.service";
 
 export default {
    name: 'GaugeStack',
    props: {
+    fulfillments: Array,
     percentage: String,
     bots: Boolean
   },
@@ -105,18 +107,33 @@ export default {
         8000: [50, 50],
         9000: [50, 50],
         10000: [50, 0],
-      }
+      },
+      fulfillmentIndex: -1
     };
   },
   computed: {
     ...mapGetters("bots", ["imageByIndex", "colorByIndex", "flipInProgress"]),
-    ...mapGetters("mint", ["totalSupply"]),
-    tokenURI() {
-      return this.imageByIndex(1);
+    ...mapGetters("mint", ["totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex"]),
+    contestFulfillment() {
+      const fulfillmentIndex = this.orderedFulfillments.findIndex(
+          (fulfillment) => fulfillment.fulfilled && fulfillment.prize.checkpoint == this.percentage
+        );
+
+      if (fulfillmentIndex === -1) {
+        return undefined
+      }
+
+      this.fulfillmentIndex = fulfillmentIndex
+      this.getWinnerImageForFulfillmentIndex(fulfillmentIndex);
+
+      return this.orderedFulfillments[fulfillmentIndex]
     },
   },
   methods: {
-    getCompletionState
+    ...mapActions("mint", [
+      "getWinnerImageForFulfillmentIndex",
+    ]),
+    getCompletionState,
   },
 }
 </script>
