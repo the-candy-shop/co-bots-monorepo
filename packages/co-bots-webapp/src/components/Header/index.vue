@@ -7,10 +7,10 @@
       <social-media-buttons class="w-24" />
     </div>
     <div class="flex-row flex justify-between items-center md:px-9 sm:py-4 w-full pb-2">
-      <div class="flex-row flex w-3/12 text-cobots-silver-2">
+      <div class="flex-row flex lg:w-3/12 text-cobots-silver-2">
         <router-link to="/"><Logo class="hidden sm:block fill-white" /></router-link>
         <div class="flex-row flex space-x-4 pl-8 font-extrabold">
-          <div><router-link to="/my-bots">MY BOTS</router-link></div>
+          <div><router-link to="/my-bots">MY&nbsp;BOTS</router-link></div>
           <div><router-link to="/faq">FAQ</router-link></div>
           <div><router-link to="/rules">RULES</router-link></div>
         </div>
@@ -27,7 +27,7 @@
         </div>
       </div>
 
-      <social-media-buttons class="hidden sm:flex w-3/12 justify-end" />
+      <social-media-buttons class="hidden sm:flex lg:w-3/12 justify-end" />
     </div>
   </div>
 </template>

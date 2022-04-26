@@ -3,14 +3,14 @@
     <div class="bg-white pb-10">
       <div class="flex flex-col justify-center items-center">
         <img
-          class="hidden lg:block w-full mt-[72px] max-w-3xl p-6"
+          class="w-full mt-[72px] max-w-3xl p-6"
           src="../images/ExtravagainzaLabel.png"
         />
 
         <div class="w-[200px] h-1 bg-cobots-silver rounded"></div>
 
         <div class="font-['CheeseButterCream'] mb-4 mt-11 px-6 text-black text-3xl">Hey Anon, wanna play a game?</div>
-        <div class="w-[675px] text-cobots-silver-3 text-xl px-6">It's simple: at each mint checkpoint, a Co-Bot wins a prize. The earlier you mint, the more chances you have to win. Good luck!</div>
+        <div class="lg:w-[675px] text-cobots-silver-3 text-xl px-6">It's simple: at each mint checkpoint, a Co-Bot wins a prize. The earlier you mint, the more chances you have to win. Good luck!</div>
       </div>
       <div
         class="flex flex-col justify-center items-center my-12"
