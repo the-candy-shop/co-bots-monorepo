@@ -11,11 +11,40 @@ import {
 } from "../../../../eth-projects-monorepo/packages/eth-projects-contracts/typechain";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-  const { deployments, getNamedAccounts, ethers } = hre;
-  const { execute } = deployments;
+  const { deployments, getNamedAccounts, ethers, network } = hre;
+  const { execute, fetchIfDifferent, log } = deployments;
+  const {
+    deployer,
+    rendererCommons,
+    rectEncoder,
+    coBotsRendererV1,
+    rectRenderer,
+    array,
+    integers,
+  } = await getNamedAccounts();
 
-  const { deployer, rendererCommons, rectEncoder } = await getNamedAccounts();
-
+  const rendererOptions = {
+    from: deployer,
+    log: true,
+    args: [coBotsRendererV1],
+    libraries: {
+      RendererCommons: rendererCommons,
+      RectRenderer: rectRenderer,
+      RectEncoder: rectEncoder,
+      Array: array,
+      Integers: integers,
+    },
+  };
+  const { differences } = await fetchIfDifferent(
+    "CoBotsRendererV2",
+    rendererOptions
+  );
+  if (!differences && !network.tags.local) {
+    log(
+      `skipping "${TAGS.CO_BOTS_PALETTES}" as CoBotsRendererV2 didn't change`
+    );
+    return;
+  }
   const palettes = loadPalettes();
 
   const RendererCommons = (await ethers.getContractAt(

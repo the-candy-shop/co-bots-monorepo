@@ -44,7 +44,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   }
 
   // Deploy renderer
-  const rendererTx = await deploy("CoBotsRendererV2", {
+  const rendererOptions = {
     from: deployer,
     log: true,
     args: [coBotsRendererV1],
@@ -55,7 +55,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       Array: array,
       Integers: integers,
     },
-  });
+  };
+  const rendererTx = await deploy("CoBotsRendererV2", rendererOptions);
 
   // Deploy token
   if (
@@ -69,7 +70,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     );
   }
 
-  await deploy("CoBotsV2", {
+  const tokenOptions = {
     from: deployer,
     log: true,
     args: [
@@ -93,7 +94,8 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       coBotsV1,
       MYSTERY_CHALLENGE,
     ],
-  });
+  };
+  await deploy("CoBotsV2", tokenOptions);
 };
 export default func;
 func.tags = [TAGS.CO_BOTS];
