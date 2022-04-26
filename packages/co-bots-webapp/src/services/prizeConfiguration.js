@@ -18,6 +18,7 @@ export const prizeConfiguration = {
         price: 1,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -27,6 +28,7 @@ export const prizeConfiguration = {
         price: 2,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -36,6 +38,7 @@ export const prizeConfiguration = {
         price: 3,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -45,6 +48,7 @@ export const prizeConfiguration = {
         price: 4,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -54,6 +58,7 @@ export const prizeConfiguration = {
         price: 5,
         contest: contestTypes.TWITTER_RAID,
         highlight: contestHighlights.GREEN,
+        winners: 6,
       },
     ]    
   },
@@ -63,6 +68,7 @@ export const prizeConfiguration = {
         price: 6,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -72,6 +78,7 @@ export const prizeConfiguration = {
         price: 7,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -81,6 +88,7 @@ export const prizeConfiguration = {
         price: 8,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -90,6 +98,7 @@ export const prizeConfiguration = {
         price: 9,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -99,6 +108,7 @@ export const prizeConfiguration = {
         price: 10,
         contest: contestTypes.MEME_CONTEST_1,
         highlight: contestHighlights.GREEN,
+        winners: 6,
       },
     ]    
   },
@@ -108,6 +118,7 @@ export const prizeConfiguration = {
         price: 12,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -117,11 +128,13 @@ export const prizeConfiguration = {
         price: 14,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
       {
         price: 50,
         contest: contestTypes.MISTERY_CHALLENGE,
         highlight: contestHighlights.RED,
+        winners: 1,
       },
     ]    
   },
@@ -131,6 +144,7 @@ export const prizeConfiguration = {
         price: 16,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -140,6 +154,7 @@ export const prizeConfiguration = {
         price: 18,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -149,6 +164,7 @@ export const prizeConfiguration = {
         price: 20,
         contest: contestTypes.MEME_CONTEST_2,
         highlight: contestHighlights.GREEN,
+        winners: 6,
       },
     ]    
   },
@@ -158,6 +174,7 @@ export const prizeConfiguration = {
         price: 22,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },
@@ -167,6 +184,7 @@ export const prizeConfiguration = {
         price: 24,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
+        winners: 1,
       },
     ]    
   },

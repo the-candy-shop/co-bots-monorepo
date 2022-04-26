@@ -3,7 +3,8 @@
     <div class="flex flex-row relative">
       <div class="flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-silver-4 border-cobots-silver-2"
           :class="{
-            'h-36': configuration[percentage].contests.length === 1,
+            'h-36': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 1,
+            'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 6,
             'h-[304px]': configuration[percentage].contests.length === 2,
           }"
       >
@@ -13,7 +14,8 @@
       </div>
       <div class="absolute left-0 top-0 flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-green border-cobots-green-3"
           :class="{
-            'h-36': configuration[percentage].contests.length === 1,
+            'h-36': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 1,
+            'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 6,
             'h-[304px]': configuration[percentage].contests.length === 2,
           }"
           :style="{height:getCompletionState(parseInt(percentage) - percentageToSpace[percentage][0], parseInt(percentage) + percentageToSpace[percentage][1], totalSupply) + '%'}"
@@ -28,13 +30,29 @@
       </div>
 
       <div class="flex flex-col">
-        <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] h-[144px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row"
+        <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row"
           :class="{
             'first:mb-4': configuration[percentage].contests.length === 2,
-            'opacity-50': contestFulfillment === undefined
+            'opacity-50': contestFulfillment === undefined,
+            'h-[144px]': contest.winners === 1,
+            'h-[198px]': contest.winners === 6,
           }"
         >
-          <div class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
+          <div v-if="contest.winners === 6" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
+            <div v-for="n in [1,2,3,4,5,6]" :key="n" class="flex justify-center items-center w-[50px] h-[50px]">
+              <img
+                v-if="contestFulfillment"
+                :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
+                class="rounded-2xl bg-white"
+                @load="onImageLoad"
+              />
+              <div class="font-['CheeseButterCream'] text-[16px] leading-[16px]" v-else>
+                ???
+              </div>
+            </div>
+          </div>
+
+          <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
             <img
               v-if="contestFulfillment"
               :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
@@ -72,7 +90,7 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { prizeConfiguration, contestHighlights } from "@/services/prizeConfiguration";
+import { prizeConfiguration, contestHighlights, contestTypes } from "@/services/prizeConfiguration";
 import { getCompletionState } from "@/services/mintCompletion.service";
 
 export default {
@@ -89,6 +107,7 @@ export default {
       context: null,
       configuration: prizeConfiguration,
       contestHighlights,
+      contestTypes,
       percentageToSpace: {
         100: [50, 50],
         200: [50, 50],
