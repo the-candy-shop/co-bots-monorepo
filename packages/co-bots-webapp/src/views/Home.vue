@@ -36,7 +36,7 @@
     </div>
 
 
-    <div class="bg-black text-white flex flex-col items-center pb-32">
+    <div class="bg-black text-white flex flex-col items-center pb-16">
       <div class="flex flex-col mt-32 text-[80px] leading-[80px] font-['CheeseButterCream'] items-center">
         <div>MINT</div>
         <div>PROGRESS</div>
@@ -84,6 +84,26 @@
         <gauge-stack percentage=10000 />
         <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"></div>
       </div>
+      
+      <div class="flex flex-col mt-20 text-center justify-center items-center">
+        <div class="font-extrabold text-[36px] leading-[36px] text-gold">GRAND PRIZE</div>
+        <div class="text-cobots-green font-extrabold text-[104px] leading-[104px] mt-2 font-['CheeseButterCream']">
+          <span class="mr-6">69</span>
+          <span>ETH</span>
+        </div>
+        <div class="flex flex-col justify-center items-center w-[240px] h-[240px] p-1.5 border-cobots-silver-2 border-4 bg-cobots-silver-7 border-dashed rounded-3xl">
+            <img
+              v-if="false"
+              :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
+              class="rounded-2xl bg-white"
+              @load="onImageLoad"
+            />
+            <div class="font-['CheeseButterCream'] text-[48px] leading-[48px]" v-else>
+              ???
+            </div>
+          </div>
+      </div>
+
     </div>
   </div>
 </template>
