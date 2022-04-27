@@ -30,6 +30,7 @@ error NoGiveawayToTrigger();
 error InsufficientFunds();
 error WithdrawalFailed();
 error FailSafeWithdrawalNotEnabled();
+error FulfillRequestRedrawn();
 
 contract CoBotsV2 is
     ERC721A,
@@ -390,6 +391,39 @@ contract CoBotsV2 is
         return true;
     }
 
+    /** @notice This function is a failsafe in case a Chainlink VRF request does not resolve
+     *          (behaviour experimented on rinkeby).
+     *          The new draws will override the previous ones.
+     */
+    function redrawPendingFulfillments() public nonReentrant {
+        for (uint256 i = 0; i < requestIds.length; i++) {
+            if (fulfillments[requestIds[i]].fulfilled) {
+                continue;
+            }
+            if (
+                fulfillments[requestIds[i]].prize.isContest &&
+                block.timestamp <
+                publicSaleStartTimestamp + PARAMETERS.contestDuration
+            ) {
+                continue;
+            }
+            uint256 requestId = COORDINATOR.requestRandomWords(
+                gasKeyHash,
+                chainlinkSubscriptionId,
+                5, // requestConfirmations
+                500_000, // callbackGasLimit
+                1 // numWords
+            );
+            fulfillments[requestId] = Fulfillment(
+                fulfillments[requestIds[i]].prize,
+                false,
+                Winner(address(0), 0)
+            );
+            delete fulfillments[requestIds[i]];
+            requestIds[i] = requestId;
+        }
+    }
+
     /**
      * @notice This function can be called at any time by anyone to trigger the unlocked giveaways. It will
      *         revert if there is nothing to unlock to prevent anon from making useless tx. (Usually wallet, e.g.
@@ -484,6 +518,7 @@ contract CoBotsV2 is
         override
     {
         uint256 checkpoint = fulfillments[requestId].prize.checkpoint;
+        if (checkpoint == 0) revert FulfillRequestRedrawn();
         uint256 selectedToken = randomWords[0] % checkpoint;
         address winner = ERC721A.ownerOf(selectedToken);
         _fulfill(requestId, winner, selectedToken);

@@ -415,6 +415,80 @@ describe("CoBotsV2", function () {
       expect(receipt.events?.length).to.eq(PRIZES_INPUT.length * 2); // 2 events per prize, minus 1 for mystery challenge + 1 for final draw
     });
   });
+  describe("redrawPendingFulfillments", async function () {
+    it("should update requestIds and fulfillments for non contest fulfillments", async () => {
+      const { users, PRIZES, CoBotsV2, vrfCoordinator } =
+        await mintedOutFixture();
+      await users[0].CoBotsV2.draw();
+      const ids = PRIZES.slice(0, -1)
+        .map((p, i) => ({ ...p, i }))
+        .filter((p) => !p.isContest)
+        .map((p) => p.i);
+      const prevRequestIds = await Promise.all(
+        ids.map(async (p) => (await CoBotsV2.requestIds(p)).toString())
+      );
+      await users[0].CoBotsV2.redrawPendingFulfillments();
+      await Promise.all(
+        prevRequestIds.map(
+          async (id) =>
+            await expect(
+              vrfCoordinator.CoBotsV2.rawFulfillRandomWords(id, [0])
+            ).to.be.revertedWith("FulfillRequestRedrawn")
+        )
+      );
+      const newRequestIds = await Promise.all(
+        ids.map(async (p) => (await CoBotsV2.requestIds(p)).toString())
+      );
+      expect(
+        newRequestIds
+          .map((r, i) => r !== prevRequestIds[i])
+          .reduce((a, b) => a && b, true)
+      ).to.be.true;
+      await Promise.all(
+        newRequestIds.map(
+          async (id) =>
+            await vrfCoordinator.CoBotsV2.rawFulfillRandomWords(id, [0])
+              .then((tx) => tx.wait())
+              .then((receipt) => expect(receipt.events?.length).to.eq(1))
+        )
+      );
+    });
+    it("should not update requestIds when prize is already fulfilled", async () => {
+      const { users, PRIZES, CoBotsV2, vrfCoordinator } =
+        await mintedOutFixture();
+      await users[0].CoBotsV2.draw();
+      const ids = PRIZES.slice(0, -1)
+        .map((p, i) => ({ ...p, i }))
+        .filter((p) => !p.isContest)
+        .map((p) => p.i);
+      const prevRequestIds = await Promise.all(
+        ids.map(async (p) => (await CoBotsV2.requestIds(p)).toString())
+      );
+      await Promise.all(
+        prevRequestIds.map(
+          async (id) =>
+            await vrfCoordinator.CoBotsV2.rawFulfillRandomWords(id, [0])
+        )
+      );
+      await users[0].CoBotsV2.redrawPendingFulfillments();
+      const newRequestIds = await Promise.all(
+        ids.map(async (p) => (await CoBotsV2.requestIds(p)).toString())
+      );
+      expect(
+        newRequestIds
+          .map((r, i) => r === prevRequestIds[i])
+          .reduce((a, b) => a && b, true)
+      ).to.be.true;
+      await Promise.all(
+        newRequestIds.map(
+          async (id) =>
+            await expect(
+              vrfCoordinator.CoBotsV2.rawFulfillRandomWords(id, [0])
+            ).to.be.revertedWith("FulfillmentAlreadyFulfilled")
+        )
+      );
+    });
+  });
   describe("fulfillContest", async function () {
     it("should revert when caller is not owner", async () => {
       const { users } = await publicSaleFixture();
