@@ -27,7 +27,7 @@
             'bg-cobots-green-3': false
           }"
       >
-        <div v-if="contestFulfillment !== undefined">
+        <div v-if="parseInt(totalSupply) >= parseInt(percentage)">
           <div v-if="percentage != 10000" class="mt-[-13px] font-extrabold text-2xl text-white">{{ percentage }}</div>
           <div v-else class="mt-[-13px] font-extrabold text-2xl text-white">10k</div>
         </div>
