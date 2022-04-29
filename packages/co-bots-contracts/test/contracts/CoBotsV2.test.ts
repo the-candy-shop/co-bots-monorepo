@@ -329,6 +329,13 @@ describe("CoBotsV2", function () {
     });
   });
   describe("toggleMetta", async function () {
+    it("should revert when caller is not owner", async () => {
+      const { deployer, users } = await setup();
+      await deployer.CoBotsV2.mintFounders(deployer.address, 2);
+      await expect(users[0].CoBotsV2.toggleMetta([0, 1])).to.be.revertedWith(
+        "ToggleMettaCallerNotOwner"
+      );
+    });
     it("should batch toggle token states", async () => {
       const { deployer, CoBotsV2 } = await setup();
       await deployer.CoBotsV2.mintFounders(deployer.address, 2);
@@ -677,6 +684,14 @@ describe("CoBotsV2", function () {
           )
         )
       );
+    });
+    it("should draw before withdrawing all funds", async () => {
+      const { deployer } = await mintedOutFixture();
+      const tx = await deployer.CoBotsV2.withdraw();
+      const receipt = await tx.wait();
+      expect(
+        receipt.events?.filter((e) => e.event === "DrawBeforeWithdrawal").length
+      ).to.eq(1);
     });
     it("should withdraw limited funds at any checkpoint without compromising the giveaways", async () => {
       const {

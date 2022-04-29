@@ -50,6 +50,7 @@ contract CoBotsV2 is
     );
     event GiveawayFinished();
     event Withdrawal(uint256 amount);
+    event DrawBeforeWithdrawal();
 
     // Data structures
     /** @dev The prize struct contains the data for one single giveaway prize
@@ -288,6 +289,7 @@ contract CoBotsV2 is
     function withdraw() public onlyOwner {
         // Draw eventual remaining giveaways
         if (_shouldDraw()) {
+            emit DrawBeforeWithdrawal();
             draw();
         }
 
