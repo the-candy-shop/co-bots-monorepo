@@ -1,17 +1,19 @@
 <template>
-  <div class="text-white flex space-x-2 md:space-x-4 pr-2">
-    <a class="py-1" href="https://twitter.com/thecobots" target="_blank">
-      <TwitterLogo class="fill-cobots-silver-2 hover:fill-white" />
-    </a>
-    <a :href="openSeaLink" target="_blank">
-      <OpenseaLogo class="fill-cobots-silver-2 hover:fill-white" />
-    </a>
-    <a :href="etherScanLink" target="_blank">
-      <EtherscanLogo class="fill-cobots-silver-2 hover:fill-white" />
-    </a>
+  <div class="text-white flex justify-between lg:justify-end">
+    <div class="flex space-x-2 md:space-x-4 justify-end">
+      <a class="py-1" href="https://twitter.com/thecobots" target="_blank">
+        <TwitterLogo class="fill-cobots-silver-2 hover:fill-white" />
+      </a>
+      <a :href="openSeaLink" target="_blank">
+        <OpenseaLogo class="fill-cobots-silver-2 hover:fill-white" />
+      </a>
+      <a :href="etherScanLink" target="_blank">
+        <EtherscanLogo class="fill-cobots-silver-2 hover:fill-white" />
+      </a>
+    </div>
     <button
       v-if="walletConnected"
-      class="w-40 h-[34px] rounded-full border-2 border-zinc-300 px-4 font-black"
+      class="w-40 h-[34px] rounded-full border-2 border-zinc-300 px-4 ml-4 font-black"
       @click="logout"
     >
       {{ addressTruncated }}
