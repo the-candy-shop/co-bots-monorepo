@@ -29,57 +29,66 @@
         <div class="mt-[-13px] font-extrabold text-2xl text-white">{{ percentage }}</div>
       </div>
 
-      <div class="flex flex-col">
-        <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 ml-6 rounded-3xl p-4 flex flex-row"
-          :class="{
-            'first:mb-4': configuration[percentage].contests.length === 2,
-            'opacity-50': contestFulfillment === undefined,
-            'h-[144px]': contest.winners === 1,
-            'h-[198px]': contest.winners === 6,
-          }"
-        >
-          <div v-if="contest.winners === 6" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
-            <div v-for="n in [1,2,3,4,5,6]" :key="n" class="flex justify-center items-center w-[50px] h-[50px]">
+      <div class="flex flex-row">
+        <div class="w-[24px] flex justify-end items-center">
+          <div class="w-[0px] h-[0px] border-r-[14px] border-cobots-silver-7" style="border-top:17px solid transparent;border-bottom:17px solid transparent"
+              :class="{
+               'opacity-50': contestFulfillment === undefined, 
+              }"
+          ></div>
+        </div>
+        <div class="flex flex-col">
+          <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 rounded-3xl p-4 flex flex-row"
+            :class="{
+              'first:mb-4': configuration[percentage].contests.length === 2,
+              'opacity-50': contestFulfillment === undefined,
+              'h-[144px]': contest.winners === 1,
+              'h-[198px]': contest.winners === 6,
+            }"
+          >
+            <div v-if="contest.winners === 6" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
+              <div v-for="n in [1,2,3,4,5,6]" :key="n" class="flex justify-center items-center w-[50px] h-[50px]">
+                <img
+                  v-if="contestFulfillment"
+                  :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
+                  class="rounded-2xl bg-white"
+                  @load="onImageLoad"
+                />
+                <div class="font-['CheeseButterCream'] text-[16px] leading-[16px]" v-else>
+                  ???
+                </div>
+              </div>
+            </div>
+
+            <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
               <img
                 v-if="contestFulfillment"
                 :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
                 class="rounded-2xl bg-white"
                 @load="onImageLoad"
               />
-              <div class="font-['CheeseButterCream'] text-[16px] leading-[16px]" v-else>
+              <div class="font-['CheeseButterCream'] text-[24px] leading-[24px]" v-else>
                 ???
               </div>
             </div>
-          </div>
-
-          <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
-            <img
-              v-if="contestFulfillment"
-              :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
-              class="rounded-2xl bg-white"
-              @load="onImageLoad"
-            />
-            <div class="font-['CheeseButterCream'] text-[24px] leading-[24px]" v-else>
-              ???
-            </div>
-          </div>
-          <div class="flex flex-col justify-center items-center grow">
-            <div class="font-extrabold text-base text-cobots-silver-2"
-                :class="{
-                  'text-gold': contest.highlight !== false,
-                }"
-            >{{ contest.contest }}</div>
-            <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-2 flex flex-row">
-              <div class="mr-3 text-[60px] leading-[60px]"
+            <div class="flex flex-col justify-center items-center grow">
+              <div class="font-extrabold text-base text-cobots-silver-2"
                   :class="{
-                  'text-cobots-green': contest.highlight == contestHighlights.GREEN,
-                  'text-cobots-red': contest.highlight == contestHighlights.RED,
-                }"
-              >{{ contest.price }}</div>
-              <div :class="{
-                  'text-cobots-green': contest.highlight == contestHighlights.GREEN,
-                  'text-cobots-red': contest.highlight == contestHighlights.RED,
-                }">ETH</div>
+                    'text-gold': contest.highlight !== false,
+                  }"
+              >{{ contest.contest }}</div>
+              <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-2 flex flex-row">
+                <div class="mr-3 text-[60px] leading-[60px]"
+                    :class="{
+                    'text-cobots-green': contest.highlight == contestHighlights.GREEN,
+                    'text-cobots-red': contest.highlight == contestHighlights.RED,
+                  }"
+                >{{ contest.price }}</div>
+                <div :class="{
+                    'text-cobots-green': contest.highlight == contestHighlights.GREEN,
+                    'text-cobots-red': contest.highlight == contestHighlights.RED,
+                  }">ETH</div>
+              </div>
             </div>
           </div>
         </div>
