@@ -1,6 +1,5 @@
 <template>
-  <div class="w-full h-[32px] bg-[url('../images/Waves.svg')]">
-    <img src="../images/Waves.svg" />
+  <div class="bg-white w-full h-[32px] wave">
   </div>
 </template>
 

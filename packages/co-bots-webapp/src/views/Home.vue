@@ -34,7 +34,7 @@
         </div>
       </div>
     </div>
-
+    <wave />
 
     <div class="bg-black text-white flex flex-col items-center pb-16">
       <div class="flex flex-col mt-32 text-[80px] leading-[80px] font-['CheeseButterCream'] items-center">

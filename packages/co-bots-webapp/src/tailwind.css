@@ -27,4 +27,9 @@
   }
 }
 
-
+.wave {
+  background-image: url("./images/Waves.svg");
+  background-size: 100%;
+  background-repeat: repeat-x;
+  background-position: bottom;
+}
