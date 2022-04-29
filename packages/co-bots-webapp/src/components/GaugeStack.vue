@@ -46,12 +46,12 @@
               'h-[198px]': contest.winners === 6,
             }"
           >
-            <div v-if="contest.winners === 6" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
+            <div v-if="contest.winners === 6" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1.5 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
               <div v-for="n in [1,2,3,4,5,6]" :key="n" class="flex justify-center items-center w-[50px] h-[50px]">
                 <img
                   v-if="contestFulfillment"
                   :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
-                  class="rounded-2xl bg-white"
+                  class="rounded-[8px] bg-white"
                   @load="onImageLoad"
                 />
                 <div class="font-['CheeseButterCream'] text-[16px] leading-[16px]" v-else>
@@ -60,18 +60,18 @@
               </div>
             </div>
 
-            <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
+            <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
               <img
                 v-if="contestFulfillment"
                 :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
-                class="rounded-2xl bg-white"
+                class="rounded-[8px] bg-white"
                 @load="onImageLoad"
               />
               <div class="font-['CheeseButterCream'] text-[24px] leading-[24px]" v-else>
                 ???
               </div>
             </div>
-            <div class="flex flex-col justify-center grow pl-[18px] pt-[8px]">
+            <div class="flex flex-col justify-center grow pl-[18px] pt-[12px]">
               <div class="font-extrabold text-base text-cobots-silver-2"
                   :class="{
                     'text-gold': contest.highlight !== false,
