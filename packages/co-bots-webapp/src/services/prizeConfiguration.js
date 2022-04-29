@@ -56,6 +56,7 @@ export const prizeConfiguration = {
     contests: [
       {
         price: 5,
+        subPrice: 1,
         contest: contestTypes.TWITTER_RAID,
         highlight: contestHighlights.GREEN,
         winners: 5,
@@ -106,6 +107,7 @@ export const prizeConfiguration = {
     contests: [
       {
         price: 10,
+        subPrice: 2,
         contest: contestTypes.MEME_CONTEST_1,
         highlight: contestHighlights.GREEN,
         winners: 5,
@@ -162,6 +164,7 @@ export const prizeConfiguration = {
     contests: [
       {
         price: 20,
+        subPrice: 4,
         contest: contestTypes.MEME_CONTEST_2,
         highlight: contestHighlights.GREEN,
         winners: 5,

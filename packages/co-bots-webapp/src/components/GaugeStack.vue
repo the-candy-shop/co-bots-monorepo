@@ -71,13 +71,15 @@
                 ???
               </div>
             </div>
-            <div class="flex flex-col justify-center grow pl-[18px] pt-[12px]">
+            <div class="flex flex-col justify-center grow pl-[18px]">
               <div class="font-extrabold text-base text-cobots-silver-2"
                   :class="{
                     'text-gold': contest.highlight !== false,
+                    'pt-[13px]': contest.winners === 1,
+                    'pt-[0px]': contest.winners === 5,
                   }"
               >{{ contest.contest }}</div>
-              <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-2 flex flex-row">
+              <div class="font-['CheeseButterCream'] text-[56px] leading-[56px] mt-[2px] flex flex-row">
                 <div class="mr-3 text-[60px] leading-[60px]"
                     :class="{
                     'text-cobots-green': contest.highlight == contestHighlights.GREEN,
@@ -89,6 +91,7 @@
                     'text-cobots-red': contest.highlight == contestHighlights.RED,
                   }">ETH</div>
               </div>
+              <div v-if="contest.winners === 5" class="mt-[-4px] text-[16px] leading-[16px] font-extrabold uppercase">{{ contest.subPrice }} ETH/winner</div>
             </div>
           </div>
         </div>
