@@ -19,10 +19,10 @@ export type MysteryChallenge = {
 };
 
 export type CoBotsParameters = {
-  cobotsV1Discount: number;
   mintOutFoundersWithdrawalDelay: number;
   grandPrizeDelay: number;
   maxCobots: number;
   contestDuration: number;
   mintPublicPrice: BigNumber;
+  cobotsV1Discount: BigNumber;
 };

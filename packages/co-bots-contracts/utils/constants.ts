@@ -25,7 +25,7 @@ export const TAGS = {
 
 // Contract constants
 export const PARAMETERS: CoBotsParameters = {
-  cobotsV1Discount: 2,
+  cobotsV1Discount: ethers.BigNumber.from("2"),
   mintOutFoundersWithdrawalDelay: 2 * 60 * 60, // 2 hours
   grandPrizeDelay: 60 * 60, // 1 hour
   maxCobots: 10_000,

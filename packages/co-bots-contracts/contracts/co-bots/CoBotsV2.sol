@@ -12,7 +12,7 @@ import "../interfaces/ICoBotsRendererV2.sol";
 import "./Schedule.sol";
 
 error BatchLimitExceeded();
-error WrongPrice();
+error WrongPrice(uint256 paidPrice, uint256 expectedPrice);
 error TotalSupplyExceeded();
 error AllocationExceeded();
 error ToggleMettaCallerNotOwner();
@@ -52,25 +52,45 @@ contract CoBotsV2 is
     event Withdrawal(uint256 amount);
 
     // Data structures
+    /** @dev The prize struct contains the data for one single giveaway prize
+     *  @param checkpoint the number of minted bots required to unlock the give
+     *  @param amount the amount of the prize to be won
+     *  @param isContest flag to indicate if the prize is a contest (meme, twitter, etc) and to be drawn randomly
+     */
     struct Prize {
         uint16 checkpoint;
         uint72 amount;
         bool isContest;
     }
 
+    /** @dev The mystery challenge is a special giveaway that will not be drawn nor won after founders selection.
+     *  It will require to take control of a given ENS name and to send a message to the contract with the address
+     *  owning it.
+     *  @param ensId the tokenId of the given ENS
+     *  @param value the answer to the challenge
+     *  @param prizeIndex the index of this prize in the global Prize[] array
+     */
     struct MysteryChallenge {
         uint256 ensId;
         uint256 value;
         uint8 prizeIndex;
     }
 
+    /** @dev Global parameters for the project. Non-standards uintN types to ensure struct fits in one slot (256 bits).
+     *  @param cobotsV1Discount the discount given when redeeming a CoBot V1. This is a percentage of public price
+     *  @param mintOutFoundersWithdrawalDelay the delay between mint out and possible failsafe withdrawal from the founders
+     *  @param grandPrizeDelay the delay between mint out and the grand prize draw
+     *  @param maxCobots the total supply of CoBots
+     *  @param contestDuration after this time, all contest will be turned into random draws
+     *  @param mintPublicPrice the public price of one single CoBot.
+     */
     struct Parameters {
-        uint8 cobotsV1Discount;
         uint16 mintOutFoundersWithdrawalDelay;
         uint16 grandPrizeDelay;
         uint16 maxCobots;
         uint24 contestDuration;
         uint72 mintPublicPrice;
+        uint72 cobotsV1Discount;
     }
 
     // Constants
@@ -79,8 +99,8 @@ contract CoBotsV2 is
     Parameters public PARAMETERS;
     Prize[] public PRIZES;
     MysteryChallenge private MYSTERY_CHALLENGE;
-    IERC721 ENS;
-    IERC721Enumerable COBOTS_V1;
+    IERC721 immutable ENS;
+    IERC721Enumerable immutable COBOTS_V1;
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Token ///////////////////////////////////////
@@ -119,8 +139,12 @@ contract CoBotsV2 is
         LINKTOKEN = LinkTokenInterface(link);
         gasKeyHash = keyHash;
         PARAMETERS = _parameters;
-        for (uint256 i = 0; i < _prizes.length; i++) {
+        uint256 _prizesLength = _prizes.length;
+        for (uint256 i = 0; i < _prizesLength; ) {
             PRIZES.push(_prizes[i]);
+            unchecked {
+                ++i;
+            }
         }
         ENS = IERC721(ens);
         COBOTS_V1 = IERC721Enumerable(cobotsV1);
@@ -138,11 +162,24 @@ contract CoBotsV2 is
                 block.difficulty
             )
         );
-        for (uint256 i = 0; i < quantity; i++) {
+        for (uint256 i = 0; i < quantity; ) {
             coBotsSeeds.push(uint8(seeds[i]) << 1); // insure last digit is 0, used for Metta status
+            unchecked {
+                ++i;
+            }
         }
 
         ERC721A._safeMint(to, quantity);
+
+        if (_currentIndex == PARAMETERS.maxCobots) {
+            mintedOutTimestamp = block.timestamp;
+        }
+    }
+
+    modifier supplyAvailable(uint256 quantity) {
+        if (_currentIndex + quantity > PARAMETERS.maxCobots)
+            revert TotalSupplyExceeded();
+        _;
     }
 
     /**
@@ -160,14 +197,14 @@ contract CoBotsV2 is
         external
         payable
         whenPublicSaleOpen
+        supplyAvailable(quantity)
         nonReentrant
     {
-        if (_currentIndex + quantity > PARAMETERS.maxCobots)
-            revert TotalSupplyExceeded();
         uint256 price = PARAMETERS.mintPublicPrice * quantity;
 
         uint256 redeemed = 0;
-        for (uint256 i = 0; i < tokenIdsV1.length; i++) {
+        uint256 tokenIdsV1Length = tokenIdsV1.length;
+        for (uint256 i = 0; i < tokenIdsV1Length; ) {
             if (COBOTS_V1.ownerOf(tokenIdsV1[i]) != _msgSender())
                 revert RedeemTokenNotOwner();
             if (!coBotsV1Redeemed[tokenIdsV1[i]] && redeemed < quantity) {
@@ -177,17 +214,21 @@ contract CoBotsV2 is
                     PARAMETERS.mintPublicPrice /
                     PARAMETERS.cobotsV1Discount;
             }
+            unchecked {
+                ++i;
+            }
         }
         _redeemedCount += redeemed;
-        if (msg.value != price) revert WrongPrice();
-        if (quantity + _currentIndex == PARAMETERS.maxCobots) {
-            mintedOutTimestamp = block.timestamp;
-        }
+        if (msg.value != price) revert WrongPrice(price, msg.value);
 
         _mintCoBots(_msgSender(), quantity);
     }
 
-    function mintFounders(address to, uint256 quantity) external onlyOwner {
+    function mintFounders(address to, uint256 quantity)
+        external
+        onlyOwner
+        supplyAvailable(quantity)
+    {
         if (quantity + _currentIndex > MINT_FOUNDERS)
             revert AllocationExceeded();
 
@@ -209,8 +250,12 @@ contract CoBotsV2 is
     }
 
     function toggleMetta(uint256[] calldata tokenIds) public nonReentrant {
-        for (uint256 i = 0; i < tokenIds.length; i++) {
+        uint256 tokenIdsLength = tokenIds.length;
+        for (uint256 i = 0; i < tokenIdsLength; ) {
             _toggleMetta(tokenIds[i]);
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -250,9 +295,13 @@ contract CoBotsV2 is
         uint256 balance = address(this).balance;
 
         // Correct amount with giveaways that are pending fulfillments, typically previously drawn random fulfillments
-        for (uint256 i = 0; i < requestIds.length; i++) {
+        uint256 requestIdsLength = requestIds.length;
+        for (uint256 i = 0; i < requestIdsLength; ) {
             if (!fulfillments[requestIds[i]].fulfilled) {
                 balance -= fulfillments[requestIds[i]].prize.amount;
+            }
+            unchecked {
+                ++i;
             }
         }
 
@@ -266,7 +315,8 @@ contract CoBotsV2 is
         uint256 previousCheckpoint = _currentIndex;
 
         // Loop over locked checkpoint to estimate funds and withdrawal capacities
-        for (uint256 i = requestIds.length; i < PRIZES.length; i++) {
+        uint256 prizesLength = PRIZES.length;
+        for (uint256 i = requestIds.length; i < prizesLength; ) {
             // to unlock the next checkpoint, remainingBots bots need to be minted
             uint256 remainingBots = PRIZES[i].checkpoint - previousCheckpoint;
 
@@ -299,6 +349,10 @@ contract CoBotsV2 is
                 value = balance;
             }
             previousCheckpoint = PRIZES[i].checkpoint;
+
+            unchecked {
+                ++i;
+            }
         }
 
         (bool success, ) = _msgSender().call{value: value}("");
@@ -325,9 +379,9 @@ contract CoBotsV2 is
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Raffle //////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////
-    VRFCoordinatorV2Interface COORDINATOR;
-    LinkTokenInterface LINKTOKEN;
-    bytes32 gasKeyHash;
+    VRFCoordinatorV2Interface public immutable COORDINATOR;
+    LinkTokenInterface public immutable LINKTOKEN;
+    bytes32 public immutable gasKeyHash;
     uint64 public chainlinkSubscriptionId;
 
     function createSubscriptionAndFund(uint96 amount) external nonReentrant {
@@ -396,31 +450,33 @@ contract CoBotsV2 is
      *          The new draws will override the previous ones.
      */
     function redrawPendingFulfillments() public nonReentrant {
-        for (uint256 i = 0; i < requestIds.length; i++) {
-            if (fulfillments[requestIds[i]].fulfilled) {
-                continue;
-            }
+        uint256 requestIdsLength = requestIds.length;
+        for (uint256 i = 0; i < requestIdsLength; ) {
             if (
-                fulfillments[requestIds[i]].prize.isContest &&
-                block.timestamp <
-                publicSaleStartTimestamp + PARAMETERS.contestDuration
+                !fulfillments[requestIds[i]].fulfilled &&
+                (!fulfillments[requestIds[i]].prize.isContest ||
+                    block.timestamp >
+                    publicSaleStartTimestamp + PARAMETERS.contestDuration)
             ) {
-                continue;
+                uint256 requestId = COORDINATOR.requestRandomWords(
+                    gasKeyHash,
+                    chainlinkSubscriptionId,
+                    5, // requestConfirmations
+                    500_000, // callbackGasLimit
+                    1 // numWords
+                );
+                fulfillments[requestId] = Fulfillment(
+                    fulfillments[requestIds[i]].prize,
+                    false,
+                    Winner(address(0), 0)
+                );
+                delete fulfillments[requestIds[i]];
+                requestIds[i] = requestId;
             }
-            uint256 requestId = COORDINATOR.requestRandomWords(
-                gasKeyHash,
-                chainlinkSubscriptionId,
-                5, // requestConfirmations
-                500_000, // callbackGasLimit
-                1 // numWords
-            );
-            fulfillments[requestId] = Fulfillment(
-                fulfillments[requestIds[i]].prize,
-                false,
-                Winner(address(0), 0)
-            );
-            delete fulfillments[requestIds[i]];
-            requestIds[i] = requestId;
+
+            unchecked {
+                ++i;
+            }
         }
     }
 

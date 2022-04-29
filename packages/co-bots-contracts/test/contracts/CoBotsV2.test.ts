@@ -23,8 +23,6 @@ import {
   CoBotsV2,
   VRFCoordinatorV2TestHelper,
 } from "../../typechain";
-import * as path from "path";
-import fs from "fs";
 
 chai.use(jestSnapshotPlugin());
 chai.use(solidity);
@@ -303,6 +301,12 @@ describe("CoBotsV2", function () {
       await expect(
         deployer.CoBotsV2.mintFounders(users[0].address, MINT_FOUNDERS + 1)
       ).to.be.revertedWith("AllocationExceeded");
+    });
+    it("should revert when totalSupply is already minted", async () => {
+      const { deployer } = await mintedOutFixture();
+      await expect(
+        deployer.CoBotsV2.mintFounders(deployer.address, 1)
+      ).to.be.revertedWith("TotalSupplyExceeded");
     });
     it("should mint to the given user", async () => {
       const { deployer, users, CoBotsV2 } = await setup();
@@ -825,28 +829,5 @@ describe("CoBotsV2", function () {
         PARAMETERS.mintPublicPrice.mul(PARAMETERS.maxCobots).toString()
       );
     });
-  });
-  describe.skip("tokenURI", async () => {
-    await Promise.all(
-      [...Array(10_000).keys()].map((tokenId) => {
-        it(`Token ${tokenId} should match snapshot`, async function () {
-          const { CoBotsV2 } = await mintedOutFixture();
-          const res = await CoBotsV2.tokenURI(tokenId);
-          let outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.json`;
-          fs.mkdirSync(path.dirname(outputFile), { recursive: true });
-          fs.writeFileSync(outputFile, res.split(",").slice(1).join(","));
-          outputFile = `./test/contracts/__snapshots__/TOKENS/${tokenId}.svg`;
-          fs.writeFileSync(
-            outputFile,
-            decodeURI(
-              JSON.parse(res.split(",").slice(1).join(","))
-                ["image"].split(",")[1]
-                .replace(/%23/g, "#")
-            )
-          );
-          expect(res).to.matchSnapshot();
-        });
-      })
-    );
   });
 });
