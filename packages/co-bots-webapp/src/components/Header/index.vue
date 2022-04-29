@@ -10,9 +10,9 @@
       <div class="flex-row flex lg:w-3/12 text-cobots-silver-2">
         <router-link to="/"><Logo class="hidden sm:block fill-white" /></router-link>
         <div class="flex-row flex space-x-4 pl-8 font-extrabold">
-          <div><router-link to="/my-bots">MY&nbsp;BOTS</router-link></div>
-          <div><router-link to="/faq">FAQ</router-link></div>
-          <div><router-link to="/rules">RULES</router-link></div>
+          <div class="hover:text-white"><router-link to="/my-bots">MY&nbsp;BOTS</router-link></div>
+          <div class="hover:text-white"><router-link to="/faq">FAQ</router-link></div>
+          <div class="hover:text-white"><router-link to="/rules">RULES</router-link></div>
         </div>
       </div>
 
