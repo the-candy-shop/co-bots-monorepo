@@ -3,7 +3,7 @@
     <div class="bg-white pb-10">
       <div class="flex flex-col justify-center items-center">
         <img
-          class="w-full mt-[72px] max-w-3xl p-6"
+          class="w-full mt-[144px] lg:mt-[72px] max-w-3xl p-6"
           src="../images/ExtravagainzaLabel.png"
         />
 
