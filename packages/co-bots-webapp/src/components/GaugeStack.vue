@@ -4,7 +4,7 @@
       <div class="flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-silver-4 border-cobots-silver-2"
           :class="{
             'h-36': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 1,
-            'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 6,
+            'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 5,
             'h-[304px]': configuration[percentage].contests.length === 2,
           }"
       >
@@ -15,7 +15,7 @@
       <div class="absolute left-0 top-0 flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-green border-cobots-green-3"
           :class="{
             'h-36': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 1,
-            'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 6,
+            'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 5,
             'h-[304px]': configuration[percentage].contests.length === 2,
           }"
           :style="{height:getCompletionState(parseInt(percentage) - percentageToSpace[percentage][0], parseInt(percentage) + percentageToSpace[percentage][1], totalSupply) + '%'}"
@@ -43,18 +43,18 @@
               'first:mb-4': configuration[percentage].contests.length === 2,
               'opacity-50': contestFulfillment === undefined,
               'h-[144px]': contest.winners === 1,
-              'h-[198px]': contest.winners === 6,
+              'h-[198px]': contest.winners === 5,
             }"
           >
-            <div v-if="contest.winners === 6" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1.5 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
-              <div v-for="n in [1,2,3,4,5,6]" :key="n" class="flex justify-center items-center w-[50px] h-[50px]">
+            <div v-if="contest.winners === 5" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
+              <div v-for="n in [1,2,3,4,5]" :key="n" class="flex justify-center items-center w-[52px] h-[52px]">
                 <img
                   v-if="contestFulfillment"
                   :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
                   class="rounded-[8px] bg-white"
                   @load="onImageLoad"
                 />
-                <div class="font-['CheeseButterCream'] text-[16px] leading-[16px]" v-else>
+                <div class="flex justify-center items-center font-['CheeseButterCream'] text-[16px] leading-[16px] w-[48px] h-[48px] rounded-[8px] bg-cobots-silver-3" v-else>
                   ???
                 </div>
               </div>
@@ -67,7 +67,7 @@
                 class="rounded-[8px] bg-white"
                 @load="onImageLoad"
               />
-              <div class="font-['CheeseButterCream'] text-[24px] leading-[24px]" v-else>
+              <div class="flex justify-center items-center font-['CheeseButterCream'] text-[24px] leading-[24px] w-[102px] h-[102px] rounded-[8px] bg-cobots-silver-3" v-else>
                 ???
               </div>
             </div>
