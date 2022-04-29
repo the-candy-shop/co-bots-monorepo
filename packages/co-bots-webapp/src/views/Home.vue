@@ -91,14 +91,14 @@
           <span class="mr-6">69</span>
           <span>ETH</span>
         </div>
-        <div class="flex flex-col justify-center items-center w-[240px] h-[240px] p-1.5 border-cobots-silver-2 border-4 bg-cobots-silver-7 border-dashed rounded-3xl">
+        <div class="flex flex-col justify-center items-center w-[240px] h-[240px] p-3 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
             <img
               v-if="false"
               :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
               class="rounded-2xl bg-white"
               @load="onImageLoad"
             />
-            <div class="font-['CheeseButterCream'] text-[48px] leading-[48px]" v-else>
+            <div class="font-['CheeseButterCream'] text-[48px] leading-[48px] flex justify-center items-center w-full h-full rounded-[8px] bg-cobots-silver-7" v-else>
               ???
             </div>
           </div>
