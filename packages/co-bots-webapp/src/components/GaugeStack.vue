@@ -38,7 +38,7 @@
           ></div>
         </div>
         <div class="flex flex-col">
-          <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 rounded-3xl p-4 flex flex-row"
+          <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 pl-[12px] rounded-3xl flex flex-row justify-center items-center"
             :class="{
               'first:mb-4': configuration[percentage].contests.length === 2,
               'opacity-50': contestFulfillment === undefined,
@@ -71,7 +71,7 @@
                 ???
               </div>
             </div>
-            <div class="flex flex-col justify-center items-center grow">
+            <div class="flex flex-col justify-center grow pl-[18px] pt-[8px]">
               <div class="font-extrabold text-base text-cobots-silver-2"
                   :class="{
                     'text-gold': contest.highlight !== false,
