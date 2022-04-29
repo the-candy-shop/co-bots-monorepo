@@ -41,7 +41,7 @@
         <div>MINT</div>
         <div>PROGRESS</div>
       </div>
-      <div class="flex flex-col mt-20 ml-[25%]">
+      <div class="flex flex-col mt-[48px] ml-[25%]">
         <div class="relative">
           <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-t-[6px]"
           ></div>
