@@ -34,8 +34,8 @@
       </div>
 
       <div class="flex flex-row">
-        <div class="w-[24px] flex justify-end items-center">
-          <div class="w-[0px] h-[0px] border-r-[14px] border-cobots-silver-7" style="border-top:17px solid transparent;border-bottom:17px solid transparent"
+        <div class="w-[20px] flex justify-end items-center">
+          <div class="w-[0px] h-[0px] border-r-[12px] border-cobots-silver-7" style="border-top:12px solid transparent;border-bottom:12px solid transparent"
               :class="{
                'opacity-50': contestFulfillment === undefined, 
               }"
