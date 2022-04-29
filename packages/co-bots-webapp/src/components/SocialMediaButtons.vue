@@ -1,13 +1,13 @@
 <template>
   <div class="text-white flex space-x-2 md:space-x-4 pr-2">
     <a class="py-1" href="https://twitter.com/thecobots" target="_blank">
-      <img alt="twitter-logo" src="../images/twitter-logo.svg" />
+      <TwitterLogo class="fill-cobots-silver-2 hover:fill-white" />
     </a>
     <a :href="openSeaLink" target="_blank">
-      <img alt="opensea-logo" src="../images/opensea-logo.svg" />
+      <OpenseaLogo class="fill-cobots-silver-2 hover:fill-white" />
     </a>
     <a :href="etherScanLink" target="_blank">
-      <img alt="etherscan-lgo" src="../images/etherscan-logo-.svg" />
+      <EtherscanLogo class="fill-cobots-silver-2 hover:fill-white" />
     </a>
     <button
       v-if="walletConnected"
@@ -28,9 +28,17 @@ const {
 import { mapGetters, mapActions } from "vuex";
 import { disconnect } from "@/services/contract.service";
 import { disconnectWC } from "@/services/wallectConnect.service";
+import TwitterLogo from "@/components/TwitterLogo.vue";
+import OpenseaLogo from "@/components/OpenseaLogo.vue";
+import EtherscanLogo from "@/components/EtherscanLogo.vue";
 
 export default {
   name: "SocialMedaiButtons",
+  components: {
+    TwitterLogo,
+    OpenseaLogo,
+    EtherscanLogo,
+  },
   data: () => ({
     openSeaLink: VITE_OPENSEA_PROJECT_LINK,
     etherScanLink: `${VITE_ETHERSCAN_BASE_URL}${VITE_CONTRACT_ADDRESS}`,
