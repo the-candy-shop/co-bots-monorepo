@@ -9,7 +9,8 @@
           }"
       >
         <div class="h-1 relative text-center bg-cobots-silver-6">
-          <div class="mt-[-13px] font-extrabold text-2xl text-cobots-silver-5">{{ percentage }}</div>
+          <div v-if="percentage != 10000" class="mt-[-13px] font-extrabold text-2xl text-cobots-silver-5">{{ percentage }}</div>
+          <div v-else class="mt-[-13px] font-extrabold text-2xl text-cobots-silver-5">10k</div>
         </div>
       </div>
       <div class="absolute left-0 top-0 flex flex-col justify-center w-24 h-36 border-x-[6px] bg-cobots-green border-cobots-green-3"
@@ -26,7 +27,10 @@
             'bg-cobots-green-3': false
           }"
       >
-        <div class="mt-[-13px] font-extrabold text-2xl text-white">{{ percentage }}</div>
+        <div v-if="contestFulfillment !== undefined">
+          <div v-if="percentage != 10000" class="mt-[-13px] font-extrabold text-2xl text-white">{{ percentage }}</div>
+          <div v-else class="mt-[-13px] font-extrabold text-2xl text-white">10k</div>
+        </div>
       </div>
 
       <div class="flex flex-row">
