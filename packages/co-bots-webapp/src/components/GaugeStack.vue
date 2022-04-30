@@ -42,7 +42,7 @@
           ></div>
         </div>
         <div class="flex flex-col">
-          <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 pl-[12px] rounded-3xl flex flex-row justify-center items-center"
+          <div v-for="(contest, index) in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 pl-[12px] rounded-3xl flex flex-row justify-center items-center"
             :class="{
               'first:mb-4': configuration[percentage].contests.length === 2,
               'opacity-50': contestFulfillmentIndexes.length === 0,
@@ -67,7 +67,7 @@
             <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
               <img
                 v-if="contestFulfillmentIndexes.length !== 0"
-                :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[0])"
+                :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[index])"
                 class="rounded-[8px] bg-white"
                 @load="onImageLoad"
               />
