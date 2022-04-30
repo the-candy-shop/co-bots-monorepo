@@ -34,20 +34,34 @@
       </div>
 
       <div class="flex flex-row">
-        <div class="w-[20px] flex justify-end items-center">
+        <div v-if="configuration[percentage].contests.length === 1" class="w-[20px] flex justify-end items-center">
           <div class="w-[0px] h-[0px] border-r-[12px] border-cobots-silver-7" style="border-top:12px solid transparent;border-bottom:12px solid transparent"
               :class="{
-               'opacity-50': contestFulfillmentIndexes.length === 0, 
+               'opacity-50': contestFulfillmentIndexes.length === 0,
               }"
           ></div>
         </div>
-        <div class="flex flex-col">
+        <div v-if="configuration[percentage].contests.length === 2" class="w-[20px] flex flex-col items-end justify-center">
+          <div class="w-[0px] h-[0px] border-r-[12px] border-cobots-silver-7" style="border-top:12px solid transparent"
+              :class="{
+               'opacity-50': contestFulfillmentIndexes.length === 0,
+              }"
+          ></div>
+          <div class="w-[0px] h-[0px] border-r-[12px] border-cobots-silver-7 mt-[8px]" style="border-bottom:12px solid transparent"
+              :class="{
+               'opacity-50': contestFulfillmentIndexes.length === 0,
+              }"
+          ></div>
+        </div>
+        <div class="flex flex-col justify-center">
           <div v-for="(contest, index) in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 pl-[12px] rounded-3xl flex flex-row justify-center items-center"
             :class="{
-              'first:mb-4': configuration[percentage].contests.length === 2,
+              'first:mb-2': configuration[percentage].contests.length === 2,
               'opacity-50': contestFulfillmentIndexes.length === 0,
               'h-[144px]': contest.winners === 1,
               'h-[198px]': contest.winners === 5,
+              'rounded-bl-none': configuration[percentage].contests.length === 2 && index === 0,
+              'rounded-tl-none': configuration[percentage].contests.length === 2 && index === 1,
             }"
           >
             <div v-if="contest.winners === 5" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
