@@ -56,6 +56,16 @@ export const prizeConfiguration = {
     contests: [
       {
         price: 5,
+        contest: contestTypes.RANDOM_DRAW,
+        highlight: false,
+        winners: 1,
+      },
+    ]    
+  },
+  500: {
+    contests: [
+      {
+        price: 5,
         subPrice: 1,
         contest: contestTypes.TWITTER_RAID,
         highlight: contestHighlights.GREEN,
@@ -97,6 +107,16 @@ export const prizeConfiguration = {
     contests: [
       {
         price: 9,
+        contest: contestTypes.RANDOM_DRAW,
+        highlight: false,
+        winners: 1,
+      },
+    ]    
+  },
+  3000: {
+    contests: [
+      {
+        price: 10,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
         winners: 1,
@@ -154,6 +174,16 @@ export const prizeConfiguration = {
     contests: [
       {
         price: 18,
+        contest: contestTypes.RANDOM_DRAW,
+        highlight: false,
+        winners: 1,
+      },
+    ]    
+  },
+  8000: {
+    contests: [
+      {
+        price: 20,
         contest: contestTypes.RANDOM_DRAW,
         highlight: false,
         winners: 1,

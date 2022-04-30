@@ -1,5 +1,7 @@
 import { contract } from '../services/contract.service'
 import { utils } from 'ethers'
+import { fakeFulfillmentData } from '../services/fakeFulfillmentData'
+
 export default {
   namespaced: true,
   state: () => ({ 
@@ -32,7 +34,7 @@ export default {
       state.mintSuccessful = isSuccessful
     },
     SET_FULFILLMENTS(state, fulfillments) {
-      state.fulfillments = fulfillments
+      state.fulfillments = fulfillments;
     },
     SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX(state, { image, index }) {
       state.winnerImages[index] = image;

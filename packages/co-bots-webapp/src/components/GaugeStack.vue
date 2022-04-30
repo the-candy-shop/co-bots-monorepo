@@ -37,7 +37,7 @@
         <div class="w-[20px] flex justify-end items-center">
           <div class="w-[0px] h-[0px] border-r-[12px] border-cobots-silver-7" style="border-top:12px solid transparent;border-bottom:12px solid transparent"
               :class="{
-               'opacity-50': contestFulfillment === undefined, 
+               'opacity-50': contestFulfillmentIndexes.length === 0, 
               }"
           ></div>
         </div>
@@ -45,17 +45,17 @@
           <div v-for="contest in configuration[percentage].contests" :key="contest.price" class="w-[344px] bg-cobots-silver-7 pl-[12px] rounded-3xl flex flex-row justify-center items-center"
             :class="{
               'first:mb-4': configuration[percentage].contests.length === 2,
-              'opacity-50': contestFulfillment === undefined,
+              'opacity-50': contestFulfillmentIndexes.length === 0,
               'h-[144px]': contest.winners === 1,
               'h-[198px]': contest.winners === 5,
             }"
           >
             <div v-if="contest.winners === 5" class="flex flex-row flex-wrap w-[120px] h-[174px] p-1 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
-              <div v-for="n in [1,2,3,4,5]" :key="n" class="flex justify-center items-center w-[52px] h-[52px]">
+              <div v-for="n in [0,1,2,3,4]" :key="n" class="flex justify-center items-center w-[52px] h-[52px]">
                 <img
-                  v-if="contestFulfillment"
-                  :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
-                  class="rounded-[8px] bg-white"
+                  v-if="contestFulfillmentIndexes.length > n"
+                  :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[n])"
+                  class="rounded-[8px] bg-white w-[48px] h-[48px]"
                   @load="onImageLoad"
                 />
                 <div class="flex justify-center items-center font-['CheeseButterCream'] text-[16px] leading-[16px] w-[48px] h-[48px] rounded-[8px] bg-cobots-silver-3" v-else>
@@ -66,8 +66,8 @@
 
             <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[120px] h-[120px] p-1.5 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
               <img
-                v-if="contestFulfillment"
-                :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
+                v-if="contestFulfillmentIndexes.length !== 0"
+                :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[0])"
                 class="rounded-[8px] bg-white"
                 @load="onImageLoad"
               />
@@ -143,25 +143,21 @@ export default {
         9000: [50, 50],
         10000: [50, 0],
       },
-      fulfillmentIndex: -1
     };
   },
   computed: {
     ...mapGetters("bots", ["imageByIndex", "colorByIndex", "flipInProgress"]),
     ...mapGetters("mint", ["totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex"]),
-    contestFulfillment() {
-      const fulfillmentIndex = this.orderedFulfillments.findIndex(
-          (fulfillment) => fulfillment.fulfilled && fulfillment.prize.checkpoint == this.percentage
-        );
-
-      if (fulfillmentIndex === -1) {
-        return undefined
+    contestFulfillmentIndexes() {
+      var indexes = [], i;
+      for (i = 0; i < this.orderedFulfillments.length; i++) {
+          if (this.orderedFulfillments[i].fulfilled && this.orderedFulfillments[i].prize.checkpoint == this.percentage) {
+            indexes.push(i);
+            this.getWinnerImageForFulfillmentIndex(i);
+          }
       }
-
-      this.fulfillmentIndex = fulfillmentIndex
-      this.getWinnerImageForFulfillmentIndex(fulfillmentIndex);
-
-      return this.orderedFulfillments[fulfillmentIndex]
+      
+      return indexes;
     },
   },
   methods: {
