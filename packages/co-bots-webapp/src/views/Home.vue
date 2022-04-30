@@ -93,8 +93,8 @@
         </div>
         <div class="flex flex-col justify-center items-center w-[240px] h-[240px] p-3 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
             <img
-              v-if="false"
-              :src="winnerImageByFulfillmentIndex(fulfillmentIndex)"
+              v-if="grandPrizeFulfillmentIndex !== undefined"
+              :src="winnerImageByFulfillmentIndex(grandPrizeFulfillmentIndex)"
               class="rounded-2xl bg-white"
               @load="onImageLoad"
             />
@@ -140,7 +140,23 @@ export default {
   computed: {
     ...mapGetters("eth", ["walletConnected", "walletAddress"]),
     ...mapGetters("contractState", ["canMint", "canFlip", "mintFailed"]),
-    ...mapGetters("mint", ["mintSuccessful", "totalSupply"]),
+    ...mapGetters("mint", ["mintSuccessful", "totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex"]),
+    grandPrizeFulfillmentIndex() {
+      var indexes = [], i;
+      for (i = 0; i < this.orderedFulfillments.length; i++) {
+          if (this.orderedFulfillments[i].fulfilled && this.orderedFulfillments[i].prize.checkpoint == 10000) {
+            indexes.push(i);
+            this.getWinnerImageForFulfillmentIndex(i);
+          }
+      }
+
+      if (indexes.length === 2) {
+        // grand prize is the second entry for 10000 checkpoint
+        return indexes[1];
+      }
+      
+      return undefined;
+    },
   },
   methods: {
     ...mapActions("contractState", [
@@ -149,7 +165,7 @@ export default {
       "getIsMintedOut",
     ]),
     ...mapActions("eth", ["setWalletAddress"]),
-    ...mapActions("mint", ["getMintInfo", "getFulfillments"]),
+    ...mapActions("mint", ["getMintInfo", "getFulfillments", "getWinnerImageForFulfillmentIndex"]),
     ...mapActions("bots", ["getMyBots"]),
     ...mapActions("bonus", ["getBonusRaffleData"]),
     scrollToBonusPrizes() {
