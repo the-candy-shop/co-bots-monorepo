@@ -41,48 +41,51 @@
         <div>MINT</div>
         <div>PROGRESS</div>
       </div>
-      <div class="flex flex-col mt-[48px] ml-[25%]">
-        <div class="relative">
-          <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-t-[6px]"
-          ></div>
-          <div class="absolute left-0 top-0 rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-green border-cobots-green-3 border-x-[6px] border-t-[6px]"
-            :style="{height:getCompletionState(0, 50, totalSupply) + '%'}"
-          ></div>
+      <div class="flex flex-row justify-center">
+        <div class="w-[364px] invisible"></div>
+        <div class="flex flex-col mt-[48px]">
+          <div class="relative">
+            <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-t-[6px]"
+            ></div>
+            <div class="absolute left-0 top-0 rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-green border-cobots-green-3 border-x-[6px] border-t-[6px]"
+              :style="{height:getCompletionState(0, 50, totalSupply) + '%'}"
+            ></div>
+          </div>
+          <gauge-stack percentage=100 />
+          <gauge-separator small />
+          <gauge-stack percentage=200 />
+          <gauge-separator small />
+          <gauge-stack percentage=300 />
+          <gauge-separator small />
+          <gauge-stack percentage=400 />
+          <gauge-separator small />
+          <gauge-stack percentage=500 />
+          <gauge-separator medium />
+          <gauge-stack percentage=750 />
+          <gauge-separator medium />
+          <gauge-stack percentage=1000 />
+          <gauge-separator large />
+          <gauge-stack percentage=1500 />
+          <gauge-separator large />
+          <gauge-stack percentage=2000 />
+          <gauge-separator xlarge />
+          <gauge-stack percentage=3000 />
+          <gauge-separator xlarge />
+          <gauge-stack percentage=4000 />
+          <gauge-separator mlarge />
+          <gauge-stack percentage=5000 />
+          <gauge-separator mlarge />
+          <gauge-stack percentage=6000 />
+          <gauge-separator xlarge />
+          <gauge-stack percentage=7000 />
+          <gauge-separator xlarge />
+          <gauge-stack percentage=8000 />
+          <gauge-separator xlarge />
+          <gauge-stack percentage=9000 />
+          <gauge-separator xlarge />
+          <gauge-stack percentage=10000 />
+          <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"></div>
         </div>
-        <gauge-stack percentage=100 />
-        <gauge-separator small />
-        <gauge-stack percentage=200 />
-        <gauge-separator small />
-        <gauge-stack percentage=300 />
-        <gauge-separator small />
-        <gauge-stack percentage=400 />
-        <gauge-separator small />
-        <gauge-stack percentage=500 />
-        <gauge-separator medium />
-        <gauge-stack percentage=750 />
-        <gauge-separator medium />
-        <gauge-stack percentage=1000 />
-        <gauge-separator large />
-        <gauge-stack percentage=1500 />
-        <gauge-separator large />
-        <gauge-stack percentage=2000 />
-        <gauge-separator xlarge />
-        <gauge-stack percentage=3000 />
-        <gauge-separator xlarge />
-        <gauge-stack percentage=4000 />
-        <gauge-separator mlarge />
-        <gauge-stack percentage=5000 />
-        <gauge-separator mlarge />
-        <gauge-stack percentage=6000 />
-        <gauge-separator xlarge />
-        <gauge-stack percentage=7000 />
-        <gauge-separator xlarge />
-        <gauge-stack percentage=8000 />
-        <gauge-separator xlarge />
-        <gauge-stack percentage=9000 />
-        <gauge-separator xlarge />
-        <gauge-stack percentage=10000 />
-        <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"></div>
       </div>
       
       <div class="flex flex-col mt-20 text-center justify-center items-center">
