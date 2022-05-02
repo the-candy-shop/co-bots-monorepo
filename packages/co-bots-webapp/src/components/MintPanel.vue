@@ -51,7 +51,6 @@ export default {
   data() {
     return {
       numToMint: 1,
-      max: 20,
       modalOpen: localStorage.getItem("answer") === null,
     };
   },
@@ -68,9 +67,6 @@ export default {
     atMin: function () {
       return this.numToMint <= 1;
     },
-    mintedLimit: function () {
-      return this.numMinted >= this.max;
-    },
     firstDigit() {
       return parseInt(this.numToMint / 10);
     },
@@ -78,8 +74,7 @@ export default {
       return this.numToMint % 10;
     },
     mintBtnText() {
-      if (this.mintedLimit) return "You hit your limit";
-      else if (this.mintInProgress) return "Minting...";
+      if (this.mintInProgress) return "Minting...";
 
       const mintPrice = (this.numToMint * this.mintPrice).toFixed(2); 
       return "Mint: " + mintPrice + " eth";
