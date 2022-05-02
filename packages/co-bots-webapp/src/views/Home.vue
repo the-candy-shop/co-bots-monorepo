@@ -42,7 +42,7 @@
         <div>PROGRESS</div>
       </div>
       <div class="flex flex-row justify-center">
-        <div class="w-[364px] invisible"></div>
+        <div class="w-[253px] lg:w-[364px] hidden lg:block invisible"></div>
         <div class="flex flex-col mt-[48px]">
           <div class="relative">
             <div class="rounded-t-full flex flex-col justify-center w-24 h-24 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-t-[6px]"
