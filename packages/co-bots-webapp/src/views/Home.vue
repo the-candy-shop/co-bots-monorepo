@@ -26,11 +26,6 @@
           />
           <mint-panel v-else-if="canMint" />
           <div class="flex-grow" v-else-if="mintFailed"></div>
-          <bonus-challenge-panel
-            v-else-if="canFlip"
-            @moreDetailsClick="scrollToBonusPrizes"
-          />
-          <raffle v-else />
         </div>
       </div>
     </div>

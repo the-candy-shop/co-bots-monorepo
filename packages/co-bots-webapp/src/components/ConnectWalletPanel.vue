@@ -1,8 +1,14 @@
 <template>
-  <div class="flex flex-col justify-center items-center flex-grow">
-    <cb-button :disabled="connecting" @click="openModal" class="mb-4">
+  <div :class="{
+      'flex flex-col justify-center items-center flex-grow': !black,
+      'text-white flex justify-between lg:justify-end items-center': black
+    }">
+    <cb-button v-if="!black" :disabled="connecting" @click="openModal" class="mb-4">
       {{ buttonText }}
     </cb-button>
+    <button v-if="black" :disabled="connecting" @click="openModal" class="w-[160px] h-[40px] rounded-full border-2 border-zinc-300 px-4 ml-4 font-black">
+      CONNECT
+    </button>
     <ConnectWalletModal v-if="modalOpen" @close="closeModal" />
   </div>
 </template>
@@ -15,6 +21,9 @@ import { mapGetters } from "vuex";
 
 export default {
   name: "ConnectWalletPanel",
+  props: {
+    black: Boolean
+  },
   components: {
     cbButton,
     scrollLabel,

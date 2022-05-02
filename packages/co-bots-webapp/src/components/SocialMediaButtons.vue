@@ -1,5 +1,5 @@
 <template>
-  <div class="text-white flex justify-between lg:justify-end">
+  <div class="text-white flex justify-between lg:justify-end items-center">
     <div class="flex space-x-2 md:space-x-4 justify-end">
       <a class="py-1" href="https://twitter.com/thecobots" target="_blank">
         <TwitterLogo class="fill-cobots-silver-2 hover:fill-white" />
@@ -13,11 +13,14 @@
     </div>
     <button
       v-if="walletConnected"
-      class="w-40 h-[34px] rounded-full border-2 border-zinc-300 px-4 ml-4 font-black"
+      class="w-[160px] h-[40px] rounded-full border-2 border-zinc-300 px-4 ml-4 font-black"
       @click="logout"
     >
       {{ addressTruncated }}
     </button>
+    <connect-wallet-panel
+      v-if="!walletConnected" black
+    />
   </div>
 </template>
 
@@ -33,6 +36,7 @@ import { disconnectWC } from "@/services/wallectConnect.service";
 import TwitterLogo from "@/components/TwitterLogo.vue";
 import OpenseaLogo from "@/components/OpenseaLogo.vue";
 import EtherscanLogo from "@/components/EtherscanLogo.vue";
+import ConnectWalletPanel from "./ConnectWalletPanel.vue";
 
 export default {
   name: "SocialMedaiButtons",
@@ -40,6 +44,7 @@ export default {
     TwitterLogo,
     OpenseaLogo,
     EtherscanLogo,
+    ConnectWalletPanel,
   },
   data: () => ({
     openSeaLink: VITE_OPENSEA_PROJECT_LINK,
