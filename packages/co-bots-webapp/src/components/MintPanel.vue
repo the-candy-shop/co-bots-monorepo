@@ -51,7 +51,7 @@ export default {
   data() {
     return {
       numToMint: 1,
-      modalOpen: localStorage.getItem("answer") === null,
+      modalOpen: false,
     };
   },
   computed: {
@@ -96,7 +96,11 @@ export default {
       if (!this.atMin) this.numToMint -= 1;
     },
     async localMint() {
-      await this.mint(this.numToMint);
+      if (localStorage.getItem("answer") === null) {
+        this.openModal();
+      } else {
+        await this.mint(this.numToMint);
+      }
     },
     openModal() {
       this.modalOpen = true;
