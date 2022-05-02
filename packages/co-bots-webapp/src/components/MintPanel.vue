@@ -24,7 +24,7 @@
     </cb-button>
 
     <scroll-label v-if="mintSuccessful" class="text-cobots-green mt-8">
-      mint complete!
+      mint complete! <router-link to="/my-bots" class="underline">view my bots</router-link>
     </scroll-label>
 
     <skill-testing-modal @close="closeModal" v-if="modalOpen" />
