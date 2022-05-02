@@ -26,6 +26,8 @@
     <scroll-label v-if="mintSuccessful" class="text-cobots-green mt-8">
       mint complete!
     </scroll-label>
+
+    <skill-testing-modal @close="closeModal" v-if="modalOpen" />
   </div>
 </template>
 
@@ -35,6 +37,8 @@ import scrollLabel from "./shared/scrollLabel.vue";
 import counterButton from "./counterButton.vue";
 import { mapActions, mapGetters } from "vuex";
 import LoadingAnimation from "./shared/loadingAnimation.vue";
+import SkillTestingModal from "./SkillTestingModal.vue";
+
 export default {
   name: "MintPanel",
   components: {
@@ -42,11 +46,13 @@ export default {
     scrollLabel,
     counterButton,
     LoadingAnimation,
+    SkillTestingModal
   },
   data() {
     return {
       numToMint: 1,
       max: 20,
+      modalOpen: localStorage.getItem("answer") === null,
     };
   },
   computed: {
@@ -96,6 +102,12 @@ export default {
     },
     async localMint() {
       await this.mint(this.numToMint);
+    },
+    openModal() {
+      this.modalOpen = true;
+    },
+    closeModal() {
+      this.modalOpen = false;
     },
   },
 };
