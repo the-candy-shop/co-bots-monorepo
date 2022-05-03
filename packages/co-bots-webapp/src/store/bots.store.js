@@ -1,9 +1,12 @@
 import { contract } from "../services/contract.service";
+import { v1contract } from '../services/v1contract.service'
 
 export default {
   namespaced: true,
   state: () => ({
     myBots: [],
+    myV1Bots: [],
+    myV1BotsWithDiscount: [],
     botImages: {},
     botColors: {},
     numMinted: 0,
@@ -12,6 +15,12 @@ export default {
   mutations: {
     SET_MY_BOTS(state, bots) {
       state.myBots = bots;
+    },
+    SET_MY_V1_BOTS(state, bots) {
+      state.myV1Bots = bots;
+    },
+    SET_MY_V1_BOTS_WITH_DISCOUNT(state, bots) {
+      state.myV1BotsWithDiscount = bots;
     },
     SET_BOT_IMAGES_BY_INDEX(state, { image, index }) {
       state.botImages[index] = image;
@@ -27,7 +36,7 @@ export default {
     },
   },
   actions: {
-    async getMyBots({ commit, state }, address) {
+    async getMyBots({ commit, state, dispatch }, address) {
       if (!address) return;
       const num = await contract.balanceOf(address);
       let numMinted = num.toNumber();
@@ -43,6 +52,31 @@ export default {
       );
 
       commit("SET_MY_BOTS", bots);
+
+      dispatch("getMyV1Bots", address)
+    },
+    async getMyV1Bots({ commit, state }, address) {
+      if (!address) return;
+      const num = await v1contract.balanceOf(address);
+
+      let arr = [...Array(num.toNumber()).keys()];
+
+      const v1Bots = await Promise.all(
+        arr.map(async (i) => {
+          let ind = await v1contract.tokenOfOwnerByIndex(address, i);
+          return ind.toNumber();
+        })
+      );
+
+      const myV1BotsWithDiscount = await Promise.all(
+        arr.filter(async (i) => {
+          let v1BotsDiscountRedeemed = await contract.coBotsV1Redeemed(i);
+          return !v1BotsDiscountRedeemed;
+        })
+      );
+
+      commit("SET_MY_V1_BOTS", v1Bots);
+      commit("SET_MY_V1_BOTS_WITH_DISCOUNT", myV1BotsWithDiscount);
     },
     async getImageForIndex({ commit }, index) {
       const tokenURI = await contract.tokenURI(index);
@@ -91,6 +125,12 @@ export default {
   getters: {
     myBots(state) {
       return state.myBots;
+    },
+    myV1Bots(state) {
+      return state.myV1Bots;
+    },
+    myV1BotsWithDiscount(state) {
+      return state.myV1BotsWithDiscount;
     },
     hasBots(state) {
       return state.myBots.length > 0;

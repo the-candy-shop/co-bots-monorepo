@@ -17,7 +17,7 @@
 
     <cb-button
       @click="localMint"
-      :disabled="mintInProgress || mintedLimit || !canMint"
+      :disabled="mintInProgress || !canMint"
     >
       <loading-animation v-if="mintInProgress" />
       <text v-else>{{ mintBtnText }}</text>
@@ -26,6 +26,12 @@
     <scroll-label v-if="mintSuccessful" class="text-cobots-green mt-8">
       mint complete! <router-link to="/my-bots" class="underline">view my bots</router-link>
     </scroll-label>
+
+    <div v-if="myV1BotsWithDiscount.length != 0" class="text-center mt-8 text-cobots-green font-extrabold text-[14px] leading-[20px] uppercase"
+        :class="{
+          'mt-12': mintInProgress,
+        }"
+    >Your DISCOUNT FOR HOLDING {{myV1BotsWithDiscount.length}} Co-BOT 1.0s has been automatically applied!</div>
 
     <skill-testing-modal @close="closeModal" v-if="modalOpen" />
   </div>
@@ -38,6 +44,7 @@ import counterButton from "./counterButton.vue";
 import { mapActions, mapGetters } from "vuex";
 import LoadingAnimation from "./shared/loadingAnimation.vue";
 import SkillTestingModal from "./SkillTestingModal.vue";
+import numeral from "numeral"
 
 export default {
   name: "MintPanel",
@@ -52,16 +59,15 @@ export default {
     return {
       numToMint: 1,
       modalOpen: false,
+      totalMintPrice: 0,
     };
   },
   computed: {
-    ...mapGetters("mint", ["mintLimit", "mintInProgress", "mintSuccessful", "mintPrice"]),
+    ...mapGetters("mint", ["mintInProgress", "mintSuccessful", "mintPrice", "cobotsV1Discount"]),
     ...mapGetters("layout", ["panelHeightClass", "headerHeight"]),
     ...mapGetters("contractState", ["canMint"]),
-    ...mapGetters("bots", ["numMinted"]),
+    ...mapGetters("bots", ["numMinted", "myV1BotsWithDiscount"]),
     atMax: function () {
-      if (this.numToMint + this.numMinted >= this.max) return true;
-      if (this.numToMint + this.numMinted >= this.mintLimit) return true;
       return false;
     },
     atMin: function () {
@@ -76,8 +82,30 @@ export default {
     mintBtnText() {
       if (this.mintInProgress) return "Minting...";
 
-      const mintPrice = (this.numToMint * this.mintPrice).toFixed(2); 
-      return "Mint: " + mintPrice + " eth";
+      const myV1BotsWithDiscount = this.myV1BotsWithDiscount
+
+      const discountedPrice = numeral(this.mintPrice).divide(this.cobotsV1Discount)
+      const publicPrice = numeral(this.mintPrice)
+
+      var numToMint = this.numToMint
+      var discountAvailable = myV1BotsWithDiscount.length
+      var totalMintPrice = numeral(0)
+
+      var i;
+      for (i = 0; i < numToMint; ++i) {
+        if (discountAvailable > 0) {
+          totalMintPrice = totalMintPrice.add(discountedPrice.value())
+          --discountAvailable
+          
+          continue
+        }
+
+        totalMintPrice = totalMintPrice.add(publicPrice.value())
+      }
+
+      this.totalMintPrice = totalMintPrice.value()
+
+      return "Mint: " + this.totalMintPrice.toFixed(2) + " eth";
     },
   },
   watch: {
@@ -99,7 +127,11 @@ export default {
       if (localStorage.getItem("answer") === null) {
         this.openModal();
       } else {
-        await this.mint(this.numToMint);
+        await this.mint({
+          numToMint: this.numToMint, 
+          price: this.totalMintPrice,
+          cobots: this.myV1BotsWithDiscount
+        });
       }
     },
     openModal() {

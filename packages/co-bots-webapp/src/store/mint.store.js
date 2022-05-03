@@ -6,7 +6,7 @@ export default {
   namespaced: true,
   state: () => ({ 
     mintPrice: 0,
-    mintLimit: 0,
+    cobotsV1Discount: 0,
     maxMintPerAddress: 0,
     totalSupply: 0,
     mintInProgress: false,
@@ -18,8 +18,8 @@ export default {
     SET_MINT_PRICE(state, price) {
       state.mintPrice = price
     },
-    SET_MINT_LIMIT(state, limit) {
-      state.mintLimit = limit
+    SET_COBOTS_V1_DISCOUNT(state, discount) {
+      state.cobotsV1Discount = discount
     },
     SET_MAX_MINT_PER_ADDRESS(state, max) {
       state.maxMintPerAddress = max
@@ -44,12 +44,14 @@ export default {
     async getMintInfo({commit}) {
       let parameters = await contract.PARAMETERS()
       let mintPrice = parameters.mintPublicPrice
+      let cobotsV1Discount = parameters.cobotsV1Discount
 
       let formatted = utils.formatEther(mintPrice);
       commit('SET_MINT_PRICE', formatted)
 
+      commit('SET_COBOTS_V1_DISCOUNT', cobotsV1Discount)
+
       commit('SET_MAX_MINT_PER_ADDRESS', parameters.maxCobots)
-      commit('SET_MINT_LIMIT', parameters.maxCobots)
     },
     async getTotalSupply({ commit }) {
       const totalSupply = await contract.totalSupply()
@@ -68,15 +70,15 @@ export default {
       commit("SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX", { image: data.image, index });
     },
 
-    async mint({ commit, state, dispatch }, numToMint) {
+    async mint({ commit, state, dispatch }, { numToMint, price, cobots }) {
       commit('SET_MINT_SUCCESSFUL', false)
       commit('SET_MINT_IN_PROGRESS', true)
-      let cost = (numToMint * state.mintPrice).toPrecision(2)
+
       try {
         const transaction = await contract.mintPublicSale(
           numToMint,
           [],
-          { value: utils.parseEther(`${cost}`) 
+          { value: utils.parseEther(`${price}`) 
         })
         await transaction.wait()
         commit('SET_MINT_SUCCESSFUL', true)
@@ -92,8 +94,8 @@ export default {
     mintPrice(state) {
       return state.mintPrice
     },
-    mintLimit(state) {
-      return state.mintLimit
+    cobotsV1Discount(state) {
+      return state.cobotsV1Discount
     },
     totalSupply(state) {
       return state.totalSupply

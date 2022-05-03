@@ -59,7 +59,7 @@ export default {
     refundEnabled: false,
   }),
   computed: {
-    ...mapGetters("mint", ["totalSupply", "mintPrice", "mintLimit"]),
+    ...mapGetters("mint", ["totalSupply", "mintPrice"]),
     ...mapGetters("contractState", ["canMint", "maxSupply", "now", "canFlip"]),
     ...mapGetters("eth", ["walletConnected", "walletAddress"]),
     ...mapGetters("bots", ["hasBots"]),
