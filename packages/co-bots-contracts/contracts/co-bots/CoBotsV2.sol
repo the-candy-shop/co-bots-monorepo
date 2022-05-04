@@ -8,7 +8,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "erc721a/contracts/ERC721A.sol";
-import "../interfaces/ICoBotsRendererV2.sol";
+import {ICoBotsRendererV2, TokenData} from "../interfaces/ICoBotsRendererV2.sol";
 import "./Schedule.sol";
 
 error BatchLimitExceeded();
@@ -31,6 +31,7 @@ error InsufficientFunds();
 error WithdrawalFailed();
 error FailSafeWithdrawalNotEnabled();
 error FulfillRequestRedrawn();
+error NonexistentRenderer();
 
 contract CoBotsV2 is
     ERC721A,
@@ -274,6 +275,20 @@ contract CoBotsV2 is
         }
 
         return renderer.tokenURI(_tokenId, coBotsSeeds[_tokenId]);
+    }
+
+    function tokenData(uint256 _tokenId)
+        public
+        view
+        returns (TokenData memory)
+    {
+        if (!_exists(_tokenId)) revert URIQueryForNonexistentToken();
+
+        if (renderingContractAddress == address(0)) {
+            revert NonexistentRenderer();
+        }
+
+        return renderer.tokenData(_tokenId, coBotsSeeds[_tokenId]);
     }
 
     function exists(uint256 _tokenId) external view returns (bool) {

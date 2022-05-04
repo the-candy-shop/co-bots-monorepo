@@ -88,11 +88,13 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
             );
     }
 
-    function getCoBotAttributes(uint256[] memory items)
+    function tokenData(uint256 tokenId, uint8 seed)
         public
-        pure
-        returns (string memory)
+        view
+        returns (TokenData memory)
     {
+        uint256[] memory items = getCoBotItems(tokenId, seed);
+
         // Inlined instead of using the encoded names from the RectRenderer because not all the characteristics are
         // used in the Extravagainza, so saving gas with this.
         string[12] memory antenna = [
@@ -151,25 +153,18 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
             "Shady"
         ];
 
+        Attribute[] memory attributes = new Attribute[](5);
+        attributes[0] = Attribute("Antenna", antenna[items[7]]);
+        attributes[1] = Attribute("Eyes", eyes[items[5]]);
+        attributes[2] = Attribute("Feet", feet[items[8]]);
+        attributes[3] = Attribute("Metta", metta[items[9]]);
+        attributes[4] = Attribute("Mouth", mouth[items[6]]);
         return
-            string.concat(
-                "[",
-                '{"trait_type": "Eyes", "value": "',
-                eyes[items[5]],
-                '"},',
-                '{"trait_type": "Feet", "value": "',
-                feet[items[8]],
-                '"},',
-                '{"trait_type": "Metta", "value": "',
-                metta[items[9]],
-                '"},',
-                '{"trait_type": "Mouth", "value": "',
-                mouth[items[6]],
-                '"},',
-                '{"trait_type": "Antenna", "value": "',
-                antenna[items[7]],
-                '"}',
-                "]"
+            TokenData(
+                imageURI(items),
+                "Co-Bots are cooperation robots | CC0 & 100% On-Chain | co-bots.com.",
+                string.concat("Co-Bot #", tokenId.toString()),
+                attributes
             );
     }
 
@@ -178,19 +173,33 @@ contract CoBotsRendererV2 is Ownable, ReentrancyGuard, ICoBotsRendererV2 {
         view
         returns (string memory)
     {
-        uint256[] memory items = getCoBotItems(tokenId, seed);
+        TokenData memory _tokenData = tokenData(tokenId, seed);
+        string[] memory attributes = new string[](_tokenData.attributes.length);
+        for (uint256 i = 0; i < _tokenData.attributes.length; i++) {
+            attributes[i] = string.concat(
+                '{"trait_type": "',
+                _tokenData.attributes[i].trait_type,
+                '", "value": "',
+                _tokenData.attributes[i].value,
+                '"}'
+            );
+        }
         return
             string.concat(
                 "data:application/json,",
                 '{"image": "',
-                imageURI(items),
+                _tokenData.image,
                 '"',
-                ',"description": "Co-Bots are cooperation robots | CC0 & 100% On-Chain | co-bots.com."',
-                ',"name": "Co-Bot #',
-                tokenId.toString(),
+                ',"description": "',
+                _tokenData.description,
+                '"',
+                ',"name": "',
+                _tokenData.name,
                 '"',
                 ',"attributes": ',
-                getCoBotAttributes(items),
+                "[",
+                attributes.join(","),
+                "]",
                 "}"
             );
     }

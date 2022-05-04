@@ -845,4 +845,22 @@ describe("CoBotsV2", function () {
       );
     });
   });
+  describe("tokenData", async function () {
+    it("should return the same data as tokenURI", async () => {
+      const { deployer } = await mintedOutFixture();
+      const tokenURI = await deployer.CoBotsV2.tokenURI(0);
+      const tokenData = await deployer.CoBotsV2.tokenData(0);
+      expect(
+        JSON.parse(tokenURI.replace("data:application/json,", ""))
+      ).to.deep.eq({
+        description: tokenData.description,
+        image: tokenData.image,
+        name: tokenData.name,
+        attributes: tokenData.attributes.map((a) => ({
+          trait_type: a.trait_type,
+          value: a.value,
+        })),
+      });
+    });
+  });
 });
