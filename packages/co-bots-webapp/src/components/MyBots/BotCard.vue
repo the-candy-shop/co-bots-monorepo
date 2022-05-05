@@ -5,12 +5,14 @@
     <div
       class="bg-white text-black rounded-lg w-52 h-52 flex justify-center items-center"
     >
+      <a target="_blank" :href="openseaLink">
       <img
         v-if="tokenURI"
         :src="tokenURI"
         class="rounded-lg"
         @load="onImageLoad"
       />
+      </a>
     </div>
 
     <button
@@ -29,7 +31,7 @@
 
     <div class="grid grid-cols-2 gap-[8px]">
       <a
-        :href="openseaLink"
+        :href="twitterLink"
         target="_blank"
         class="bg-cobots-silver text-black text-sm leading-[14px] pt-[14px] pb-[12px] rounded-lg uppercase font-black flex items-center justify-center"
       >
@@ -77,10 +79,15 @@ export default {
       if (this.botColor === "red") return "Flip to blue";
       return "Flip to red";
     },
-    openseaLink() {
+    twitterLink() {
       const text = "Got my ticket to @thecobots 300 ETH on-chain giveaway event 🍾"
       
       return `https://twitter.com/intent/tweet?text=${text}`
+    },
+    openseaLink() {
+      const { VITE_OPENSEA_BASE_URL, VITE_CONTRACT_ADDRESS } = import.meta.env;
+      let link = `${VITE_OPENSEA_BASE_URL}${VITE_CONTRACT_ADDRESS}/${this.index}`;
+      return link;
     },
   },
   methods: {

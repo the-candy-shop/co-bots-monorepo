@@ -90,12 +90,13 @@
           <span>ETH</span>
         </div>
         <div class="flex flex-col justify-center items-center w-[240px] h-[240px] p-3 border-cobots-silver-2 border-4 border-dashed rounded-3xl">
-            <img
-              v-if="grandPrizeFulfillmentIndex !== undefined"
-              :src="winnerImageByFulfillmentIndex(grandPrizeFulfillmentIndex)"
-              class="rounded-2xl bg-white"
-              @load="onImageLoad"
-            />
+            <a target="_blank" v-if="grandPrizeFulfillmentIndex !== undefined" :href="openseaLink(winnerIndexByFulfillmentIndex(grandPrizeFulfillmentIndex))">
+              <img
+                :src="winnerImageByFulfillmentIndex(grandPrizeFulfillmentIndex)"
+                class="rounded-2xl bg-white"
+                @load="onImageLoad"
+              />
+            </a>
             <div class="font-['CheeseButterCream'] text-[48px] leading-[48px] flex justify-center items-center w-full h-full rounded-[8px] bg-cobots-silver-7" v-else>
               ???
             </div>
@@ -138,7 +139,7 @@ export default {
   computed: {
     ...mapGetters("eth", ["walletConnected", "walletAddress"]),
     ...mapGetters("contractState", ["canMint", "canFlip", "mintFailed"]),
-    ...mapGetters("mint", ["mintSuccessful", "totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex"]),
+    ...mapGetters("mint", ["mintSuccessful", "totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex", "winnerIndexByFulfillmentIndex"]),
     grandPrizeFulfillmentIndex() {
       var indexes = [], i;
       for (i = 0; i < this.orderedFulfillments.length; i++) {
@@ -170,7 +171,12 @@ export default {
       const el = this.$refs["info-section"].$refs["bonus-prizes-info"].$el;
       this.$scrollTo(el, 600, { offset: -50 });
     },
-    getCompletionState
+    getCompletionState,
+    openseaLink(index) {
+      const { VITE_OPENSEA_BASE_URL, VITE_CONTRACT_ADDRESS } = import.meta.env;
+      let link = `${VITE_OPENSEA_BASE_URL}${VITE_CONTRACT_ADDRESS}/${index}`;
+      return link;
+    },
   },
   watch: {
     walletAddress() {

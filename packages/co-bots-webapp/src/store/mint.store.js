@@ -13,6 +13,7 @@ export default {
     mintSuccessful: false,
     fulfillments: [],
     winnerImages: {},
+    winnerIndexes: {},
   }),
   mutations: { 
     SET_MINT_PRICE(state, price) {
@@ -38,6 +39,9 @@ export default {
     },
     SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX(state, { image, index }) {
       state.winnerImages[index] = image;
+    },
+    SET_WINNER_INDEX_BY_FULFILLMENT_INDEX(state, { winnerIndex, index }) {
+      state.winnerIndexes[index] = winnerIndex;
     },
    },
   actions: {
@@ -67,7 +71,9 @@ export default {
       const data = JSON.parse(
         tokenURI.split("data:application/json,")[1]
       );
+
       commit("SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX", { image: data.image, index });
+      commit("SET_WINNER_INDEX_BY_FULFILLMENT_INDEX", { winnerIndex: state.fulfillments[index].winner.tokenId, index });
     },
 
     async mint({ commit, state, dispatch }, { numToMint, price, cobots }) {
@@ -111,6 +117,9 @@ export default {
     },
     winnerImageByFulfillmentIndex: (state) => (idx) => {
       return state.winnerImages[idx] || null;
+    },
+    winnerIndexByFulfillmentIndex: (state) => (idx) => {
+      return state.winnerIndexes[idx] || null;
     },
   }
 }

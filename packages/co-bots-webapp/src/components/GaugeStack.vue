@@ -66,12 +66,13 @@
           >
             <div v-if="contest.winners === 5" class="flex flex-row flex-wrap w-[80px] h-[114px] md:w-[120px] md:h-[174px] p-1 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
               <div v-for="n in [0,1,2,3,4]" :key="n" class="flex justify-center items-center w-[33px] h-[33px] md:w-[52px] md:h-[52px]">
-                <img
-                  v-if="contestFulfillmentIndexes.length > n"
-                  :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[n])"
-                  class="rounded-[8px] bg-white w-[30px] h-[30px] md:w-[48px] md:h-[48px]"
-                  @load="onImageLoad"
-                />
+                <a target="_blank" v-if="contestFulfillmentIndexes.length > n" :href="openseaLink(winnerIndexByFulfillmentIndex(contestFulfillmentIndexes[n]))">
+                  <img
+                    :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[n])"
+                    class="rounded-[8px] bg-white w-[30px] h-[30px] md:w-[48px] md:h-[48px]"
+                    @load="onImageLoad"
+                  />
+                </a>
                 <div class="flex justify-center items-center font-['CheeseButterCream'] text-[12px] leading-[12px] md:text-[16px] md:leading-[16px] w-[30px] h-[30px] md:w-[48px] md:h-[48px] rounded-[8px] bg-cobots-silver-3 pt-[4px] md:pt-0" v-else>
                   ???
                 </div>
@@ -79,12 +80,13 @@
             </div>
 
             <div v-if="contest.winners === 1" class="flex flex-col justify-center items-center w-[80px] :h-[80px] md:w-[120px] md:h-[120px] p-1.5 border-cobots-silver-2 border-[3px] border-dashed rounded-[16px]">
-              <img
-                v-if="contestFulfillmentIndexes.length !== 0"
-                :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[index])"
-                class="rounded-[8px] bg-white"
-                @load="onImageLoad"
-              />
+              <a target="_blank" v-if="contestFulfillmentIndexes.length !== 0" :href="openseaLink(winnerIndexByFulfillmentIndex(contestFulfillmentIndexes[index]))">
+                <img
+                  :src="winnerImageByFulfillmentIndex(contestFulfillmentIndexes[index])"
+                  class="rounded-[8px] bg-white"
+                  @load="onImageLoad"
+                />
+              </a>
               <div class="flex justify-center items-center font-['CheeseButterCream'] text-[24px] leading-[24px] w-[64px] h-[64px] md:w-[102px] md:h-[102px] rounded-[8px] bg-cobots-silver-3" v-else>
                 ???
               </div>
@@ -161,7 +163,7 @@ export default {
   },
   computed: {
     ...mapGetters("bots", ["imageByIndex", "colorByIndex", "flipInProgress"]),
-    ...mapGetters("mint", ["totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex"]),
+    ...mapGetters("mint", ["totalSupply", "orderedFulfillments", "winnerImageByFulfillmentIndex", "winnerIndexByFulfillmentIndex"]),
     contestFulfillmentIndexes() {
       var indexes = [], i;
       for (i = 0; i < this.orderedFulfillments.length; i++) {
@@ -179,6 +181,11 @@ export default {
       "getWinnerImageForFulfillmentIndex",
     ]),
     getCompletionState,
+    openseaLink(index) {
+      const { VITE_OPENSEA_BASE_URL, VITE_CONTRACT_ADDRESS } = import.meta.env;
+      let link = `${VITE_OPENSEA_BASE_URL}${VITE_CONTRACT_ADDRESS}/${index}`;
+      return link;
+    },
   },
 }
 </script>
