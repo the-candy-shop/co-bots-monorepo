@@ -3,6 +3,7 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { DeployFunction } from "hardhat-deploy/types";
 import {
+  loadPalettes,
   MYSTERY_CHALLENGE,
   PARAMETERS,
   PRIZES,
@@ -10,10 +11,16 @@ import {
   TEST_NET_PRICE_SCALING,
 } from "../utils/constants";
 import { BigNumber } from "ethers";
+import {
+  RectEncoder,
+  RectEncoder__factory,
+  RendererCommons,
+  RendererCommons__factory,
+} from "../../../../eth-projects-monorepo/packages/eth-projects-contracts/typechain";
 
 const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
   const { deployments, getNamedAccounts, network, ethers } = hre;
-  const { deploy, get } = deployments;
+  const { deploy, get, execute, log, fetchIfDifferent } = deployments;
   const {
     deployer,
     linkToken,
@@ -56,7 +63,54 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
       Integers: integers,
     },
   };
-  const rendererTx = await deploy("CoBotsRendererV2", rendererOptions);
+  const { differences } = await fetchIfDifferent(
+    "CoBotsRendererV2",
+    rendererOptions
+  );
+  if (!differences) {
+    const rendererAddress = (await get("CoBotsRendererV2")).address;
+    log(`reusing "CoBotsRendererV2" at ${rendererAddress}`);
+  } else {
+    await deploy("CoBotsRendererV2", rendererOptions);
+    const palettes = loadPalettes();
+
+    const RendererCommons = (await ethers.getContractAt(
+      RendererCommons__factory.abi,
+      rendererCommons
+    )) as RendererCommons;
+    const paletteEncoded = await RendererCommons.encodePalette(
+      palettes.palette
+    );
+
+    await execute(
+      "CoBotsRendererV2",
+      {
+        from: deployer,
+        log: true,
+      },
+      "storePalette",
+      paletteEncoded
+    );
+
+    const RectEncoder = (await ethers.getContractAt(
+      RectEncoder__factory.abi,
+      rectEncoder
+    )) as RectEncoder;
+
+    const collectionEncoded = await RectEncoder.encodeCollection(
+      palettes.collection
+    );
+
+    await execute(
+      "CoBotsRendererV2",
+      {
+        from: deployer,
+        log: true,
+      },
+      "storeCollection",
+      collectionEncoded.traits
+    );
+  }
 
   // Deploy token
   if (
@@ -76,7 +130,7 @@ const func: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     args: [
       "Co-Bots 2.0",
       "CBTE",
-      rendererTx.address,
+      (await get("CoBotsRendererV2")).address,
       vrfCoordinator,
       linkToken,
       gasKeyHash,

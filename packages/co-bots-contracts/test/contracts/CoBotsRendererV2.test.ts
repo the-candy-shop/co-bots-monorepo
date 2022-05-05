@@ -8,11 +8,7 @@ import chai from "chai";
 const { expect } = chai;
 
 const setup = async () => {
-  await deployments.fixture([
-    TAGS.CO_BOTS,
-    TAGS.CO_BOTS_SUBSCRIPTION,
-    TAGS.CO_BOTS_PALETTES,
-  ]);
+  await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_SUBSCRIPTION]);
   const contracts = {
     CoBotsRendererV2: (await ethers.getContract(
       "CoBotsRendererV2"

@@ -16,11 +16,7 @@ chai.use(solidity);
 const { expect } = chai;
 
 const setup = async () => {
-  await deployments.fixture([
-    TAGS.CO_BOTS,
-    TAGS.CO_BOTS_PALETTES,
-    TAGS.CO_BOTS_SUBSCRIPTION,
-  ]);
+  await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_SUBSCRIPTION]);
   const contracts = {
     CoBots: await ethers.getContract("CoBots"),
     VRFCoordinator: await ethers.getContract("VRFCoordinatorV2TestHelper"),

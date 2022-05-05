@@ -29,11 +29,7 @@ chai.use(solidity);
 const { expect } = chai;
 
 const setup = async () => {
-  await deployments.fixture([
-    TAGS.CO_BOTS,
-    TAGS.CO_BOTS_SUBSCRIPTION,
-    TAGS.CO_BOTS_PALETTES,
-  ]);
+  await deployments.fixture([TAGS.CO_BOTS, TAGS.CO_BOTS_SUBSCRIPTION]);
   const { deployer, coBotsV1 } = await getNamedAccounts();
   const contracts = {
     CoBotsV1: (await ethers.getContractAt(
