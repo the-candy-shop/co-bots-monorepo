@@ -89,6 +89,9 @@ export default {
   },
   mounted() {
     this.getTotalSupply();
+    setInterval(() => {
+      this.getTotalSupply();
+    }, 10000);
     this.refundEnabled = import.meta.env.VITE_IN_REFUND == "true";
   },
 };

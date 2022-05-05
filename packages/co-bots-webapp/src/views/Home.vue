@@ -201,6 +201,10 @@ export default {
     this.getIsMintedOut();
     this.getMintInfo();
     this.getFulfillments();
+    setInterval(() => {
+      this.getFulfillments();
+    }, 10000);
+
     this.refundEnabled = import.meta.env.VITE_IN_REFUND == "true";
   },
   beforeUnmount() {
