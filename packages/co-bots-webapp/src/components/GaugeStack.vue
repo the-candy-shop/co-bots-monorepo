@@ -19,7 +19,7 @@
             'h-[198px]': configuration[percentage].contests.length === 1 && configuration[percentage].contests[0].winners === 5,
             'h-[304px]': configuration[percentage].contests.length === 2,
           }"
-          :style="{height:getCompletionState(parseInt(percentage) - percentageToSpace[percentage][0], parseInt(percentage) + percentageToSpace[percentage][1], totalSupply) + '%'}"
+          :style="{height:getCompletionState(parseInt(percentage) - 45, parseInt(percentage) + 45, totalSupply) + '%'}"
       >
       </div>
       <div class="absolute inset-y-1/2 h-1 w-24 text-center"
@@ -140,25 +140,6 @@ export default {
       configuration: prizeConfiguration,
       contestHighlights,
       contestTypes,
-      percentageToSpace: {
-        100: [50, 50],
-        200: [50, 50],
-        300: [50, 50],
-        400: [50, 50],
-        500: [50, 50],
-        750: [50, 50],
-        1000: [50, 50],
-        1500: [50, 50],
-        2000: [50, 50],
-        3000: [50, 50],
-        4000: [50, 50],
-        5000: [50, 50],
-        6000: [50, 50],
-        7000: [50, 50],
-        8000: [50, 50],
-        9000: [50, 50],
-        10000: [50, 0],
-      },
     };
   },
   computed: {

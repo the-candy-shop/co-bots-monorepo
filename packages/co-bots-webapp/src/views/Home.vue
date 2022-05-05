@@ -47,39 +47,44 @@
             ></div>
           </div>
           <gauge-stack percentage=100 />
-          <gauge-separator small />
+          <gauge-separator small percentage=150 />
           <gauge-stack percentage=200 />
-          <gauge-separator small />
+          <gauge-separator small percentage=250 />
           <gauge-stack percentage=300 />
-          <gauge-separator small />
+          <gauge-separator small percentage=350 />
           <gauge-stack percentage=400 />
-          <gauge-separator small />
+          <gauge-separator small percentage=450 />
           <gauge-stack percentage=500 />
-          <gauge-separator medium />
+          <gauge-separator medium percentage=625 />
           <gauge-stack percentage=750 />
-          <gauge-separator medium />
+          <gauge-separator medium percentage=875 />
           <gauge-stack percentage=1000 />
-          <gauge-separator large />
+          <gauge-separator large percentage=1250 />
           <gauge-stack percentage=1500 />
-          <gauge-separator large />
+          <gauge-separator large percentage=1750 />
           <gauge-stack percentage=2000 />
-          <gauge-separator xlarge />
+          <gauge-separator xlarge percentage=2500 />
           <gauge-stack percentage=3000 />
-          <gauge-separator xlarge />
+          <gauge-separator xlarge percentage=3500 />
           <gauge-stack percentage=4000 />
-          <gauge-separator mlarge />
+          <gauge-separator mlarge percentage=4500 />
           <gauge-stack percentage=5000 />
-          <gauge-separator mlarge />
+          <gauge-separator mlarge percentage=5500 />
           <gauge-stack percentage=6000 />
-          <gauge-separator xlarge />
+          <gauge-separator xlarge percentage=6500 />
           <gauge-stack percentage=7000 />
-          <gauge-separator xlarge />
+          <gauge-separator xlarge percentage=7500 />
           <gauge-stack percentage=8000 />
-          <gauge-separator xlarge />
+          <gauge-separator xlarge percentage=8500 />
           <gauge-stack percentage=9000 />
-          <gauge-separator xlarge />
+          <gauge-separator xlarge percentage=9500 />
           <gauge-stack percentage=10000 />
-          <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"></div>
+          <div class="relative">
+            <div class="rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-silver-4 border-cobots-silver-2 border-x-[6px] border-b-[6px]"></div>
+            <div class="absolute left-0 top-0 rounded-b-full flex flex-col justify-center w-24 h-12 bg-cobots-green border-cobots-green-3 border-x-[6px]"
+                :style="{height:(totalSupply == 10000 ? '100%' : '0')}"
+            ></div>
+          </div>
         </div>
       </div>
       
