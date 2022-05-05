@@ -78,9 +78,9 @@ export default {
       return "Flip to red";
     },
     openseaLink() {
-      const { VITE_OPENSEA_BASE_URL, VITE_CONTRACT_ADDRESS } = import.meta.env;
-      let link = `${VITE_OPENSEA_BASE_URL}${VITE_CONTRACT_ADDRESS}/${this.index}`;
-      return link;
+      const text = "Got my ticket to @thecobots 300 ETH on-chain giveaway event 🍾"
+      
+      return `https://twitter.com/intent/tweet?text=${text}`
     },
   },
   methods: {
