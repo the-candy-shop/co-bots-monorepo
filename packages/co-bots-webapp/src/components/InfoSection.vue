@@ -6,8 +6,7 @@
       <div class="uppercase text-[80px] text-white font-black mb-6 font-['CheeseButterCream']">FAQ</div>
       <div class="divide-y-2 divide-cobots-silver-3 text-xl">
         <div class="text-center pb-10 leading-8 font-extrabold">
-          <p>Co-Bots' Extravagainza is not a normal NFT project. It's more like a</p>
-          <p>giant on-chain giveaway event where Co-Bots are the tickets!</p>
+          <p>Co-Bots' Extravagainza is not a normal NFT project. It's more like a giant on-chain giveaway event where Co-Bots are the tickets!</p>
         </div>
 
         <info-sub-section question="What is Extravagainza?">
