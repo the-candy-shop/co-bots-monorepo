@@ -12,19 +12,19 @@
     </cb-button>
 
     <div v-if="hasBots && totalSupply < 500" class="text-center">
-      <div class="uppercase text-[32px] leading-[28px] text-cobots-green font-extrabold mb-6">🚨 5 ETH BONUS CONTEST 🚨</div>
+      <div class="uppercase text-[32px] leading-[40px] text-cobots-green font-extrabold mb-6">🚨 5 ETH BONUS CONTEST 🚨</div>
       <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-0">Enter the Twitter Raid for a chance to win one of five prizes of 1 ETH!</div>
       <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-10">Learn more on <a  target="_blank" class="text-cobots-green" href="https://twitter.com/thecobots">Twitter</a>.</div>
     </div>
 
     <div v-if="hasBots && totalSupply >= 500 && totalSupply < 3000" class="text-center">
-      <div class="uppercase text-[32px] leading-[28px] text-cobots-green font-extrabold mb-6">🚨 10 ETH BONUS CONTEST 🚨</div>
+      <div class="uppercase text-[32px] leading-[40px] text-cobots-green font-extrabold mb-6">🚨 10 ETH BONUS CONTEST 🚨</div>
       <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-0">Enter the first Meme Contest for a chance to win one of five prizes of 2 ETH!</div>
       <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-10">Learn more on <a target="_blank" class="text-cobots-green" href="https://twitter.com/thecobots">Twitter</a>.</div>
     </div>
 
     <div v-if="hasBots && totalSupply >= 3000 && totalSupply < 8000" class="text-center">
-      <div class="uppercase text-[32px] leading-[28px] text-cobots-green font-extrabold mb-6">🚨 20 ETH BONUS CONTEST 🚨</div>
+      <div class="uppercase text-[32px] leading-[40px] text-cobots-green font-extrabold mb-6">🚨 20 ETH BONUS CONTEST 🚨</div>
       <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-0">Enter the second Meme Contest for a chance to win one of five prizes of 4 ETH!</div>
       <div class="text-[20px] leading-[28px] font-extrabold text-zinc-300 mb-10">Learn more on <a target="_blank" class="text-cobots-green" href="https://twitter.com/thecobots">Twitter</a>.</div>
     </div>
