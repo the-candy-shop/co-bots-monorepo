@@ -101,8 +101,9 @@ contract CoBotsV2 is
     Parameters public PARAMETERS;
     Prize[] public PRIZES;
     MysteryChallenge private MYSTERY_CHALLENGE;
-    IERC721 immutable ENS;
-    IERC721Enumerable immutable COBOTS_V1;
+    IERC721 public immutable ENS;
+    IERC721Enumerable public immutable COBOTS_V1;
+    address public immutable COBOTS_V1_ADDRESS;
 
     ////////////////////////////////////////////////////////////////////////
     ////////////////////////// Token ///////////////////////////////////////
@@ -149,6 +150,7 @@ contract CoBotsV2 is
             }
         }
         ENS = IERC721(ens);
+        COBOTS_V1_ADDRESS = cobotsV1;
         COBOTS_V1 = IERC721Enumerable(cobotsV1);
         MYSTERY_CHALLENGE = _mysteryChallenge;
     }

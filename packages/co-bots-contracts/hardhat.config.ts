@@ -65,7 +65,7 @@ const config: HardhatUserConfig = {
     },
     coBotsV1: {
       mainnet: "0x2eFa2743B863F3Bd6f624Ac0d58445bC5fB62bf6",
-      default: "0x1dffc87aAd86c95ca8bD611b2e63BB017578b77e",
+      default: "0x111de4Fa9c705B51D243504E61bE0737D2CdCaBc",
     },
     coBotsRendererV1: {
       mainnet: "0x824d304b7C17FF1E03bEA9b0f752BA9A2aff3426",
