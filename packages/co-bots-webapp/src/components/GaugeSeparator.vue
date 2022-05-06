@@ -21,7 +21,7 @@
             'h-48': xlarge,
             'bg-cobots-green border-cobots-green-3': true,
           }"
-          :style="{height:(totalSupply < percentage ? 0 : getCompletionState(parseInt(percentage) - percentageToSpace[percentage][0], parseInt(percentage) + percentageToSpace[percentage][1], totalSupply)) + '%'}"
+          :style="{height:(parseInt(totalSupply) < parseInt(percentage) ? 0 : getCompletionState(parseInt(percentage) - percentageToSpace[percentage][0], parseInt(percentage) + percentageToSpace[percentage][1], totalSupply)) + '%'}"
       >
       </div>
     </div>
