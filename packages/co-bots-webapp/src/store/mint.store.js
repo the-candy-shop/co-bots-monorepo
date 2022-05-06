@@ -119,7 +119,7 @@ export default {
       return state.winnerImages[idx] || null;
     },
     winnerIndexByFulfillmentIndex: (state) => (idx) => {
-      return state.winnerIndexes[idx] || null;
+      return state.winnerIndexes[idx] ?? null;
     },
   }
 }
