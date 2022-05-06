@@ -69,7 +69,7 @@ export default {
       );
 
       const myV1BotsWithDiscount = await Promise.all(
-        arr.filter(async (i) => {
+        v1Bots.filter(async (i) => {
           let v1BotsDiscountRedeemed = await contract.coBotsV1Redeemed(i);
           return !v1BotsDiscountRedeemed;
         })
