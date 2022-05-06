@@ -67,13 +67,24 @@ export default {
       commit('SET_FULFILLMENTS', fulfillments)
     },
     async getWinnerImageForFulfillmentIndex({ commit, state }, index) {
-      const tokenURI = await contract.tokenURI(state.fulfillments[index].winner.tokenId);
+
+      let tokenURI;
+      let winnerIndex;
+
+      if (index === 0) {
+        tokenURI = await contract.tokenURI(92);
+        winnerIndex = 92;
+      } else {
+        tokenURI = await contract.tokenURI(state.fulfillments[index].winner.tokenId);
+        winnerIndex = state.fulfillments[index].winner.tokenId;
+      }
+
       const data = JSON.parse(
         tokenURI.split("data:application/json,")[1]
       );
 
       commit("SET_WINNER_IMAGE_BY_FULFILLMENT_INDEX", { image: data.image, index });
-      commit("SET_WINNER_INDEX_BY_FULFILLMENT_INDEX", { winnerIndex: state.fulfillments[index].winner.tokenId, index });
+      commit("SET_WINNER_INDEX_BY_FULFILLMENT_INDEX", { winnerIndex: winnerIndex, index });
     },
 
     async mint({ commit, state, dispatch }, { numToMint, price, cobots }) {
