@@ -72,22 +72,27 @@ const config: HardhatUserConfig = {
       default: "0xAB23145aC706A2454cCAD3ED7c76569CAf3D3fAD",
     },
     array: {
+      mainnet: "0x5e69930621ea0B346151Cc56A57977E73E135073",
       default: "0x1FA6A2152871D5A4D1f56511110C9a353CA48339",
     },
     bytes: {
+      mainnet: "0x152a943eB7fd392891D42e8143443De44E3FF8B1",
       default: "0xB0464EBF65D8F453a9056eEFE11167411B1d1855",
     },
     integers: {
-      mainnet: "0xe5d03576716d2D66Becf01a3F3BC7B80eb05952E",
+      mainnet: "0x8C535FD2f6766869c512DDb996875Cb25c24b157",
       default: "0xFD60cDD345feB6011fDeb4Dc3d69aD2319f8508C",
     },
     rectEncoder: {
+      mainnet: "0x55A04a8466c8183013e5C8c7fB8dFFA5d28c31EF",
       default: "0xc8AD48942deb7BAa9B15665aa72656A259277eaF",
     },
     rectRenderer: {
+      mainnet: "0x319E578F903EDb9699d6824957fd9deC15159F07",
       default: "0x9D7FeA76a906A67DE351b657CD73E6bf8F04b840",
     },
     rendererCommons: {
+      mainnet: "0x88e41790a4577De919aCB7E384EEd6534d58Cdc1",
       default: "0x91F59E8d53061DD2F7C4a405984D9a4297C54A0C",
     },
   },
