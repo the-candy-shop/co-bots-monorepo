@@ -105,7 +105,7 @@ export default {
 
       this.totalMintPrice = totalMintPrice.value()
 
-      return "Mint: " + this.totalMintPrice.toFixed(2) + " eth";
+      return "Mint: " + this.totalMintPrice + " eth";
     },
   },
   watch: {
