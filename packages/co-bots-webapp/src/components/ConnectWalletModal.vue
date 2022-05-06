@@ -4,14 +4,14 @@
     @click="$emit('close')"
   >
     <div class="flex flex-col w-full h-full justify-center items-center">
-      <div class="bg-white rounded-xl p-4 flex flex-col">
-        <div class="uppercase font-black text-center mb-2 text-2xl">
+      <div class="bg-cobots-silver rounded-xl p-4 flex flex-col">
+        <div class="uppercase text-black text-center font-extrabold mb-2 text-2xl">
           Connect wallet
         </div>
         <div class="grid grid-flow-col gap-2">
           <button
             v-if="hasMetaMask"
-            class="border-2 border-zinc-300 rounded-md p-4 flex flex-col items-center"
+            class="border-2 bg-white border-zinc-300 rounded-2xl p-4 flex flex-col items-center"
             @click="connectMetaMask"
           >
             <img class="w-40" src="../images/MetamaskLogo.png" />
@@ -20,7 +20,7 @@
           </button>
 
           <button
-            class="border-2 border-zinc-300 rounded-md p-4 flex flex-col items-center"
+            class="border-2 bg-white border-zinc-300 rounded-2xl p-4 flex flex-col items-center"
             @click.stop="connectWalletConnect"
           >
             <img class="w-40" src="../images/WalletConnectLogo.png" />
