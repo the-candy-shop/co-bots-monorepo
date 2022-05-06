@@ -83,7 +83,7 @@ export default {
       try {
         const transaction = await contract.mintPublicSale(
           numToMint,
-          [],
+          cobots,
           { value: utils.parseEther(`${price}`) 
         })
         await transaction.wait()
