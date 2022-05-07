@@ -80,8 +80,9 @@ export default {
       return "Flip to red";
     },
     twitterLink() {
-      const text = "Got my ticket to @thecobots 300 ETH on-chain giveaway event 🍾"
-      
+      const text = encodeURI(`Got my ticket to @thecobots 300 ETH on-chain giveaway event 🍾
+
+${this.openseaLink}`);
       return `https://twitter.com/intent/tweet?text=${text}`
     },
     openseaLink() {

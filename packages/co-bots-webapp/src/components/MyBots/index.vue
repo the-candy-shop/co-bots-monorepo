@@ -7,6 +7,7 @@
       :disabled="connecting"
       @click="openModal"
       class="bg-zinc-300 text-black w-[368px]"
+      color="black"
     >
       {{ buttonText }}
     </cb-button>
