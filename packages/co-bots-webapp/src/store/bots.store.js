@@ -68,12 +68,13 @@ export default {
         })
       );
 
-      const myV1BotsWithDiscount = await Promise.all(
-        v1Bots.filter(async (i) => {
-          let v1BotsDiscountRedeemed = await contract.coBotsV1Redeemed(i);
+      const asyncFilter = async (arr, predicate) => Promise.all(arr.map(predicate))
+	      .then((results) => arr.filter((_v, index) => results[index]));
+
+      const myV1BotsWithDiscount = await asyncFilter(v1Bots, async (i) => {
+        let v1BotsDiscountRedeemed = await contract.coBotsV1Redeemed(i);
           return !v1BotsDiscountRedeemed;
-        })
-      );
+      })
 
       commit("SET_MY_V1_BOTS", v1Bots);
       commit("SET_MY_V1_BOTS_WITH_DISCOUNT", myV1BotsWithDiscount);
