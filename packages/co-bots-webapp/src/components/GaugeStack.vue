@@ -97,8 +97,12 @@
                     'text-gold': contest.highlight !== false,
                     'pt-[13px]': contest.winners === 1,
                     'pt-[0px]': contest.winners === 5,
+                    'line-through': contest.price === 50,
                   }"
               >{{ contest.contest }}</div>
+              <div v-if="contest.price === 50" class="font-extrabold text-[8px] leading-[8px] md:text-[10px] md:leading-[10px] text-white"
+              >SOLVED ON 2022-05-30 by meuleman.eth</div>
+
               <div class="font-['CheeseButterCream'] text-[36px] leading-[36px] mt-[8px] md:mt-[2px] md:text-[56px] md:leading-[56px] flex flex-row">
                 <div class="mr-3 text-[40px] leading-[40px] md:text-[60px] md:leading-[60px]"
                     :class="{
